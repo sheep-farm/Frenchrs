@@ -1,7 +1,7 @@
 
 # Contributing to Frenchrs
 
-First off, thank you for considering contributing to Greeners! We are an open-source project and we love to receive contributions from our community.
+First off, thank you for considering contributing to Frenchrs! We are an open-source project and we love to receive contributions from our community.
 
 ## Contribution Process
 
