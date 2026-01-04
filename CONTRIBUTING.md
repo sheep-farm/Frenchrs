@@ -1,5 +1,5 @@
 
-# Contributing to Frenchers
+# Contributing to Frenchrs
 
 First off, thank you for considering contributing to Greeners! We are an open-source project and we love to receive contributions from our community.
 
