@@ -314,6 +314,7 @@ version = "0.1.0"
 dependencies = [
  "greeners",
  "ndarray 0.17.1",
+ "ndarray-linalg",
  "statrs",
 ]
 

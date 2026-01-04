@@ -55,7 +55,11 @@ pub mod fama_french_3f;
 pub mod fama_french_5f;
 pub mod fama_french_6f;
 pub mod fama_macbeth;
+pub mod grs_test;
+pub mod hj_distance;
 pub mod ivol_tracking_multi;
+pub mod oos_performance;
+pub mod residual_correlation;
 pub mod risk_metrics;
 pub mod rolling_betas_multi;
 
@@ -67,7 +71,13 @@ pub use fama_french_3f::{FamaFrench3Factor, FamaFrench3FactorResult};
 pub use fama_french_5f::{FamaFrench5Factor, FamaFrench5FactorResult};
 pub use fama_french_6f::{FamaFrench6Factor, FamaFrench6FactorResult};
 pub use fama_macbeth::{FamaMacBeth, FamaMacBethResult};
+pub use grs_test::GRSTest;
+pub use hj_distance::HJDistance;
 pub use ivol_tracking_multi::{IVOLTrackingAsset, IVOLTrackingMulti, IVOLTrackingRow};
+pub use oos_performance::{
+    OOSPerformance, OOSPerformanceAsset, OOSPerformanceRow, OOSSummaryStats,
+};
+pub use residual_correlation::{ResidualCorrSummary, ResidualCorrelation};
 pub use risk_metrics::{IVOLAnalysis, TrackingErrorAnalysis};
 pub use rolling_betas_multi::{
     BetaStability, RollingBetasAsset, RollingBetasMulti, RollingBetasRow,
