@@ -9,6 +9,9 @@ keywords = ["finance", "capm", "asset-pricing", "econometrics", "fama-french"]
 categories = ["science", "finance"]
 repository = "https://github.com/yourusername/frenchrs"
 
+[build]
+rustflags = ["-C", "target-cpu=native"]
+
 [lib]
 name = "frenchrs"
 path = "src/lib.rs"
