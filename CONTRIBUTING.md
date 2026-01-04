@@ -1,4 +1,5 @@
-# Contributing to Greeners
+
+# Contributing to Frenchers
 
 First off, thank you for considering contributing to Greeners! We are an open-source project and we love to receive contributions from our community.
 
@@ -22,3 +23,4 @@ By submitting a Pull Request (PR) to this repository, you agree to the following
 
 ---
 If you have any questions, please open an issue before submitting your code!
+
