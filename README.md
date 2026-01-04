@@ -1,3 +1,4 @@
+
 Below is the English translation of the **Frenchrs** documentation, formatted as a Markdown file.
 
 ---
@@ -184,5 +185,3 @@ Frenchrs is optimized for maximum efficiency:
 ---
 
 **Developed with ❤️ in Rust for the quantitative finance community.**
-
-Would you like me to refine the **Rust code examples** to ensure they follow the latest idiomatic patterns, or should I help you draft the **Python (PyO3) binding** logic mentioned in the roadmap?
