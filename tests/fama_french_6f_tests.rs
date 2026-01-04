@@ -95,7 +95,7 @@ fn test_ff6_insufficient_data() {
 }
 
 #[test]
-fn test_ff6_covariance_types() {
+fn test_ff6_covariesnce_types() {
     let asset = array![
         0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
     ];

@@ -2,26 +2,26 @@ use greeners::{CovarianceType, GreenersError, InferenceType, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado do modelo APT (Arbitrage Pricing Theory)
+/// Result of the model APT (Arbitrage Pricing Theory)
 ///
-/// APT é um modelo multi-fatorial genérico:
+/// APT é um model multi-fatorial genérico:
 /// R_i - R_f = α + β₁F₁ + β₂F₂ + ... + βₙFₙ + ε
 ///
-/// Diferente dos modelos Fama-French, o APT não especifica quais fatores usar.
-/// Esta implementação permite N fatores arbitrários.
+/// Diferente of the models Fama-French, o APT not especifica which factors usar.
+/// Esta implementação permite N factors arbitrários.
 #[derive(Debug, Clone)]
 pub struct APTResult {
     /// Alpha (intercepto)
     pub alpha: f64,
 
-    /// Betas dos fatores (β₁, β₂, ..., βₙ)
+    /// Betas of the factors (β₁, β₂, ..., βₙ)
     pub betas: Array1<f64>,
 
     /// Erros padrão
     pub alpha_se: f64,
     pub betas_se: Array1<f64>,
 
-    /// Estatísticas t
+    /// Statistics t
     pub alpha_tstat: f64,
     pub betas_tstat: Array1<f64>,
 
@@ -29,19 +29,19 @@ pub struct APTResult {
     pub alpha_pvalue: f64,
     pub betas_pvalue: Array1<f64>,
 
-    /// Intervalos de confiança
+    /// Confidence intervals
     pub alpha_conf_lower: f64,
     pub alpha_conf_upper: f64,
     pub betas_conf_lower: Array1<f64>,
     pub betas_conf_upper: Array1<f64>,
 
-    /// Qualidade do ajuste
+    /// Fit whichity
     pub r_squared: f64,
     pub adj_r_squared: f64,
     pub tracking_error: f64,
     pub information_ratio: f64,
 
-    /// Dados
+    /// Data
     pub n_obs: usize,
     pub n_factors: usize,
     pub residuals: Array1<f64>,
@@ -50,7 +50,7 @@ pub struct APTResult {
     pub cov_type: CovarianceType,
     pub inference_type: InferenceType,
 
-    /// Nomes dos fatores (opcional)
+    /// Nomes of the factors (opcional)
     pub factor_names: Option<Vec<String>>,
 }
 
@@ -78,23 +78,19 @@ impl APTResult {
 impl fmt::Display for APTResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "ARBITRAGE PRICING THEORY (APT) - RESULTADOS")?;
+        writeln!(f, "ARBITRAGE PRICING THEORY (APT) - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(f, "Número de Fatores: {}", self.n_factors)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Número of Factors: {}", self.n_factors)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<20} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -151,7 +147,7 @@ impl fmt::Display for APTResult {
             self.r_squared,
             self.r_squared * 100.0
         )?;
-        writeln!(f, "R² Ajustado: {:.4}", self.adj_r_squared)?;
+        writeln!(f, "R² Adjusted: {:.4}", self.adj_r_squared)?;
         writeln!(f, "Tracking Error: {:.4}%", self.tracking_error * 100.0)?;
         writeln!(f, "Information Ratio: {:.4}", self.information_ratio)?;
         writeln!(f, "\n{}", "=".repeat(80))?;
@@ -160,18 +156,18 @@ impl fmt::Display for APTResult {
     }
 }
 
-/// Implementação do APT (Arbitrage Pricing Theory)
+/// Implementation of the APT (Arbitrage Pricing Theory)
 pub struct APT;
 
 impl APT {
-    /// Estima o modelo APT com N fatores
+    /// Estimates the model APT with N factors
     ///
     /// # Arguments
-    /// * `asset_returns` - retornos do ativo
-    /// * `factor_returns` - matriz de fatores (n_obs × n_factors)
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de covariância
-    /// * `factor_names` - nomes dos fatores (opcional)
+    /// * `asset_returns` - asset returns
+    /// * `factor_returns` - matriz of factors (n_obs × n_factors)
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - tipo of covariance
+    /// * `factor_names` - names of the factors (opcional)
     ///
     /// # Example
     /// ```
@@ -220,10 +216,10 @@ impl APT {
             )));
         }
 
-        // Retornos em excesso
+        // Returns in excess
         let asset_excess: Array1<f64> = asset_returns.mapv(|r| r - risk_free_rate);
 
-        // Matriz de design: [1, F1, F2, ..., Fn]
+        // Matriz of design: [1, F1, F2, ..., Fn]
         let mut x = Array2::<f64>::zeros((n_obs, n_factors + 1));
         x.column_mut(0).fill(1.0);
         for i in 0..n_factors {

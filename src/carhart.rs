@@ -2,170 +2,170 @@ use greeners::{CovarianceType, DataFrame, GreenersError, InferenceType, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado da estimação do modelo Carhart 4 Factor
+/// Result of the Carhart 4 Factor model estimation
 ///
-/// O modelo Carhart 4 Factor estende o Fama-French 3 Factor adicionando o fator Momentum:
+/// The Carhart 4 Factor model extends the Fama-French 3 Factor model by adding the Momentum factor:
 /// R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + β_MOM(MOM) + ε
 ///
-/// onde:
-/// - R_i: retorno do ativo
-/// - R_f: taxa livre de risco
-/// - R_m: retorno do mercado
-/// - SMB (Small Minus Big): fator de tamanho
-/// - HML (High Minus Low): fator de valor
-/// - MOM (Momentum): fator de momentum (winners - losers)
-/// - α (alpha): excesso de retorno não explicado pelos 4 fatores
-/// - β_MKT: sensibilidade ao risco de mercado
-/// - β_SMB: sensibilidade ao fator tamanho
-/// - β_HML: sensibilidade ao fator valor
-/// - β_MOM: sensibilidade ao fator momentum
+/// where:
+/// - R_i: asset return
+/// - R_f: risk-free rate
+/// - R_m: market return
+/// - SMB (Small Minus Big): size factor
+/// - HML (High Minus Low): value factor
+/// - MOM (Momentum): momentum factor (winners - losers)
+/// - α (alpha): excess return unexplained by the 4 factors
+/// - β_MKT: sensitivity to market risk
+/// - β_SMB: sensitivity to the size factor
+/// - β_HML: sensitivity to the value factor
+/// - β_MOM: sensitivity to the momentum factor
 #[derive(Debug, Clone)]
 pub struct Carhart4FactorResult {
-    /// Intercepto (α) - Jensen's alpha
+    /// Intercept (α) - Jensen's alpha
     pub alpha: f64,
 
-    /// Beta de mercado (β_MKT)
+    /// Beta of market (β_MKT)
     pub beta_market: f64,
 
-    /// Beta SMB (β_SMB) - sensibilidade ao fator tamanho
+    /// Beta SMB (β_SMB) - sensibilidade ao factor size
     pub beta_smb: f64,
 
-    /// Beta HML (β_HML) - sensibilidade ao fator valor
+    /// Beta HML (β_HML) - sensibilidade ao factor value
     pub beta_hml: f64,
 
-    /// Beta MOM (β_MOM) - sensibilidade ao fator momentum
+    /// Beta MOM (β_MOM) - sensibilidade ao factor momentum
     ///
-    /// β_MOM > 0: ativo exibe momentum positivo (segue tendências)
-    /// β_MOM < 0: ativo exibe reversão (contrarian)
-    /// β_MOM = 0: ativo é neutro ao momentum
+    /// β_MOM > 0: asset exibe momentum positivo (follows tendências)
+    /// β_MOM < 0: asset exibe reverare (contrarian)
+    /// β_MOM = 0: asset é neutro ao momentum
     pub beta_mom: f64,
 
-    /// Erro padrão do α
+    /// Standard error of the α
     pub alpha_se: f64,
 
-    /// Erro padrão do β_MKT
+    /// Standard error of the β_MKT
     pub beta_market_se: f64,
 
-    /// Erro padrão do β_SMB
+    /// Standard error of the β_SMB
     pub beta_smb_se: f64,
 
-    /// Erro padrão do β_HML
+    /// Standard error of the β_HML
     pub beta_hml_se: f64,
 
-    /// Erro padrão do β_MOM
+    /// Standard error of the β_MOM
     pub beta_mom_se: f64,
 
-    /// Estatística t para α
+    /// Statistic t for α
     pub alpha_tstat: f64,
 
-    /// Estatística t para β_MKT
+    /// Statistic t for β_MKT
     pub beta_market_tstat: f64,
 
-    /// Estatística t para β_SMB
+    /// Statistic t for β_SMB
     pub beta_smb_tstat: f64,
 
-    /// Estatística t para β_HML
+    /// Statistic t for β_HML
     pub beta_hml_tstat: f64,
 
-    /// Estatística t para β_MOM
+    /// Statistic t for β_MOM
     pub beta_mom_tstat: f64,
 
-    /// p-value para teste H0: α = 0
+    /// p-value for the test H0: α = 0
     pub alpha_pvalue: f64,
 
-    /// p-value para teste H0: β_MKT = 0
+    /// p-value for the test H0: β_MKT = 0
     pub beta_market_pvalue: f64,
 
-    /// p-value para teste H0: β_SMB = 0
+    /// p-value for the test H0: β_SMB = 0
     pub beta_smb_pvalue: f64,
 
-    /// p-value para teste H0: β_HML = 0
+    /// p-value for the test H0: β_HML = 0
     pub beta_hml_pvalue: f64,
 
-    /// p-value para teste H0: β_MOM = 0
+    /// p-value for the test H0: β_MOM = 0
     pub beta_mom_pvalue: f64,
 
-    /// Intervalo de confiança inferior para α (95%)
+    /// Confidence interval lower for α (95%)
     pub alpha_conf_lower: f64,
 
-    /// Intervalo de confiança superior para α (95%)
+    /// Confidence interval upper for α (95%)
     pub alpha_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_MKT (95%)
+    /// Confidence interval lower for β_MKT (95%)
     pub beta_market_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_MKT (95%)
+    /// Confidence interval upper for β_MKT (95%)
     pub beta_market_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_SMB (95%)
+    /// Confidence interval lower for β_SMB (95%)
     pub beta_smb_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_SMB (95%)
+    /// Confidence interval upper for β_SMB (95%)
     pub beta_smb_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_HML (95%)
+    /// Confidence interval lower for β_HML (95%)
     pub beta_hml_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_HML (95%)
+    /// Confidence interval upper for β_HML (95%)
     pub beta_hml_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_MOM (95%)
+    /// Confidence interval lower for β_MOM (95%)
     pub beta_mom_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_MOM (95%)
+    /// Confidence interval upper for β_MOM (95%)
     pub beta_mom_conf_upper: f64,
 
-    /// R² - proporção da variância explicada pelos 4 fatores
+    /// R² - proportion of the variance explained by the 4 factors
     pub r_squared: f64,
 
-    /// R² ajustado por graus de liberdade
+    /// R² adjusted for degrees of freedom
     pub adj_r_squared: f64,
 
-    /// Tracking Error (volatilidade dos resíduos)
+    /// Tracking Error (residual volatility)
     pub tracking_error: f64,
 
     /// Information Ratio (α / tracking_error)
     pub information_ratio: f64,
 
-    /// Número de observações
+    /// Number of observations
     pub n_obs: usize,
 
-    /// Resíduos (ε) - risco idiossincrático
+    /// Residuals (ε) - idiosyncratic risk
     pub residuals: Array1<f64>,
 
-    /// Valores ajustados
+    /// Fitted values
     pub fitted_values: Array1<f64>,
 
-    /// Taxa livre de risco utilizada
+    /// Risk-free rate used
     pub risk_free_rate: f64,
 
-    /// Tipo de covariância utilizado
+    /// Covariance type used
     pub cov_type: CovarianceType,
 
-    /// Tipo de inferência (t ou normal)
+    /// Inference type (t ou normal)
     pub inference_type: InferenceType,
 
-    /// Retorno médio do ativo
+    /// Average asset return
     pub mean_asset_return: f64,
 
-    /// Retorno médio do mercado
+    /// Average market return
     pub mean_market_return: f64,
 
-    /// Retorno médio do fator SMB
+    /// Return médio of the factor SMB
     pub mean_smb: f64,
 
-    /// Retorno médio do fator HML
+    /// Return médio of the factor HML
     pub mean_hml: f64,
 
-    /// Retorno médio do fator MOM
+    /// Return médio of the factor MOM
     pub mean_mom: f64,
 
-    /// Volatilidade do ativo (desvio padrão)
+    /// Asset volatility (standard deviation)
     pub asset_volatility: f64,
 }
 
 impl Carhart4FactorResult {
-    /// Testa se o ativo está significativamente superando o modelo Carhart
+    /// Tests if the asset is significantly outperforming the model Carhart
     pub fn is_significantly_outperforming(&self, significance_level: f64) -> bool {
         if self.alpha > 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
@@ -174,7 +174,7 @@ impl Carhart4FactorResult {
         }
     }
 
-    /// Testa se o ativo está significativamente ficando atrás do modelo Carhart
+    /// Tests if the asset is significantly underperforming of the model Carhart
     pub fn is_significantly_underperforming(&self, significance_level: f64) -> bool {
         if self.alpha < 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
@@ -183,84 +183,84 @@ impl Carhart4FactorResult {
         }
     }
 
-    /// Testa se β_SMB é significativamente diferente de zero
+    /// Tests if β_SMB é significantly diferente of zero
     pub fn is_smb_significant(&self, significance_level: f64) -> bool {
         self.beta_smb_pvalue < significance_level
     }
 
-    /// Testa se β_HML é significativamente diferente de zero
+    /// Tests if β_HML é significantly diferente of zero
     pub fn is_hml_significant(&self, significance_level: f64) -> bool {
         self.beta_hml_pvalue < significance_level
     }
 
-    /// Testa se β_MOM é significativamente diferente de zero
+    /// Tests if β_MOM é significantly diferente of zero
     pub fn is_mom_significant(&self, significance_level: f64) -> bool {
         self.beta_mom_pvalue < significance_level
     }
 
-    /// Classifica o ativo quanto ao fator tamanho (SMB)
+    /// Classifies the asset with respect to size factor (SMB)
     pub fn size_classification(&self) -> &str {
         if !self.is_smb_significant(0.05) {
-            "Neutro (SMB não significativo)"
+            "Neutral (SMB not significant)"
         } else if self.beta_smb > 0.5 {
-            "Fortemente Small Cap"
+            "Strongly Small Cap"
         } else if self.beta_smb > 0.0 {
             "Small Cap"
         } else if self.beta_smb > -0.5 {
             "Large Cap"
         } else {
-            "Fortemente Large Cap"
+            "Strongly Large Cap"
         }
     }
 
-    /// Classifica o ativo quanto ao fator valor (HML)
+    /// Classifies the asset with respect to value factor (HML)
     pub fn value_classification(&self) -> &str {
         if !self.is_hml_significant(0.05) {
-            "Neutro (HML não significativo)"
+            "Neutral (HML not significant)"
         } else if self.beta_hml > 0.5 {
-            "Fortemente Value"
+            "Strongly Value"
         } else if self.beta_hml > 0.0 {
             "Value"
         } else if self.beta_hml > -0.5 {
             "Growth"
         } else {
-            "Fortemente Growth"
+            "Strongly Growth"
         }
     }
 
-    /// Classifica o ativo quanto ao fator momentum (MOM)
+    /// Classifies the asset with respect to momentum factor (MOM)
     pub fn momentum_classification(&self) -> &str {
         if !self.is_mom_significant(0.05) {
-            "Neutro (Momentum não significativo)"
+            "Neutral (Momentum not significant)"
         } else if self.beta_mom > 0.5 {
-            "Fortemente Momentum (Winner)"
+            "Strong Momentum (Winner)"
         } else if self.beta_mom > 0.0 {
             "Momentum (Trend Following)"
         } else if self.beta_mom > -0.5 {
-            "Reversão (Contrarian)"
+            "Reversal (Contrarian)"
         } else {
-            "Fortemente Reversão (Strong Contrarian)"
+            "Strong Reversal (Strong Contrarian)"
         }
     }
 
-    /// Classifica o desempenho do ativo quanto ao alpha
+    /// Classifies the asset's performance based on alpha
     pub fn performance_classification(&self) -> &str {
         let significance = 0.05;
 
         if self.is_significantly_outperforming(significance) {
-            "Outperformance Significativa"
+            "Significant Outperformance"
         } else if self.is_significantly_underperforming(significance) {
-            "Underperformance Significativa"
+            "Significant Underperformance"
         } else if self.alpha.abs() < 0.0001 {
-            "Desempenho Neutro"
+            "Neutral Performance"
         } else if self.alpha > 0.0 {
-            "Outperformance Não Significativa"
+            "Non-Significant Outperformance"
         } else {
-            "Underperformance Não Significativa"
+            "Non-Significant Underperformance"
         }
     }
 
-    /// Calcula o retorno esperado dado retornos esperados dos fatores
+    /// Calculates the expected return given expected factor returns
     pub fn expected_return(
         &self,
         expected_market_return: f64,
@@ -275,7 +275,7 @@ impl Carhart4FactorResult {
             + self.beta_mom * expected_mom
     }
 
-    /// Calcula predições para novos dados dos fatores
+    /// Calculates predições for novthe data of the factors
     pub fn predict(
         &self,
         market_excess_returns: &Array1<f64>,
@@ -290,7 +290,7 @@ impl Carhart4FactorResult {
             + self.beta_mom * mom_returns
     }
 
-    /// Calcula a contribuição de cada fator para o retorno esperado
+    /// Calculates a contribution of each factor for the return esperado
     pub fn factor_contributions(&self) -> (f64, f64, f64, f64) {
         let market_contrib = self.beta_market * (self.mean_market_return - self.risk_free_rate);
         let smb_contrib = self.beta_smb * self.mean_smb;
@@ -304,29 +304,25 @@ impl Carhart4FactorResult {
 impl fmt::Display for Carhart4FactorResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "CARHART 4 FACTOR MODEL - RESULTADOS")?;
+        writeln!(f, "CARHART 4 FACTOR MODEL - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
         writeln!(
             f,
-            "\nMODELO: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + β_MOM(MOM) + ε"
+            "\nMODEL: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + β_MOM(MOM) + ε"
         )?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
-        writeln!(f, "Tipo de Covariância: {:?}", self.cov_type)?;
-        writeln!(f, "Tipo de Inferência: {:?}", self.inference_type)?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
+        writeln!(f, "Covariesnce Type: {:?}", self.cov_type)?;
+        writeln!(f, "Inference Type: {:?}", self.inference_type)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<20} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -390,10 +386,10 @@ impl fmt::Display for Carhart4FactorResult {
         }
 
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Significância: *** p<0.001, ** p<0.01, * p<0.05")?;
+        writeln!(f, "Significance: *** p<0.001, ** p<0.01, * p<0.05")?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERVALOS DE CONFIANÇA (95%)")?;
+        writeln!(f, "CONFIDENCE INTERVALS (95%)")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
@@ -422,57 +418,57 @@ impl fmt::Display for Carhart4FactorResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "QUALIDADE DO AJUSTE")?;
+        writeln!(f, "FIT QUALITY")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "R²:                  {:>12.4} ({:.2}% da variância explicada)",
+            "R²:                  {:>12.4} ({:.2}% of the variesnce explieach)",
             self.r_squared,
             self.r_squared * 100.0
         )?;
-        writeln!(f, "R² Ajustado:         {:>12.4}", self.adj_r_squared)?;
+        writeln!(f, "R² Adjusted:         {:>12.4}", self.adj_r_squared)?;
         writeln!(
             f,
-            "Tracking Error:      {:>12.4}% (volatilidade dos resíduos)",
+            "Tracking Error:      {:>12.4}% (residual volatility)",
             self.tracking_error * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ESTATÍSTICAS DOS FATORES")?;
+        writeln!(f, "FACTOR STATISTICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Retorno Médio Ativo:     {:>12.4}%",
+            "Return Médithe asset:     {:>12.4}%",
             self.mean_asset_return * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio Mercado:   {:>12.4}%",
+            "Return Médithe market:   {:>12.4}%",
             self.mean_market_return * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio SMB:       {:>12.4}%",
+            "Return Médio SMB:       {:>12.4}%",
             self.mean_smb * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio HML:       {:>12.4}%",
+            "Return Médio HML:       {:>12.4}%",
             self.mean_hml * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio MOM:       {:>12.4}%",
+            "Return Médio MOM:       {:>12.4}%",
             self.mean_mom * 100.0
         )?;
         writeln!(
             f,
-            "Volatilidade Ativo:      {:>12.4}%",
+            "Volatility Asset:      {:>12.4}%",
             self.asset_volatility * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CONTRIBUIÇÃO DOS FATORES PARA O RETORNO")?;
+        writeln!(f, "FACTOR CONTRIBUTIONS PARA O RETORNO")?;
         writeln!(f, "{}", "-".repeat(80))?;
 
         let (market_contrib, smb_contrib, hml_contrib, mom_contrib) = self.factor_contributions();
@@ -480,7 +476,7 @@ impl fmt::Display for Carhart4FactorResult {
 
         writeln!(
             f,
-            "Mercado (β_MKT × MRP):   {:>12.4}% ({:>5.1}%)",
+            "Market (β_MKT × MRP):   {:>12.4}% ({:>5.1}%)",
             market_contrib * 100.0,
             if total_contrib != 0.0 {
                 (market_contrib / total_contrib) * 100.0
@@ -521,13 +517,13 @@ impl fmt::Display for Carhart4FactorResult {
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Total Explicado:         {:>12.4}%",
+            "Total Explained:         {:>12.4}%",
             total_contrib * 100.0
         )?;
-        writeln!(f, "Alpha (não explicado):   {:>12.4}%", self.alpha * 100.0)?;
+        writeln!(f, "Alpha (unexplained):   {:>12.4}%", self.alpha * 100.0)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "MÉTRICAS DE DESEMPENHO")?;
+        writeln!(f, "PERFORMANCE METRICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
@@ -536,12 +532,12 @@ impl fmt::Display for Carhart4FactorResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CLASSIFICAÇÕES")?;
+        writeln!(f, "CLASSIFICATIONS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Tamanho (SMB):           {}", self.size_classification())?;
+        writeln!(f, "Size (SMB):           {}", self.size_classification())?;
         writeln!(
             f,
-            "Valor (HML):             {}",
+            "Value (HML):             {}",
             self.value_classification()
         )?;
         writeln!(
@@ -551,28 +547,28 @@ impl fmt::Display for Carhart4FactorResult {
         )?;
         writeln!(
             f,
-            "Desempenho (Alpha):      {}",
+            "Performance (Alpha):      {}",
             self.performance_classification()
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERPRETAÇÃO")?;
+        writeln!(f, "INTERPRETATION")?;
         writeln!(f, "{}", "-".repeat(80))?;
 
         if self.is_significantly_outperforming(0.05) {
             writeln!(
                 f,
-                "✓ O ativo está SUPERANDO o modelo Carhart significativamente (α > 0, p < 0.05)"
+                "✓ the asset is OUTPERFORMING the model Carhart significantly (α > 0, p < 0.05)"
             )?;
         } else if self.is_significantly_underperforming(0.05) {
             writeln!(
                 f,
-                "✗ O ativo está FICANDO ATRÁS do modelo Carhart significativamente (α < 0, p < 0.05)"
+                "✗ the asset is UNDERPERFORMING of the model Carhart significantly (α < 0, p < 0.05)"
             )?;
         } else {
             writeln!(
                 f,
-                "○ Não há evidência significativa de outperformance ou underperformance"
+                "○ Não significant evidence of outperformance ou underperformance"
             )?;
         }
 
@@ -591,7 +587,7 @@ impl fmt::Display for Carhart4FactorResult {
                 )?;
             }
         } else {
-            writeln!(f, "○ Sem exposição significativa ao fator tamanho (SMB)")?;
+            writeln!(f, "○ Sem exposição significativa ao factor size (SMB)")?;
         }
 
         if self.is_hml_significant(0.05) {
@@ -609,7 +605,7 @@ impl fmt::Display for Carhart4FactorResult {
                 )?;
             }
         } else {
-            writeln!(f, "○ Sem exposição significativa ao fator valor (HML)")?;
+            writeln!(f, "○ Sem exposição significativa ao factor value (HML)")?;
         }
 
         if self.is_mom_significant(0.05) {
@@ -619,17 +615,17 @@ impl fmt::Display for Carhart4FactorResult {
                     "✓ Exposição significativa a MOMENTUM (β_MOM = {:.4}, p < 0.05)",
                     self.beta_mom
                 )?;
-                writeln!(f, "  → Estratégia segue tendências (trend following)")?;
+                writeln!(f, "  → Estrup togia follows tendências (trend following)")?;
             } else {
                 writeln!(
                     f,
                     "✓ Exposição significativa a REVERSÃO (β_MOM = {:.4}, p < 0.05)",
                     self.beta_mom
                 )?;
-                writeln!(f, "  → Estratégia contrarian (compra perdedores)")?;
+                writeln!(f, "  → Estrup togia contrarian (compra perdedores)")?;
             }
         } else {
-            writeln!(f, "○ Sem exposição significativa ao fator momentum (MOM)")?;
+            writeln!(f, "○ Sem exposição significativa ao factor momentum (MOM)")?;
         }
 
         writeln!(f, "\n{}", "=".repeat(80))?;
@@ -638,20 +634,20 @@ impl fmt::Display for Carhart4FactorResult {
     }
 }
 
-/// Implementação do modelo Carhart 4 Factor
+/// Implementation of the model Carhart 4 Factor
 pub struct Carhart4Factor;
 
 impl Carhart4Factor {
-    /// Estima o modelo Carhart 4 Factor usando arrays
+    /// Estimates the model Carhart 4 Factor using arrays
     ///
     /// # Arguments
-    /// * `asset_returns` - retornos do ativo
-    /// * `market_returns` - retornos do mercado
-    /// * `smb_returns` - retornos do fator SMB (Small Minus Big)
-    /// * `hml_returns` - retornos do fator HML (High Minus Low)
-    /// * `mom_returns` - retornos do fator MOM (Momentum)
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de matriz de covariância
+    /// * `asset_returns` - asset returns
+    /// * `market_returns` - market returns
+    /// * `smb_returns` - returns of the factor SMB (Small Minus Big)
+    /// * `hml_returns` - returns of the factor HML (High Minus Low)
+    /// * `mom_returns` - returns of the factor MOM (Momentum)
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - covariance matrix type
     ///
     /// # Example
     /// ```
@@ -685,7 +681,7 @@ impl Carhart4Factor {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<Carhart4FactorResult, GreenersError> {
-        // Validação
+        // Validation
         let n = asset_returns.len();
         if market_returns.len() != n
             || smb_returns.len() != n
@@ -704,22 +700,22 @@ impl Carhart4Factor {
             )));
         }
 
-        // Calcular retornos em excesso
+        // Calculate returns in excess
         let asset_excess: Array1<f64> = asset_returns.mapv(|r| r - risk_free_rate);
         let market_excess: Array1<f64> = market_returns.mapv(|r| r - risk_free_rate);
 
-        // Preparar matriz de design: X = [1, market_excess, SMB, HML, MOM]
+        // Prepare design matrix: X = [1, market_excess, SMB, HML, MOM]
         let mut x_matrix = Array2::<f64>::zeros((n, 5));
-        x_matrix.column_mut(0).fill(1.0); // Intercepto
+        x_matrix.column_mut(0).fill(1.0); // Intercept
         x_matrix.column_mut(1).assign(&market_excess);
         x_matrix.column_mut(2).assign(smb_returns);
         x_matrix.column_mut(3).assign(hml_returns);
         x_matrix.column_mut(4).assign(mom_returns);
 
-        // Estimar via OLS
+        // Estimate via OLS
         let ols_result = OLS::fit(&asset_excess, &x_matrix, cov_type.clone())?;
 
-        // Extrair parâmetros
+        // Extract parameters
         let alpha = ols_result.params[0];
         let beta_market = ols_result.params[1];
         let beta_smb = ols_result.params[2];
@@ -744,7 +740,7 @@ impl Carhart4Factor {
         let beta_hml_pvalue = ols_result.p_values[3];
         let beta_mom_pvalue = ols_result.p_values[4];
 
-        // Intervalos de confiança
+        // Confidence intervals
         let alpha_conf_lower = ols_result.conf_lower[0];
         let alpha_conf_upper = ols_result.conf_upper[0];
         let beta_market_conf_lower = ols_result.conf_lower[1];
@@ -756,15 +752,15 @@ impl Carhart4Factor {
         let beta_mom_conf_lower = ols_result.conf_lower[4];
         let beta_mom_conf_upper = ols_result.conf_upper[4];
 
-        // Qualidade do ajuste
+        // Fit whichity
         let r_squared = ols_result.r_squared;
         let adj_r_squared = ols_result.adj_r_squared;
 
-        // Valores ajustados e resíduos
+        // Fitted values and residuals
         let fitted_values = ols_result.fitted_values(&x_matrix);
         let residuals = ols_result.residuals(&asset_excess, &x_matrix);
 
-        // Estatísticas descritivas
+        // Descriptive statistics
         let mean_asset_return = asset_returns.mean().unwrap_or(0.0);
         let mean_market_return = market_returns.mean().unwrap_or(0.0);
         let mean_smb = smb_returns.mean().unwrap_or(0.0);
@@ -832,7 +828,7 @@ impl Carhart4Factor {
         })
     }
 
-    /// Estima o modelo Carhart 4 Factor a partir de um DataFrame
+    /// Estimates the model Carhart 4 Factor from a DataFrame
     ///
     /// # Example
     /// ```
@@ -859,6 +855,7 @@ impl Carhart4Factor {
     ///     CovarianceType::HC3,
     /// ).unwrap();
     /// ```
+    #[allow(clippy::too_many_arguments)]
     pub fn from_dataframe(
         df: &DataFrame,
         asset_col: &str,
@@ -869,14 +866,14 @@ impl Carhart4Factor {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<Carhart4FactorResult, GreenersError> {
-        // Extrair colunas
+        // Extract columns
         let asset_returns = df.get(asset_col)?;
         let market_returns = df.get(market_col)?;
         let smb_returns = df.get(smb_col)?;
         let hml_returns = df.get(hml_col)?;
         let mom_returns = df.get(mom_col)?;
 
-        // Estimar modelo
+        // Estimate model
         Self::fit(
             asset_returns,
             market_returns,

@@ -4,7 +4,7 @@ use ndarray::{Array2, array};
 
 #[test]
 fn test_ivol_tracking_multi_basic() {
-    // 12 observações, 2 ativos
+    // 12 obbevations, 2 assets
     let returns_excess = Array2::from_shape_vec(
         (12, 2),
         vec![
@@ -14,7 +14,7 @@ fn test_ivol_tracking_multi_basic() {
     )
     .unwrap();
 
-    // 12 observações, 1 fator
+    // 12 obbevations, 1 factor
     let factors = Array2::from_shape_vec(
         (12, 1),
         vec![
@@ -73,7 +73,7 @@ fn test_ivol_tracking_multi_with_benchmark() {
 
     assert_eq!(result.results.len(), 2);
 
-    // Verificar que tracking error foi calculado
+    // Verificar que tracking error was calculado
     let asset1 = result.get_asset("Asset1").unwrap();
     assert!(asset1.tracking_error_monthly.is_some());
     assert!(asset1.tracking_error_annual.is_some());
@@ -128,7 +128,7 @@ fn test_ivol_tracking_multi_asset_names() {
 
 #[test]
 fn test_ivol_tracking_multi_statistics() {
-    // 24 observations, 2 assets - data in row-major order
+    // 24 obbevations, 2 assets - data in row-major order
     #[rustfmt::skip]
     let returns_excess = Array2::from_shape_vec(
         (24, 2),
@@ -213,7 +213,7 @@ fn test_ivol_tracking_multi_statistics() {
     assert!(asset1.ivol_annual > 0.0);
     assert!(asset1.r_squared >= 0.0 && asset1.r_squared <= 1.0);
 
-    // IVOL anualizado deve ser maior que IVOL mensal
+    // IVOL annualized should be greater que IVOL monthly
     assert!(asset1.ivol_annual > asset1.ivol_monthly);
 }
 
@@ -247,9 +247,9 @@ fn test_ivol_tracking_multi_to_table() {
     .unwrap();
 
     let table = result.to_table();
-    assert_eq!(table.len(), 2); // 2 ativos
+    assert_eq!(table.len(), 2); // 2 assets
 
-    // Verificar estrutura das linhas
+    // Verificar estrutura of the linhas
     for row in &table {
         assert!(!row.asset.is_empty());
         assert!(row.nobs > 0);
@@ -296,7 +296,7 @@ fn test_ivol_tracking_multi_csv_export() {
     assert!(csv.contains("ivol_annual"));
     assert!(csv.contains("nobs"));
 
-    // Verificar dados
+    // Verificar data
     assert!(csv.contains("Asset1"));
     assert!(csv.contains("Asset2"));
 }
@@ -307,7 +307,7 @@ fn test_ivol_tracking_multi_daily_data() {
     let n_days = 252;
     let n_assets = 2;
 
-    // Gerar retornos diários
+    // Gerar returns diários
     let mut returns_vec = Vec::with_capacity(n_days * n_assets);
     for i in 0..n_days {
         returns_vec.push(0.001 * (i as f64 % 10.0 - 5.0) / 5.0); // Asset1
@@ -316,7 +316,7 @@ fn test_ivol_tracking_multi_daily_data() {
 
     let returns_excess = Array2::from_shape_vec((n_days, n_assets), returns_vec).unwrap();
 
-    // Gerar fator
+    // Gerar factor
     let mut factor_vec = Vec::with_capacity(n_days);
     for i in 0..n_days {
         factor_vec.push(0.0008 * (i as f64 % 12.0 - 6.0) / 6.0);
@@ -352,7 +352,7 @@ fn test_ivol_tracking_multi_shape_mismatch() {
     )
     .unwrap();
 
-    // Fatores com número diferente de observações
+    // Factors with número diferente of obbevations
     let factors = Array2::from_shape_vec(
         (10, 1),
         vec![
@@ -392,7 +392,7 @@ fn test_ivol_tracking_multi_benchmark_shape_mismatch() {
     )
     .unwrap();
 
-    // Benchmark com número diferente de observações
+    // Benchmark with número diferente of obbevations
     let benchmark = array![0.009, 0.016, -0.004, 0.024, 0.013];
 
     let result = IVOLTrackingMulti::fit(
@@ -409,7 +409,7 @@ fn test_ivol_tracking_multi_benchmark_shape_mismatch() {
 
 #[test]
 fn test_ivol_tracking_multi_three_factors() {
-    // 24 observations, 2 assets - data in row-major order
+    // 24 obbevations, 2 assets - data in row-major order
     #[rustfmt::skip]
     let returns_excess = Array2::from_shape_vec(
         (24, 2),
@@ -443,7 +443,7 @@ fn test_ivol_tracking_multi_three_factors() {
     )
     .unwrap();
 
-    // 3 fatores: Market, SMB, HML - 24 observations, 3 factors
+    // 3 factors: Market, SMB, HML - 24 obbevations, 3 factors
     #[rustfmt::skip]
     let factors = Array2::from_shape_vec(
         (24, 3),
@@ -523,7 +523,7 @@ fn test_ivol_tracking_multi_annualization() {
 
     let asset1 = result.get_asset("Asset1").unwrap();
 
-    // IVOL anualizado deve ser aproximadamente IVOL mensal * sqrt(12)
+    // IVOL annualized should be aproximadamente IVOL monthly * sqrt(12)
     let ratio = asset1.ivol_annual / asset1.ivol_monthly;
     assert!((ratio - 12.0_f64.sqrt()).abs() < 0.01);
 }
@@ -558,7 +558,7 @@ fn test_ivol_tracking_multi_mean_excess_annual() {
 
     let asset1 = result.get_asset("Asset1").unwrap();
 
-    // Mean excess annual deve ser aproximadamente mean mensal * 12
+    // Mean excess annual should be aproximadamente mean monthly * 12
     let mean_monthly = returns_excess.column(0).mean().unwrap();
     let expected_annual = mean_monthly * 12.0;
 
@@ -600,7 +600,7 @@ fn test_ivol_tracking_multi_csv_with_benchmark() {
 
     let csv = result.to_csv_string();
 
-    // Deve conter colunas de tracking error
+    // Deve conter columns of tracking error
     assert!(csv.contains("tracking_error_monthly"));
     assert!(csv.contains("tracking_error_annual"));
 }

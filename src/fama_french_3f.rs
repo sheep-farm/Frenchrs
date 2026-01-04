@@ -2,160 +2,160 @@ use greeners::{CovarianceType, DataFrame, GreenersError, InferenceType, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado da estimação do modelo Fama-French 3 Factor
+/// Result of the Fama-French 3 Factor model estimation
 ///
-/// O modelo Fama-French 3 Factor estende o CAPM adicionando dois fatores:
+/// The Fama-French 3 Factor model extends the CAPM by adding two factors:
 /// R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + ε
 ///
-/// onde:
-/// - R_i: retorno do ativo
-/// - R_f: taxa livre de risco
-/// - R_m: retorno do mercado
-/// - SMB (Small Minus Big): fator de tamanho (small caps - large caps)
-/// - HML (High Minus Low): fator de valor (value stocks - growth stocks)
-/// - α (alpha): excesso de retorno não explicado pelos 3 fatores
-/// - β_MKT: sensibilidade ao risco de mercado
-/// - β_SMB: sensibilidade ao fator tamanho
-/// - β_HML: sensibilidade ao fator valor
+/// where:
+/// - R_i: asset return
+/// - R_f: risk-free rate
+/// - R_m: market return
+/// - SMB (Small Minus Big): size factor (small caps - large caps)
+/// - HML (High Minus Low): value factor (value stocks - growth stocks)
+/// - α (alpha): excess return unexplained by the 3 factors
+/// - β_MKT: sensitivity to market risk
+/// - β_SMB: sensitivity to the size factor
+/// - β_HML: sensitivity to the value factor
 #[derive(Debug, Clone)]
 pub struct FamaFrench3FactorResult {
-    /// Intercepto (α) - Jensen's alpha
+    /// Intercept (α) - Jensen's alpha
     ///
-    /// Representa o excesso de retorno não explicado pelos 3 fatores.
-    /// α > 0: ativo supera o modelo (skill do gestor)
-    /// α < 0: ativo fica atrás do modelo
-    /// α = 0: retorno consistente com o modelo FF3
+    /// Represents the excess return unexplained by the 3 factors.
+    /// α > 0: asset outperforms the model (manager skill)
+    /// α < 0: asset underperforms the model
+    /// α = 0: return consistent with the FF3 model
     pub alpha: f64,
 
-    /// Beta de mercado (β_MKT) - sensibilidade ao risco de mercado
+    /// Beta of market (β_MKT) - sensitivity to market risk
     ///
-    /// Equivalente ao beta do CAPM, mas controlando por SMB e HML.
+    /// Equivalent to the CAPM beta, but controlling for SMB and HML.
     pub beta_market: f64,
 
-    /// Beta SMB (β_SMB) - sensibilidade ao fator tamanho
+    /// Beta SMB (β_SMB) - sensitivity to the size factor
     ///
-    /// β_SMB > 0: ativo se comporta como small caps (menor capitalização)
-    /// β_SMB < 0: ativo se comporta como large caps (maior capitalização)
-    /// β_SMB = 0: ativo é neutro ao fator tamanho
+    /// β_SMB > 0: asset behaves like small caps (smaller capitalization)
+    /// β_SMB < 0: asset behaves like large caps (larger capitalization)
+    /// β_SMB = 0: asset is neutral to the size factor
     pub beta_smb: f64,
 
-    /// Beta HML (β_HML) - sensibilidade ao fator valor
+    /// Beta HML (β_HML) - sensitivity to the value factor
     ///
-    /// β_HML > 0: ativo se comporta como value stocks (valor)
-    /// β_HML < 0: ativo se comporta como growth stocks (crescimento)
-    /// β_HML = 0: ativo é neutro ao fator valor
+    /// β_HML > 0: asset behaves like value stocks
+    /// β_HML < 0: asset behaves like growth stocks
+    /// β_HML = 0: asset is neutral to the value factor
     pub beta_hml: f64,
 
-    /// Erro padrão do α
+    /// Standard error of the α
     pub alpha_se: f64,
 
-    /// Erro padrão do β_MKT
+    /// Standard error of the β_MKT
     pub beta_market_se: f64,
 
-    /// Erro padrão do β_SMB
+    /// Standard error of the β_SMB
     pub beta_smb_se: f64,
 
-    /// Erro padrão do β_HML
+    /// Standard error of the β_HML
     pub beta_hml_se: f64,
 
-    /// Estatística t para α
+    /// Statistic t for α
     pub alpha_tstat: f64,
 
-    /// Estatística t para β_MKT
+    /// Statistic t for β_MKT
     pub beta_market_tstat: f64,
 
-    /// Estatística t para β_SMB
+    /// Statistic t for β_SMB
     pub beta_smb_tstat: f64,
 
-    /// Estatística t para β_HML
+    /// Statistic t for β_HML
     pub beta_hml_tstat: f64,
 
-    /// p-value para teste H0: α = 0
+    /// p-value for the test H0: α = 0
     pub alpha_pvalue: f64,
 
-    /// p-value para teste H0: β_MKT = 0
+    /// p-value for the test H0: β_MKT = 0
     pub beta_market_pvalue: f64,
 
-    /// p-value para teste H0: β_SMB = 0
+    /// p-value for the test H0: β_SMB = 0
     pub beta_smb_pvalue: f64,
 
-    /// p-value para teste H0: β_HML = 0
+    /// p-value for the test H0: β_HML = 0
     pub beta_hml_pvalue: f64,
 
-    /// Intervalo de confiança inferior para α (95%)
+    /// Confidence interval lower for α (95%)
     pub alpha_conf_lower: f64,
 
-    /// Intervalo de confiança superior para α (95%)
+    /// Confidence interval upper for α (95%)
     pub alpha_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_MKT (95%)
+    /// Confidence interval lower for β_MKT (95%)
     pub beta_market_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_MKT (95%)
+    /// Confidence interval upper for β_MKT (95%)
     pub beta_market_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_SMB (95%)
+    /// Confidence interval lower for β_SMB (95%)
     pub beta_smb_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_SMB (95%)
+    /// Confidence interval upper for β_SMB (95%)
     pub beta_smb_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β_HML (95%)
+    /// Confidence interval lower for β_HML (95%)
     pub beta_hml_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β_HML (95%)
+    /// Confidence interval upper for β_HML (95%)
     pub beta_hml_conf_upper: f64,
 
-    /// R² - proporção da variância explicada pelos 3 fatores
+    /// R² - proportion of the variance explained by the 3 factors
     pub r_squared: f64,
 
-    /// R² ajustado por graus de liberdade
+    /// R² adjusted for degrees of freedom
     pub adj_r_squared: f64,
 
-    /// Tracking Error (volatilidade dos resíduos)
+    /// Tracking Error (residual volatility)
     pub tracking_error: f64,
 
     /// Information Ratio (α / tracking_error)
     pub information_ratio: f64,
 
-    /// Número de observações
+    /// Number of observations
     pub n_obs: usize,
 
-    /// Resíduos (ε) - risco idiossincrático
+    /// Residuals (ε) - idiosyncratic risk
     pub residuals: Array1<f64>,
 
-    /// Valores ajustados
+    /// Fitted values
     pub fitted_values: Array1<f64>,
 
-    /// Taxa livre de risco utilizada
+    /// Risk-free rate used
     pub risk_free_rate: f64,
 
-    /// Tipo de covariância utilizado
+    /// Covariance type used
     pub cov_type: CovarianceType,
 
-    /// Tipo de inferência (t ou normal)
+    /// Inference type (t ou normal)
     pub inference_type: InferenceType,
 
-    /// Retorno médio do ativo
+    /// Average asset return
     pub mean_asset_return: f64,
 
-    /// Retorno médio do mercado
+    /// Average market return
     pub mean_market_return: f64,
 
-    /// Retorno médio do fator SMB
+    /// Return médio of the factor SMB
     pub mean_smb: f64,
 
-    /// Retorno médio do fator HML
+    /// Return médio of the factor HML
     pub mean_hml: f64,
 
-    /// Volatilidade do ativo (desvio padrão)
+    /// Asset volatility (standard deviation)
     pub asset_volatility: f64,
 }
 
 impl FamaFrench3FactorResult {
-    /// Testa se o ativo está significativamente superando o modelo FF3
+    /// Tests if the asset is significantly outperforming the model FF3
     ///
-    /// H0: α ≤ 0 vs H1: α > 0 (teste unilateral)
+    /// H0: α ≤ 0 vs H1: α > 0 (test unilateral)
     pub fn is_significantly_outperforming(&self, significance_level: f64) -> bool {
         if self.alpha > 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
@@ -164,9 +164,9 @@ impl FamaFrench3FactorResult {
         }
     }
 
-    /// Testa se o ativo está significativamente ficando atrás do modelo FF3
+    /// Tests if the asset is significantly underperforming of the model FF3
     ///
-    /// H0: α ≥ 0 vs H1: α < 0 (teste unilateral)
+    /// H0: α ≥ 0 vs H1: α < 0 (test unilateral)
     pub fn is_significantly_underperforming(&self, significance_level: f64) -> bool {
         if self.alpha < 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
@@ -175,64 +175,64 @@ impl FamaFrench3FactorResult {
         }
     }
 
-    /// Testa se β_SMB é significativamente diferente de zero
+    /// Tests if β_SMB is significantly different from zero
     pub fn is_smb_significant(&self, significance_level: f64) -> bool {
         self.beta_smb_pvalue < significance_level
     }
 
-    /// Testa se β_HML é significativamente diferente de zero
+    /// Tests if β_HML is significantly different from zero
     pub fn is_hml_significant(&self, significance_level: f64) -> bool {
         self.beta_hml_pvalue < significance_level
     }
 
-    /// Classifica o ativo quanto ao fator tamanho (SMB)
+    /// Classifies the asset with respect to size factor (SMB)
     pub fn size_classification(&self) -> &str {
         if !self.is_smb_significant(0.05) {
-            "Neutro (SMB não significativo)"
+            "Neutral (SMB not significant)"
         } else if self.beta_smb > 0.5 {
-            "Fortemente Small Cap"
+            "Strongly Small Cap"
         } else if self.beta_smb > 0.0 {
             "Small Cap"
         } else if self.beta_smb > -0.5 {
             "Large Cap"
         } else {
-            "Fortemente Large Cap"
+            "Strongly Large Cap"
         }
     }
 
-    /// Classifica o ativo quanto ao fator valor (HML)
+    /// Classifies the asset with respect to value factor (HML)
     pub fn value_classification(&self) -> &str {
         if !self.is_hml_significant(0.05) {
-            "Neutro (HML não significativo)"
+            "Neutral (HML not significant)"
         } else if self.beta_hml > 0.5 {
-            "Fortemente Value"
+            "Strongly Value"
         } else if self.beta_hml > 0.0 {
             "Value"
         } else if self.beta_hml > -0.5 {
             "Growth"
         } else {
-            "Fortemente Growth"
+            "Strongly Growth"
         }
     }
 
-    /// Classifica o desempenho do ativo quanto ao alpha
+    /// Classifies the asset's performance based on alpha
     pub fn performance_classification(&self) -> &str {
         let significance = 0.05;
 
         if self.is_significantly_outperforming(significance) {
-            "Outperformance Significativa"
+            "Significant Outperformance"
         } else if self.is_significantly_underperforming(significance) {
-            "Underperformance Significativa"
+            "Significant Underperformance"
         } else if self.alpha.abs() < 0.0001 {
-            "Desempenho Neutro"
+            "Neutral Performance"
         } else if self.alpha > 0.0 {
-            "Outperformance Não Significativa"
+            "Non-Significant Outperformance"
         } else {
-            "Underperformance Não Significativa"
+            "Non-Significant Underperformance"
         }
     }
 
-    /// Calcula o retorno esperado dado retornos esperados dos fatores
+    /// Calculates the expected return given expected factor returns
     ///
     /// E[R_i] = R_f + β_MKT·(E[R_m] - R_f) + β_SMB·E[SMB] + β_HML·E[HML]
     pub fn expected_return(
@@ -247,7 +247,7 @@ impl FamaFrench3FactorResult {
             + self.beta_hml * expected_hml
     }
 
-    /// Calcula predições para novos dados dos fatores
+    /// Calculates predictions for new factor data
     pub fn predict(
         &self,
         market_excess_returns: &Array1<f64>,
@@ -260,7 +260,7 @@ impl FamaFrench3FactorResult {
             + self.beta_hml * hml_returns
     }
 
-    /// Calcula a contribuição de cada fator para o retorno esperado
+    /// Calculates the contribution of each factor to the expected return
     pub fn factor_contributions(&self) -> (f64, f64, f64) {
         let market_contrib = self.beta_market * (self.mean_market_return - self.risk_free_rate);
         let smb_contrib = self.beta_smb * self.mean_smb;
@@ -273,29 +273,25 @@ impl FamaFrench3FactorResult {
 impl fmt::Display for FamaFrench3FactorResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "FAMA-FRENCH 3 FACTOR MODEL - RESULTADOS")?;
+        writeln!(f, "FAMA-FRENCH 3 FACTOR MODEL - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
         writeln!(
             f,
-            "\nMODELO: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + ε"
+            "\nMODEL: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + ε"
         )?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
-        writeln!(f, "Tipo de Covariância: {:?}", self.cov_type)?;
-        writeln!(f, "Tipo de Inferência: {:?}", self.inference_type)?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
+        writeln!(f, "Covariesnce Type: {:?}", self.cov_type)?;
+        writeln!(f, "Inference Type: {:?}", self.inference_type)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<20} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -352,10 +348,10 @@ impl fmt::Display for FamaFrench3FactorResult {
         }
 
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Significância: *** p<0.001, ** p<0.01, * p<0.05")?;
+        writeln!(f, "Significance: *** p<0.001, ** p<0.01, * p<0.05")?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERVALOS DE CONFIANÇA (95%)")?;
+        writeln!(f, "CONFIDENCE INTERVALS (95%)")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
@@ -379,52 +375,52 @@ impl fmt::Display for FamaFrench3FactorResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "QUALIDADE DO AJUSTE")?;
+        writeln!(f, "FIT QUALITY")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "R²:                  {:>12.4} ({:.2}% da variância explicada)",
+            "R²:                  {:>12.4} ({:.2}% of the variesnce explieach)",
             self.r_squared,
             self.r_squared * 100.0
         )?;
-        writeln!(f, "R² Ajustado:         {:>12.4}", self.adj_r_squared)?;
+        writeln!(f, "R² Adjusted:         {:>12.4}", self.adj_r_squared)?;
         writeln!(
             f,
-            "Tracking Error:      {:>12.4}% (volatilidade dos resíduos)",
+            "Tracking Error:      {:>12.4}% (residual volatility)",
             self.tracking_error * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ESTATÍSTICAS DOS FATORES")?;
+        writeln!(f, "FACTOR STATISTICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Retorno Médio Ativo:     {:>12.4}%",
+            "Return Médithe asset:     {:>12.4}%",
             self.mean_asset_return * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio Mercado:   {:>12.4}%",
+            "Return Médithe market:   {:>12.4}%",
             self.mean_market_return * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio SMB:       {:>12.4}%",
+            "Return Médio SMB:       {:>12.4}%",
             self.mean_smb * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio HML:       {:>12.4}%",
+            "Return Médio HML:       {:>12.4}%",
             self.mean_hml * 100.0
         )?;
         writeln!(
             f,
-            "Volatilidade Ativo:      {:>12.4}%",
+            "Volatility Asset:      {:>12.4}%",
             self.asset_volatility * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CONTRIBUIÇÃO DOS FATORES PARA O RETORNO")?;
+        writeln!(f, "FACTOR CONTRIBUTIONS PARA O RETORNO")?;
         writeln!(f, "{}", "-".repeat(80))?;
 
         let (market_contrib, smb_contrib, hml_contrib) = self.factor_contributions();
@@ -432,7 +428,7 @@ impl fmt::Display for FamaFrench3FactorResult {
 
         writeln!(
             f,
-            "Mercado (β_MKT × MRP):   {:>12.4}% ({:>5.1}%)",
+            "Market (β_MKT × MRP):   {:>12.4}% ({:>5.1}%)",
             market_contrib * 100.0,
             if total_contrib != 0.0 {
                 (market_contrib / total_contrib) * 100.0
@@ -463,13 +459,13 @@ impl fmt::Display for FamaFrench3FactorResult {
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Total Explicado:         {:>12.4}%",
+            "Total Explained:         {:>12.4}%",
             total_contrib * 100.0
         )?;
-        writeln!(f, "Alpha (não explicado):   {:>12.4}%", self.alpha * 100.0)?;
+        writeln!(f, "Alpha (unexplained):   {:>12.4}%", self.alpha * 100.0)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "MÉTRICAS DE DESEMPENHO")?;
+        writeln!(f, "PERFORMANCE METRICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
@@ -478,38 +474,38 @@ impl fmt::Display for FamaFrench3FactorResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CLASSIFICAÇÕES")?;
+        writeln!(f, "CLASSIFICATIONS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Tamanho (SMB):           {}", self.size_classification())?;
+        writeln!(f, "Size (SMB):           {}", self.size_classification())?;
         writeln!(
             f,
-            "Valor (HML):             {}",
+            "Value (HML):             {}",
             self.value_classification()
         )?;
         writeln!(
             f,
-            "Desempenho (Alpha):      {}",
+            "Performance (Alpha):      {}",
             self.performance_classification()
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERPRETAÇÃO")?;
+        writeln!(f, "INTERPRETATION")?;
         writeln!(f, "{}", "-".repeat(80))?;
 
         if self.is_significantly_outperforming(0.05) {
             writeln!(
                 f,
-                "✓ O ativo está SUPERANDO o modelo FF3 significativamente (α > 0, p < 0.05)"
+                "✓ the asset is OUTPERFORMING the model FF3 significantly (α > 0, p < 0.05)"
             )?;
         } else if self.is_significantly_underperforming(0.05) {
             writeln!(
                 f,
-                "✗ O ativo está FICANDO ATRÁS do modelo FF3 significativamente (α < 0, p < 0.05)"
+                "✗ the asset is UNDERPERFORMING of the model FF3 significantly (α < 0, p < 0.05)"
             )?;
         } else {
             writeln!(
                 f,
-                "○ Não há evidência significativa de outperformance ou underperformance"
+                "○ Não significant evidence of outperformance ou underperformance"
             )?;
         }
 
@@ -528,7 +524,7 @@ impl fmt::Display for FamaFrench3FactorResult {
                 )?;
             }
         } else {
-            writeln!(f, "○ Sem exposição significativa ao fator tamanho (SMB)")?;
+            writeln!(f, "○ Sem exposição significativa ao factor size (SMB)")?;
         }
 
         if self.is_hml_significant(0.05) {
@@ -546,7 +542,7 @@ impl fmt::Display for FamaFrench3FactorResult {
                 )?;
             }
         } else {
-            writeln!(f, "○ Sem exposição significativa ao fator valor (HML)")?;
+            writeln!(f, "○ Sem exposição significativa ao factor value (HML)")?;
         }
 
         writeln!(f, "\n{}", "=".repeat(80))?;
@@ -555,19 +551,19 @@ impl fmt::Display for FamaFrench3FactorResult {
     }
 }
 
-/// Implementação do modelo Fama-French 3 Factor
+/// Implementation of the model Fama-French 3 Factor
 pub struct FamaFrench3Factor;
 
 impl FamaFrench3Factor {
-    /// Estima o modelo Fama-French 3 Factor usando arrays
+    /// Estimates the Fama-French 3 Factor model using arrays
     ///
     /// # Arguments
-    /// * `asset_returns` - retornos do ativo
-    /// * `market_returns` - retornos do mercado (índice de referência)
-    /// * `smb_returns` - retornos do fator SMB (Small Minus Big)
-    /// * `hml_returns` - retornos do fator HML (High Minus Low)
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de matriz de covariância para erros padrão
+    /// * `asset_returns` - asset returns
+    /// * `market_returns` - market returns (benchmark index)
+    /// * `smb_returns` - SMB factor returns (Small Minus Big)
+    /// * `hml_returns` - HML factor returns (High Minus Low)
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - covariance matrix type for standard errors
     ///
     /// # Example
     /// ```
@@ -598,7 +594,7 @@ impl FamaFrench3Factor {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<FamaFrench3FactorResult, GreenersError> {
-        // Validação
+        // Validation
         let n = asset_returns.len();
         if market_returns.len() != n || smb_returns.len() != n || hml_returns.len() != n {
             return Err(GreenersError::ShapeMismatch(
@@ -613,21 +609,21 @@ impl FamaFrench3Factor {
             )));
         }
 
-        // Calcular retornos em excesso
+        // Calculate excess returns
         let asset_excess: Array1<f64> = asset_returns.mapv(|r| r - risk_free_rate);
         let market_excess: Array1<f64> = market_returns.mapv(|r| r - risk_free_rate);
 
-        // Preparar matriz de design: X = [1, market_excess, SMB, HML]
+        // Prepare design matrix: X = [1, market_excess, SMB, HML]
         let mut x_matrix = Array2::<f64>::zeros((n, 4));
-        x_matrix.column_mut(0).fill(1.0); // Intercepto
+        x_matrix.column_mut(0).fill(1.0); // Intercept
         x_matrix.column_mut(1).assign(&market_excess);
         x_matrix.column_mut(2).assign(smb_returns);
         x_matrix.column_mut(3).assign(hml_returns);
 
-        // Estimar via OLS
+        // Estimate via OLS
         let ols_result = OLS::fit(&asset_excess, &x_matrix, cov_type.clone())?;
 
-        // Extrair parâmetros
+        // Extract parameters
         let alpha = ols_result.params[0];
         let beta_market = ols_result.params[1];
         let beta_smb = ols_result.params[2];
@@ -648,7 +644,7 @@ impl FamaFrench3Factor {
         let beta_smb_pvalue = ols_result.p_values[2];
         let beta_hml_pvalue = ols_result.p_values[3];
 
-        // Intervalos de confiança
+        // Confidence intervals
         let alpha_conf_lower = ols_result.conf_lower[0];
         let alpha_conf_upper = ols_result.conf_upper[0];
         let beta_market_conf_lower = ols_result.conf_lower[1];
@@ -658,15 +654,15 @@ impl FamaFrench3Factor {
         let beta_hml_conf_lower = ols_result.conf_lower[3];
         let beta_hml_conf_upper = ols_result.conf_upper[3];
 
-        // Qualidade do ajuste
+        // Fit whichity
         let r_squared = ols_result.r_squared;
         let adj_r_squared = ols_result.adj_r_squared;
 
-        // Valores ajustados e resíduos
+        // Fitted values and residuals
         let fitted_values = ols_result.fitted_values(&x_matrix);
         let residuals = ols_result.residuals(&asset_excess, &x_matrix);
 
-        // Estatísticas descritivas
+        // Descriptive statistics
         let mean_asset_return = asset_returns.mean().unwrap_or(0.0);
         let mean_market_return = market_returns.mean().unwrap_or(0.0);
         let mean_smb = smb_returns.mean().unwrap_or(0.0);
@@ -726,16 +722,16 @@ impl FamaFrench3Factor {
         })
     }
 
-    /// Estima o modelo Fama-French 3 Factor a partir de um DataFrame
+    /// Estimates the Fama-French 3 Factor model from a DataFrame
     ///
     /// # Arguments
-    /// * `df` - DataFrame contendo os dados
-    /// * `asset_col` - nome da coluna com retornos do ativo
-    /// * `market_col` - nome da coluna com retornos do mercado
-    /// * `smb_col` - nome da coluna com retornos do fator SMB
-    /// * `hml_col` - nome da coluna com retornos do fator HML
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de matriz de covariância
+    /// * `df` - DataFrame containing the data
+    /// * `asset_col` - name of the column with asset returns
+    /// * `market_col` - name of the column with market returns
+    /// * `smb_col` - name of the column with SMB factor returns
+    /// * `hml_col` - name of the column with HML factor returns
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - covariance matrix type
     ///
     /// # Example
     /// ```
@@ -769,13 +765,13 @@ impl FamaFrench3Factor {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<FamaFrench3FactorResult, GreenersError> {
-        // Extrair colunas
+        // Extract columns
         let asset_returns = df.get(asset_col)?;
         let market_returns = df.get(market_col)?;
         let smb_returns = df.get(smb_col)?;
         let hml_returns = df.get(hml_col)?;
 
-        // Estimar modelo
+        // Estimate model
         Self::fit(
             asset_returns,
             market_returns,

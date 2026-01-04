@@ -2,57 +2,57 @@ use greeners::GreenersError;
 use ndarray::Array1;
 use std::fmt;
 
-/// Análise de IVOL (Idiosyncratic Volatility)
+/// Analysis of IVOL (Idiosyncratic Volatility)
 ///
-/// IVOL é a volatilidade específica do ativo que não é explicada
-/// pelos fatores de risco sistemáticos. Representa o risco diversificável.
+/// IVOL é a volatility específica of the asset que not é explieach
+/// by the factors of systematic risks. Representa the risk diversificável.
 #[derive(Debug, Clone)]
 pub struct IVOLAnalysis {
-    /// IVOL (volatilidade idiossincrática) - desvio padrão dos resíduos
+    /// IVOL (volatility idiossincrática) - standard deviation of the residuals
     pub ivol: f64,
 
-    /// IVOL anualizado (assumindo períodos diários)
+    /// IVOL annualized (assumindo periods diários)
     pub ivol_annualized_daily: f64,
 
-    /// IVOL anualizado (assumindo períodos mensais)
+    /// IVOL annualized (assumindo periods mensais)
     pub ivol_annualized_monthly: f64,
 
-    /// Média dos resíduos (deve ser ~0)
+    /// Mean of the residuals (should be ~0)
     pub residual_mean: f64,
 
-    /// Mediana dos resíduos
+    /// Median of the residuals
     pub residual_median: f64,
 
-    /// Mínimo dos resíduos
+    /// Minimum of the residuals
     pub residual_min: f64,
 
-    /// Máximo dos resíduos
+    /// Maximum of the residuals
     pub residual_max: f64,
 
-    /// Percentil 5 dos resíduos
+    /// Percentil 5 of the residuals
     pub residual_p5: f64,
 
-    /// Percentil 95 dos resíduos
+    /// Percentil 95 of the residuals
     pub residual_p95: f64,
 
-    /// Skewness dos resíduos
+    /// Skewness of the residuals
     pub residual_skewness: f64,
 
-    /// Kurtosis dos resíduos
+    /// Kurtosis of the residuals
     pub residual_kurtosis: f64,
 
-    /// Número de observações
+    /// Number of observations
     pub n_obs: usize,
 
-    /// Resíduos (para análises adicionais)
+    /// Residuals (for análises adicionais)
     pub residuals: Array1<f64>,
 }
 
 impl IVOLAnalysis {
-    /// Cria análise de IVOL a partir dos resíduos de um modelo
+    /// Creates analysis of IVOL from thes residuals of um model
     ///
     /// # Arguments
-    /// * `residuals` - Resíduos do modelo de fatores
+    /// * `residuals` - Residuals of the model of factors
     ///
     /// # Example
     /// ```
@@ -76,14 +76,14 @@ impl IVOLAnalysis {
             ));
         }
 
-        // IVOL = desvio padrão dos resíduos
-        let ivol = residuals.std(1.0); // ddof=1 para amostra
+        // IVOL = standard deviation of the residuals
+        let ivol = residuals.std(1.0); // ddof=1 for amostra
 
-        // IVOL anualizado (252 dias úteis, 12 meses)
+        // IVOL annualized (252 dias úteis, 12 meses)
         let ivol_annualized_daily = ivol * (252.0_f64).sqrt();
         let ivol_annualized_monthly = ivol * (12.0_f64).sqrt();
 
-        // Estatísticas descritivas
+        // Descriptive statistics
         let residual_mean = residuals.mean().unwrap_or(0.0);
 
         let mut sorted_residuals = residuals.to_vec();
@@ -136,9 +136,9 @@ impl IVOLAnalysis {
         })
     }
 
-    /// Classifica o nível de IVOL
+    /// Classifies the level of IVOL
     pub fn ivol_classification(&self) -> &str {
-        // Classificação baseada em IVOL anualizado (mensal)
+        // Classification baseada em IVOL annualized (monthly)
         if self.ivol_annualized_monthly < 0.10 {
             "Baixo"
         } else if self.ivol_annualized_monthly < 0.20 {
@@ -150,7 +150,7 @@ impl IVOLAnalysis {
         }
     }
 
-    /// Testa se os resíduos são normalmente distribuídos (Jarque-Bera test)
+    /// Tests if the residuals are normalmente distribuídos (Jarque-Bera test)
     pub fn is_residuals_normal(&self, sig: f64) -> bool {
         // Jarque-Bera statistic
         let n = self.n_obs as f64;
@@ -168,10 +168,10 @@ impl IVOLAnalysis {
 impl fmt::Display for IVOLAnalysis {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "ANÁLISE DE IVOL (IDIOSYNCRATIC VOLATILITY)")?;
+        writeln!(f, "ANALYSIS OF IVOL (IDIOSYNCRATIC VOLATILITY)")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
         writeln!(f, "\n{}", "-".repeat(80))?;
         writeln!(f, "VOLATILIDADE IDIOSSINCRÁTICA")?;
         writeln!(f, "{}", "-".repeat(80))?;
@@ -183,25 +183,29 @@ impl fmt::Display for IVOLAnalysis {
         )?;
         writeln!(
             f,
-            "IVOL Anualizado (diário): {:.4} ({:.2}%)",
+            "IVOL Annualized (daily): {:.4} ({:.2}%)",
             self.ivol_annualized_daily,
             self.ivol_annualized_daily * 100.0
         )?;
         writeln!(
             f,
-            "IVOL Anualizado (mensal): {:.4} ({:.2}%)",
+            "IVOL Annualized (monthly): {:.4} ({:.2}%)",
             self.ivol_annualized_monthly,
             self.ivol_annualized_monthly * 100.0
         )?;
-        writeln!(f, "Classificação:           {}", self.ivol_classification())?;
+        writeln!(
+            f,
+            "Classification:           {}",
+            self.ivol_classification()
+        )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ESTATÍSTICAS DOS RESÍDUOS")?;
+        writeln!(f, "RESIDUAL STATISTICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Média:      {:>10.6}", self.residual_mean)?;
-        writeln!(f, "Mediana:    {:>10.6}", self.residual_median)?;
-        writeln!(f, "Mínimo:     {:>10.6}", self.residual_min)?;
-        writeln!(f, "Máximo:     {:>10.6}", self.residual_max)?;
+        writeln!(f, "Mean:      {:>10.6}", self.residual_mean)?;
+        writeln!(f, "Median:    {:>10.6}", self.residual_median)?;
+        writeln!(f, "Minimum:     {:>10.6}", self.residual_min)?;
+        writeln!(f, "Maximum:     {:>10.6}", self.residual_max)?;
         writeln!(f, "P5:         {:>10.6}", self.residual_p5)?;
         writeln!(f, "P95:        {:>10.6}", self.residual_p95)?;
         writeln!(f, "Skewness:   {:>10.4}", self.residual_skewness)?;
@@ -221,31 +225,31 @@ impl fmt::Display for IVOLAnalysis {
     }
 }
 
-/// Análise de Tracking Error
+/// Analysis of Tracking Error
 ///
-/// Tracking error mede quanto o retorno de um portfólio desvia
-/// do retorno de um benchmark ou modelo.
+/// Tracking error measures how much the return of um portfólio desvia
+/// of the return of um benchmark ou model.
 #[derive(Debug, Clone)]
 pub struct TrackingErrorAnalysis {
-    /// Tracking error (desvio padrão dos resíduos)
+    /// Tracking error (standard deviation of the residuals)
     pub tracking_error: f64,
 
-    /// Tracking error anualizado (diário)
+    /// Tracking error annualized (daily)
     pub tracking_error_annualized_daily: f64,
 
-    /// Tracking error anualizado (mensal)
+    /// Tracking error annualized (monthly)
     pub tracking_error_annualized_monthly: f64,
 
     /// Information ratio (alpha / tracking error)
     pub information_ratio: f64,
 
-    /// Alpha do modelo
+    /// Alpha of the model
     pub alpha: f64,
 
-    /// R² do modelo
+    /// R² of the model
     pub r_squared: f64,
 
-    /// Correlação entre retornos observados e previstos
+    /// Correlação between returns obbevados and prevthiss
     pub correlation: f64,
 
     /// RMSE (Root Mean Squared Error)
@@ -254,30 +258,30 @@ pub struct TrackingErrorAnalysis {
     /// MAE (Mean Absolute Error)
     pub mae: f64,
 
-    /// Proporção de períodos com tracking error > 1%
+    /// Proporção of periods with tracking error > 1%
     pub periods_above_1pct: f64,
 
-    /// Proporção de períodos com tracking error > 2%
+    /// Proporção of periods with tracking error > 2%
     pub periods_above_2pct: f64,
 
-    /// Rolling tracking error (janela de 12 períodos)
+    /// Rolling tracking error (window of 12 periods)
     pub rolling_te: Option<Array1<f64>>,
 
-    /// Número de observações
+    /// Number of observations
     pub n_obs: usize,
 
-    /// Resíduos
+    /// Residuals
     pub residuals: Array1<f64>,
 }
 
 impl TrackingErrorAnalysis {
-    /// Cria análise de tracking error
+    /// Creates analysis of tracking error
     ///
     /// # Arguments
-    /// * `actual_returns` - Retornos observados
-    /// * `fitted_values` - Retornos previstos pelo modelo
-    /// * `alpha` - Alpha do modelo
-    /// * `r_squared` - R² do modelo
+    /// * `actual_returns` - Returns obbevados
+    /// * `fitted_values` - Returns prevthiss pelthe model
+    /// * `alpha` - Alpha of the model
+    /// * `r_squared` - R² of the model
     ///
     /// # Example
     /// ```
@@ -317,13 +321,13 @@ impl TrackingErrorAnalysis {
             ));
         }
 
-        // Calcular resíduos
+        // Calculates residuals
         let residuals = actual_returns - fitted_values;
 
-        // Tracking error = desvio padrão dos resíduos
+        // Tracking error = standard deviation of the residuals
         let tracking_error = residuals.std(1.0);
 
-        // Anualizados
+        // Annualizeds
         let tracking_error_annualized_daily = tracking_error * (252.0_f64).sqrt();
         let tracking_error_annualized_monthly = tracking_error * (12.0_f64).sqrt();
 
@@ -360,13 +364,13 @@ impl TrackingErrorAnalysis {
         // MAE
         let mae = residuals.iter().map(|x| x.abs()).sum::<f64>() / n as f64;
 
-        // Períodos com TE alto
+        // Periods with TE alto
         let periods_above_1pct =
             residuals.iter().filter(|&&x| x.abs() > 0.01).count() as f64 / n as f64;
         let periods_above_2pct =
             residuals.iter().filter(|&&x| x.abs() > 0.02).count() as f64 / n as f64;
 
-        // Rolling tracking error (se tiver dados suficientes)
+        // Rolling tracking error (if tiver data suficientes)
         let rolling_te = if n >= 12 {
             let mut rolling = Array1::<f64>::zeros(n - 11);
             for i in 0..(n - 11) {
@@ -396,9 +400,9 @@ impl TrackingErrorAnalysis {
         })
     }
 
-    /// Classifica o nível de tracking error
+    /// Classifies the level of tracking error
     pub fn te_classification(&self) -> &str {
-        // Classificação baseada em TE anualizado (mensal)
+        // Classification baseada em TE annualized (monthly)
         if self.tracking_error_annualized_monthly < 0.02 {
             "Muito Baixo (< 2%)"
         } else if self.tracking_error_annualized_monthly < 0.05 {
@@ -412,7 +416,7 @@ impl TrackingErrorAnalysis {
         }
     }
 
-    /// Classifica o information ratio
+    /// Classifies the information ratio
     pub fn ir_classification(&self) -> &str {
         if self.information_ratio > 1.0 {
             "Excelente (> 1.0)"
@@ -431,10 +435,10 @@ impl TrackingErrorAnalysis {
 impl fmt::Display for TrackingErrorAnalysis {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "ANÁLISE DE TRACKING ERROR")?;
+        writeln!(f, "ANALYSIS OF TRACKING ERROR")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
         writeln!(f, "TRACKING ERROR")?;
@@ -447,20 +451,20 @@ impl fmt::Display for TrackingErrorAnalysis {
         )?;
         writeln!(
             f,
-            "TE Anualizado (diário):    {:.4} ({:.2}%)",
+            "TE Annualized (daily):    {:.4} ({:.2}%)",
             self.tracking_error_annualized_daily,
             self.tracking_error_annualized_daily * 100.0
         )?;
         writeln!(
             f,
-            "TE Anualizado (mensal):    {:.4} ({:.2}%)",
+            "TE Annualized (monthly):    {:.4} ({:.2}%)",
             self.tracking_error_annualized_monthly,
             self.tracking_error_annualized_monthly * 100.0
         )?;
-        writeln!(f, "Classificação:            {}", self.te_classification())?;
+        writeln!(f, "Classification:            {}", self.te_classification())?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "MÉTRICAS DE AJUSTE")?;
+        writeln!(f, "METRICS DE AJUSTE")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(f, "Alpha:              {:>10.6}", self.alpha)?;
         writeln!(f, "R²:                 {:>10.4}", self.r_squared)?;
@@ -472,35 +476,35 @@ impl fmt::Display for TrackingErrorAnalysis {
         writeln!(f, "INFORMATION RATIO")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(f, "IR:                 {:>10.4}", self.information_ratio)?;
-        writeln!(f, "Classificação:      {}", self.ir_classification())?;
+        writeln!(f, "Classification:      {}", self.ir_classification())?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ANÁLISE DE DESVIOS")?;
+        writeln!(f, "ANALYSIS OF DESVIOS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Períodos com |erro| > 1%:  {:.1}%",
+            "Periods with |erro| > 1%:  {:.1}%",
             self.periods_above_1pct * 100.0
         )?;
         writeln!(
             f,
-            "Períodos com |erro| > 2%:  {:.1}%",
+            "Periods with |erro| > 2%:  {:.1}%",
             self.periods_above_2pct * 100.0
         )?;
 
         if let Some(ref rolling) = self.rolling_te {
             writeln!(f, "\n{}", "-".repeat(80))?;
-            writeln!(f, "TRACKING ERROR ROLLING (12 períodos)")?;
+            writeln!(f, "TRACKING ERROR ROLLING (12 periods)")?;
             writeln!(f, "{}", "-".repeat(80))?;
-            writeln!(f, "Média:      {:>10.4}", rolling.mean().unwrap_or(0.0))?;
+            writeln!(f, "Mean:      {:>10.4}", rolling.mean().unwrap_or(0.0))?;
             writeln!(
                 f,
-                "Mínimo:     {:>10.4}",
+                "Minimum:     {:>10.4}",
                 rolling.iter().fold(f64::INFINITY, |a, &b| a.min(b))
             )?;
             writeln!(
                 f,
-                "Máximo:     {:>10.4}",
+                "Maximum:     {:>10.4}",
                 rolling.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b))
             )?;
             writeln!(f, "Std Dev:    {:>10.4}", rolling.std(1.0))?;

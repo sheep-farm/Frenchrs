@@ -2,56 +2,56 @@ use greeners::{CovarianceType, GreenersError, OLS};
 use ndarray::{Array1, Array2};
 use std::collections::HashMap;
 
-/// Resultado de IVOL & Tracking Error para múltiplos ativos
+/// Result of IVOL & Tracking Error for multiple assets
 ///
-/// Equivalente ao DataFrame do Python com índice por asset
+/// Equivalente ao DataFrame of the Python with índice por asset
 #[derive(Debug, Clone)]
 pub struct IVOLTrackingMulti {
-    /// Resultados por ativo
+    /// Results por asset
     pub results: HashMap<String, IVOLTrackingAsset>,
 }
 
-/// Resultado de IVOL & Tracking Error para um ativo
+/// Result of IVOL & Tracking Error for um asset
 #[derive(Debug, Clone)]
 pub struct IVOLTrackingAsset {
-    /// Nome do ativo
+    /// Nome of the asset
     pub asset: String,
 
-    /// Média de retorno em excesso (anualizado)
+    /// Mean of return in excess (annualized)
     pub mean_excess_annual: f64,
 
-    /// IVOL mensal (desvio padrão dos resíduos)
+    /// IVOL monthly (standard deviation of the residuals)
     pub ivol_monthly: f64,
 
-    /// IVOL anualizado (mensal × √12)
+    /// IVOL annualized (monthly × √12)
     pub ivol_annual: f64,
 
-    /// Tracking error mensal (vs benchmark, se fornecido)
+    /// Tracking error monthly (vs benchmark, if fornecido)
     pub tracking_error_monthly: Option<f64>,
 
-    /// Tracking error anualizado (mensal × √12)
+    /// Tracking error annualized (monthly × √12)
     pub tracking_error_annual: Option<f64>,
 
-    /// Número de observações
+    /// Number of observations
     pub nobs: usize,
 
-    /// R² do modelo
+    /// R² of the model
     pub r_squared: f64,
 
-    /// Alpha do modelo
+    /// Alpha of the model
     pub alpha: f64,
 }
 
 impl IVOLTrackingMulti {
-    /// Calcula IVOL e Tracking Error para múltiplos ativos
+    /// Calculates IVOL and Tracking Error for multiple assets
     ///
     /// # Arguments
-    /// * `returns_excess` - Matriz de retornos em excesso (n_obs × n_assets)
-    /// * `factors` - Matriz de fatores (n_obs × n_factors)
-    /// * `benchmark` - Benchmark para tracking error (opcional, n_obs)
-    /// * `cov_type` - Tipo de covariância
-    /// * `asset_names` - Nomes dos ativos (opcional)
-    /// * `periods_per_year` - Períodos por ano (12 para mensal, 252 para diário)
+    /// * `returns_excess` - Matriz of returns in excess (n_obs × n_assets)
+    /// * `factors` - Matriz of factors (n_obs × n_factors)
+    /// * `benchmark` - Benchmark for tracking error (opcional, n_obs)
+    /// * `cov_type` - Covariance type
+    /// * `asset_names` - Nomes of the assets (opcional)
+    /// * `periods_per_year` - Periods por ano (12 for monthly, 252 for daily)
     ///
     /// # Example
     /// ```
@@ -59,7 +59,7 @@ impl IVOLTrackingMulti {
     /// use greeners::CovarianceType;
     /// use ndarray::Array2;
     ///
-    /// // 12 meses × 2 ativos (retornos em excesso)
+    /// // 12 meses × 2 assets (returns in excess)
     /// let returns_excess = Array2::from_shape_vec((12, 2), vec![
     ///     0.01, 0.015,
     ///     0.02, 0.025,
@@ -75,7 +75,7 @@ impl IVOLTrackingMulti {
     ///     0.015, 0.020,
     /// ]).unwrap();
     ///
-    /// // 12 meses × 1 fator
+    /// // 12 meses × 1 factor
     /// let factors = Array2::from_shape_vec((12, 1), vec![
     ///     0.008, 0.015, -0.005, 0.025, 0.012, -0.003,
     ///     0.020, 0.009, 0.015, -0.005, 0.025, 0.012,
@@ -84,10 +84,10 @@ impl IVOLTrackingMulti {
     /// let ivol_tracking = IVOLTrackingMulti::fit(
     ///     &returns_excess,
     ///     &factors,
-    ///     None, // sem benchmark
+    ///     None, // without benchmark
     ///     CovarianceType::NonRobust,
     ///     Some(vec!["Asset1".to_string(), "Asset2".to_string()]),
-    ///     12.0, // mensal
+    ///     12.0, // monthly
     /// ).unwrap();
     ///
     /// assert_eq!(ivol_tracking.results.len(), 2);
@@ -113,13 +113,14 @@ impl IVOLTrackingMulti {
         }
 
         if let Some(bench) = benchmark
-            && bench.len() != n_obs {
-                return Err(GreenersError::ShapeMismatch(format!(
-                    "Benchmark ({} obs) must have same length as returns ({} obs)",
-                    bench.len(),
-                    n_obs
-                )));
-            }
+            && bench.len() != n_obs
+        {
+            return Err(GreenersError::ShapeMismatch(format!(
+                "Benchmark ({} obs) must have same length as returns ({} obs)",
+                bench.len(),
+                n_obs
+            )));
+        }
 
         if n_obs <= n_factors + 5 {
             return Err(GreenersError::InvalidOperation(format!(
@@ -130,13 +131,13 @@ impl IVOLTrackingMulti {
             )));
         }
 
-        // Nomes padrão se não fornecidos
+        // Nomes padrão if not fornecidos
         let asset_names = asset_names
             .unwrap_or_else(|| (0..n_assets).map(|i| format!("Asset{}", i + 1)).collect());
 
         let mut results = HashMap::new();
 
-        // Processar cada ativo
+        // Procthatr each asset
         for (asset_idx, asset_name) in asset_names.iter().enumerate() {
             let asset_returns = returns_excess.column(asset_idx);
 
@@ -155,7 +156,7 @@ impl IVOLTrackingMulti {
         Ok(IVOLTrackingMulti { results })
     }
 
-    /// Calcula IVOL e Tracking Error para um único ativo
+    /// Calculates IVOL and Tracking Error for um single asset
     fn fit_single_asset(
         asset_returns_excess: &Array1<f64>,
         factors: &Array2<f64>,
@@ -167,30 +168,30 @@ impl IVOLTrackingMulti {
         let n_obs = asset_returns_excess.len();
         let n_factors = factors.ncols();
 
-        // Matriz de design: [1, factors]
+        // Matriz of design: [1, factors]
         let mut x = Array2::<f64>::zeros((n_obs, n_factors + 1));
         x.column_mut(0).fill(1.0);
         for j in 0..n_factors {
             x.column_mut(j + 1).assign(&factors.column(j));
         }
 
-        // Estimar OLS
+        // Estimates OLS
         let ols = OLS::fit(asset_returns_excess, &x, cov_type)?;
 
-        // Resíduos
+        // Residuals
         let residuals = ols.residuals(asset_returns_excess, &x);
 
-        // IVOL mensal
+        // IVOL monthly
         let ivol_monthly = residuals.std(1.0);
 
-        // IVOL anualizado
+        // IVOL annualized
         let ivol_annual = ivol_monthly * periods_per_year.sqrt();
 
-        // Média de retorno em excesso anualizado
+        // Mean of return in excess annualized
         let mean_excess_monthly = asset_returns_excess.mean().unwrap_or(0.0);
         let mean_excess_annual = mean_excess_monthly * periods_per_year;
 
-        // Tracking error (se benchmark fornecido)
+        // Tracking error (if benchmark fornecido)
         let (tracking_error_monthly, tracking_error_annual) = if let Some(bench) = benchmark {
             let diff = asset_returns_excess - bench;
             let te_monthly = diff.std(1.0);
@@ -213,17 +214,17 @@ impl IVOLTrackingMulti {
         })
     }
 
-    /// Obtém resultados para um ativo específico
+    /// Gets results for um asset específico
     pub fn get_asset(&self, asset_name: &str) -> Option<&IVOLTrackingAsset> {
         self.results.get(asset_name)
     }
 
-    /// Lista todos os ativos
+    /// Lists all assets
     pub fn asset_names(&self) -> Vec<String> {
         self.results.keys().cloned().collect()
     }
 
-    /// Converte para formato tabular (similar ao DataFrame do Python)
+    /// Converts to formato tabular (similar ao DataFrame of the Python)
     pub fn to_table(&self) -> Vec<IVOLTrackingRow> {
         self.results
             .values()
@@ -241,7 +242,7 @@ impl IVOLTrackingMulti {
             .collect()
     }
 
-    /// Exporta para CSV-like string
+    /// Exports to CSV-like string
     pub fn to_csv_string(&self) -> String {
         let mut result = String::new();
 
@@ -278,39 +279,39 @@ impl IVOLTrackingMulti {
     }
 }
 
-/// Linha de resultado IVOL/Tracking (formato tabular)
+/// Linha of result IVOL/Tracking (formato tabular)
 #[derive(Debug, Clone)]
 pub struct IVOLTrackingRow {
-    /// Nome do ativo
+    /// Nome of the asset
     pub asset: String,
 
-    /// Média de retorno em excesso anualizado
+    /// Mean of return in excess annualized
     pub mean_excess_annual: f64,
 
-    /// IVOL mensal
+    /// IVOL monthly
     pub ivol_monthly: f64,
 
-    /// IVOL anualizado
+    /// IVOL annualized
     pub ivol_annual: f64,
 
-    /// Tracking error mensal (opcional)
+    /// Tracking error monthly (opcional)
     pub tracking_error_monthly: Option<f64>,
 
-    /// Tracking error anualizado (opcional)
+    /// Tracking error annualized (opcional)
     pub tracking_error_annual: Option<f64>,
 
-    /// Número de observações
+    /// Number of observations
     pub nobs: usize,
 
-    /// R² do modelo
+    /// R² of the model
     pub r_squared: f64,
 
-    /// Alpha do modelo
+    /// Alpha of the model
     pub alpha: f64,
 }
 
 impl IVOLTrackingAsset {
-    /// Classifica o nível de IVOL
+    /// Classifies the level of IVOL
     pub fn ivol_classification(&self) -> &str {
         if self.ivol_annual < 0.10 {
             "Baixo"
@@ -323,7 +324,7 @@ impl IVOLTrackingAsset {
         }
     }
 
-    /// Classifica o nível de tracking error (se disponível)
+    /// Classifies the level of tracking error (if disponível)
     pub fn tracking_error_classification(&self) -> Option<&str> {
         self.tracking_error_annual.map(|te| {
             if te < 0.02 {
@@ -340,7 +341,7 @@ impl IVOLTrackingAsset {
         })
     }
 
-    /// Information ratio (se tracking error disponível)
+    /// Information ratio (if tracking error disponível)
     pub fn information_ratio(&self) -> Option<f64> {
         self.tracking_error_annual
             .map(|te| if te > 1e-10 { self.alpha / te } else { 0.0 })

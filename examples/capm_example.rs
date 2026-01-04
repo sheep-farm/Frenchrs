@@ -8,13 +8,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "=".repeat(80));
 
     // ==========================================================================
-    // EXEMPLO 1: Estimação básica com arrays
+    // EXEMPLO 1: Estimatestion básica with arrays
     // ==========================================================================
-    println!("\n[EXEMPLO 1] Estimação básica do CAPM");
+    println!("\n[EXEMPLO 1] Estimatestion básica of the CAPM");
     println!("{}", "-".repeat(80));
 
-    // Retornos mensais simulados (em decimal, não percentual)
-    // Exemplo: Apple vs S&P 500 em um período hipotético
+    // Returns mensais simulados (em decimal, not percentual)
+    // Exemplo: Apple vs S&P 500 em um period hipotético
     let apple_returns = array![
         0.045,  // +4.5%
         0.032,  // +3.2%
@@ -45,11 +45,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.045,  // +4.5%
     ];
 
-    // Taxa livre de risco mensal (~2% ao ano = 0.02/12 ao mês)
+    // Risk-free rate monthly (~2% ao ano = 0.02/12 ao mês)
     let risk_free_monthly = 0.02 / 12.0;
 
-    // Estimar CAPM com erros padrão robustos a heteroscedasticidade (HC3)
-    println!("\nEstimando CAPM para AAPL vs S&P 500...\n");
+    // Estimates CAPM with erros padrão robustos a heteroscedasticidade (HC3)
+    println!("\nEstimatesndo CAPM for AAPL vs S&P 500...\n");
     let capm_hc3 = CAPM::fit(
         &apple_returns,
         &sp500_returns,
@@ -57,13 +57,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    // Exibir resultados completos
+    // Exibir results completos
     println!("{}", capm_hc3);
 
     // ==========================================================================
-    // EXEMPLO 2: Comparação de tipos de covariância
+    // EXEMPLO 2: Comparison of tipos of covariância
     // ==========================================================================
-    println!("\n\n[EXEMPLO 2] Comparação de tipos de erros padrão");
+    println!("\n\n[EXEMPLO 2] Comparison of tipos of erros padrão");
     println!("{}", "-".repeat(80));
 
     let capm_ols = CAPM::fit(
@@ -80,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC1,
     )?;
 
-    println!("\nComparação de Erros Padrão:");
+    println!("\nComparison of Erros Padrão:");
     println!("{:<20} {:>12} {:>12}", "Tipo", "SE(Alpha)", "SE(Beta)");
     println!("{}", "-".repeat(50));
     println!(
@@ -97,57 +97,57 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // ==========================================================================
-    // EXEMPLO 3: Interpretação de métricas
+    // EXEMPLO 3: Interpretation of metrics
     // ==========================================================================
-    println!("\n\n[EXEMPLO 3] Interpretação detalhada");
+    println!("\n\n[EXEMPLO 3] Interpretation detalhada");
     println!("{}", "-".repeat(80));
 
-    println!("\n1. BETA (Risco Sistemático):");
+    println!("\n1. BETA (Risk Sistemático):");
     println!("   Beta = {:.4}", capm_hc3.beta);
-    println!("   Classificação: {}", capm_hc3.risk_classification());
+    println!("   Classification: {}", capm_hc3.risk_classification());
 
     if capm_hc3.beta > 1.0 {
-        println!("   → O ativo é MAIS VOLÁTIL que o mercado");
+        println!("   → the asset é MAIS VOLÁTIL que the market");
         println!(
-            "   → Para cada 1% que o mercado sobe, o ativo sobe ~{:.2}%",
+            "   → Para each 1% que the market undere, the asset undere ~{:.2}%",
             capm_hc3.beta
         );
         println!(
-            "   → Para cada 1% que o mercado cai, o ativo cai ~{:.2}%",
+            "   → Para each 1% que the market cai, the asset cai ~{:.2}%",
             capm_hc3.beta
         );
     } else if capm_hc3.beta < 1.0 {
-        println!("   → O ativo é MENOS VOLÁTIL que o mercado");
+        println!("   → the asset é MENOS VOLÁTIL que the market");
         println!(
-            "   → Para cada 1% que o mercado sobe, o ativo sobe ~{:.2}%",
+            "   → Para each 1% que the market undere, the asset undere ~{:.2}%",
             capm_hc3.beta
         );
     }
 
-    println!("\n2. ALPHA (Jensen's Alpha - Excesso de Retorno):");
+    println!("\n2. ALPHA (Jensen's Alpha - Excess of Return):");
     println!(
         "   Alpha = {:.6} ({:.4}% ao mês)",
         capm_hc3.alpha,
         capm_hc3.alpha * 100.0
     );
     println!(
-        "   Classificação: {}",
+        "   Classification: {}",
         capm_hc3.performance_classification()
     );
 
     if capm_hc3.is_significantly_outperforming(0.05) {
         println!("   → OUTPERFORMANCE SIGNIFICATIVA!");
-        println!("   → O gestor/ativo está batendo o mercado consistentemente");
+        println!("   → O gestor/asset is batendo the market consistentemente");
         println!(
-            "   → Alpha anualizado: ~{:.2}%",
+            "   → Alpha annualized: ~{:.2}%",
             capm_hc3.alpha * 12.0 * 100.0
         );
     } else if capm_hc3.is_significantly_underperforming(0.05) {
         println!("   → UNDERPERFORMANCE SIGNIFICATIVA");
-        println!("   → O ativo está ficando atrás do mercado");
+        println!("   → the asset is underperforming of the market");
     } else {
-        println!("   → Sem evidência de alpha significativo");
-        println!("   → Desempenho consistente com o CAPM (eficiência de mercado)");
+        println!("   → Sem evidence of alpha significant");
+        println!("   → Performance consistente with o CAPM (eficiência of market)");
     }
 
     println!("\n3. R² (Poder Explicativo):");
@@ -157,38 +157,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         capm_hc3.r_squared * 100.0
     );
     println!(
-        "   → {:.2}% da variação do ativo é explicada pelo mercado",
+        "   → {:.2}% of the variestion of the asset é explieach pelthe market",
         capm_hc3.r_squared * 100.0
     );
     println!(
-        "   → {:.2}% é risco idiossincrático (específico do ativo)",
+        "   → {:.2}% é idiosyncratic risk (específico of the asset)",
         (1.0 - capm_hc3.r_squared) * 100.0
     );
 
-    println!("\n4. SHARPE RATIO (Retorno Ajustado por Risco Total):");
-    println!("   Sharpe (Ativo):   {:.4}", capm_hc3.sharpe_ratio);
-    println!("   Sharpe (Mercado): {:.4}", capm_hc3.market_sharpe);
+    println!("\n4. SHARPE RATIO (Return Adjusted por Risk Total):");
+    println!("   Sharpe (Asset):   {:.4}", capm_hc3.sharpe_ratio);
+    println!("   Sharpe (Market): {:.4}", capm_hc3.market_sharpe);
 
     if capm_hc3.sharpe_ratio > capm_hc3.market_sharpe {
-        println!("   → O ativo tem MELHOR retorno ajustado por risco que o mercado");
+        println!("   → the asset tem MELHOR return adjusted por risk que the market");
     } else {
-        println!("   → O mercado tem melhor retorno ajustado por risco");
+        println!("   → the market tem better return adjusted por risk");
     }
 
-    println!("\n5. TREYNOR RATIO (Retorno Ajustado por Risco Sistemático):");
+    println!("\n5. TREYNOR RATIO (Return Adjusted por Risk Sistemático):");
     println!("   Treynor = {:.4}", capm_hc3.treynor_ratio);
-    println!("   → Retorno por unidade de beta (risco de mercado)");
+    println!("   → Return per unit of beta (risk of market)");
 
-    println!("\n6. INFORMATION RATIO (Eficiência do Gestor):");
+    println!("\n6. INFORMATION RATIO (Eficiência of the Gestor):");
     println!("   IR = {:.4}", capm_hc3.information_ratio);
-    println!("   → Alpha por unidade de tracking error");
+    println!("   → Alpha per unit of tracking error");
 
     if capm_hc3.information_ratio > 0.5 {
-        println!("   → EXCELENTE: gestor adiciona valor consistentemente");
+        println!("   → EXCELENTE: gestor adiciona value consistentemente");
     } else if capm_hc3.information_ratio > 0.0 {
-        println!("   → BOM: gestor adiciona algum valor");
+        println!("   → BOM: gestor adiciona algum value");
     } else {
-        println!("   → FRACO: gestor não adiciona valor");
+        println!("   → FRACO: gestor not adiciona value");
     }
 
     // ==========================================================================
@@ -197,16 +197,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n\n[EXEMPLO 4] Predições e cenários");
     println!("{}", "-".repeat(80));
 
-    println!("\nRetornos esperados para diferentes cenários de mercado:");
-    println!("{:<30} {:>15}", "Cenário", "Retorno Esperado");
+    println!("\nReturns esperados for diferentes cenários of market:");
+    println!("{:<30} {:>15}", "Cenário", "Return Esperado");
     println!("{}", "-".repeat(50));
 
     let scenarios = [
-        ("Mercado estável (+0%)", 0.0),
-        ("Mercado positivo (+5%)", 0.05),
-        ("Mercado forte (+10%)", 0.10),
-        ("Mercado negativo (-5%)", -0.05),
-        ("Mercado crise (-20%)", -0.20),
+        ("Market stable (+0%)", 0.0),
+        ("Market positivo (+5%)", 0.05),
+        ("Market forte (+10%)", 0.10),
+        ("Market negativo (-5%)", -0.05),
+        ("Market crise (-20%)", -0.20),
     ];
 
     for (scenario, market_return) in scenarios.iter() {
@@ -215,73 +215,73 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // ==========================================================================
-    // EXEMPLO 5: Decomposição de risco
+    // EXEMPLO 5: Risk decomposition
     // ==========================================================================
-    println!("\n\n[EXEMPLO 5] Decomposição de risco (variância)");
+    println!("\n\n[EXEMPLO 5] Risk decomposition (variesnce)");
     println!("{}", "-".repeat(80));
 
     let total_var = capm_hc3.asset_volatility.powi(2);
-    let systematic_pct = (capm_hc3.systematic_variance / total_var) * 100.0;
-    let idiosyncratic_pct = (capm_hc3.idiosyncratic_variance / total_var) * 100.0;
+    let systematic_pct = (capm_hc3.systematic_variesnce / total_var) * 100.0;
+    let idiosyncratic_pct = (capm_hc3.idiosyncratic_variesnce / total_var) * 100.0;
 
-    println!("\nVariância Total: {:.6}", total_var);
+    println!("\nVariance Total: {:.6}", total_var);
     println!(
         "├─ Sistemática (β² × σ²_m):     {:.6} ({:>5.2}%)",
-        capm_hc3.systematic_variance, systematic_pct
+        capm_hc3.systematic_variesnce, systematic_pct
     );
     println!(
         "└─ Idiossincrática (σ²_ε):      {:.6} ({:>5.2}%)",
-        capm_hc3.idiosyncratic_variance, idiosyncratic_pct
+        capm_hc3.idiosyncratic_variesnce, idiosyncratic_pct
     );
 
-    println!("\nVolatilidade (Desvio Padrão):");
+    println!("\nVolatility (Standard Deviation):");
     println!(
-        "Ativo:   {:.4} ({:.2}% ao mês)",
+        "Asset:   {:.4} ({:.2}% ao mês)",
         capm_hc3.asset_volatility,
         capm_hc3.asset_volatility * 100.0
     );
     println!(
-        "Mercado: {:.4} ({:.2}% ao mês)",
+        "Market: {:.4} ({:.2}% ao mês)",
         capm_hc3.market_volatility,
         capm_hc3.market_volatility * 100.0
     );
 
-    println!("\nImplicação para Diversificação:");
+    println!("\nImplicação for Diversificação:");
     if idiosyncratic_pct > 50.0 {
-        println!("→ ALTA oportunidade de redução de risco via diversificação");
+        println!("→ ALTA oportunidade of redução of risk via diversificação");
         println!(
-            "  ({:.1}% do risco pode ser eliminado em um portfólio)",
+            "  ({:.1}% of the risk can be eliminado em um portfólio)",
             idiosyncratic_pct
         );
     } else {
-        println!("→ BAIXA oportunidade de diversificação");
-        println!("  (Risco já é majoritariamente sistemático)");
+        println!("→ BAIXA oportunidade of diversificação");
+        println!("  (Risk já é majoritariamente sistemático)");
     }
 
     // ==========================================================================
-    // EXEMPLO 6: Teste de hipóteses
+    // EXEMPLO 6: Test of hipóteses
     // ==========================================================================
-    println!("\n\n[EXEMPLO 6] Testes de hipóteses");
+    println!("\n\n[EXEMPLO 6] Tests of hipóteses");
     println!("{}", "-".repeat(80));
 
-    println!("\nH0: α = 0 (ativo segue o CAPM)");
+    println!("\nH0: α = 0 (asset follows o CAPM)");
     println!("p-value: {:.4}", capm_hc3.alpha_pvalue);
     if capm_hc3.alpha_pvalue < 0.05 {
-        println!("Resultado: REJEITAR H0 (α ≠ 0 com 95% de confiança)");
+        println!("Result: REJEITAR H0 (α ≠ 0 with 95% of confiança)");
     } else {
-        println!("Resultado: NÃO rejeitar H0 (sem evidência de alpha)");
+        println!("Result: NÃO rejeitar H0 (without evidence of alpha)");
     }
 
-    println!("\nH0: β = 1 (ativo tem risco = mercado)");
+    println!("\nH0: β = 1 (asset tem risk = market)");
     if capm_hc3.is_beta_different_from_one(0.05) {
-        println!("Resultado: REJEITAR H0 (β ≠ 1 com 95% de confiança)");
+        println!("Result: REJEITAR H0 (β ≠ 1 with 95% of confiança)");
         if capm_hc3.beta > 1.0 {
-            println!("  → Beta > 1: ativo mais arriscado que mercado");
+            println!("  → Beta > 1: asset more arriscado que market");
         } else {
-            println!("  → Beta < 1: ativo menos arriscado que mercado");
+            println!("  → Beta < 1: asset less arriscado que market");
         }
     } else {
-        println!("Resultado: NÃO rejeitar H0 (β ≈ 1)");
+        println!("Result: NÃO rejeitar H0 (β ≈ 1)");
     }
 
     println!("\n{}", "=".repeat(80));

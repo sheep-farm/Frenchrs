@@ -52,7 +52,7 @@ fn test_ivol_from_ff3() {
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
     let ivol = IVOLAnalysis::from_residuals(&ff3.residuals).unwrap();
 
-    // FF3 deve ter IVOL menor que CAPM (mais fatores explicam mais variação)
+    // FF3 should ter IVOL smaller que CAPM (more factors explicam more variestion)
     assert!(ivol.ivol > 0.0);
 }
 
@@ -71,7 +71,7 @@ fn test_ivol_statistics() {
     ];
     let ivol = IVOLAnalysis::from_residuals(&residuals).unwrap();
 
-    assert!(ivol.residual_mean.abs() < 0.01); // Média deve ser próxima de 0
+    assert!(ivol.residual_mean.abs() < 0.01); // Mean should be próxima of 0
     assert!(ivol.residual_min < 0.0);
     assert!(ivol.residual_max > 0.0);
     assert!(ivol.residual_p5 < ivol.residual_p95);
@@ -183,14 +183,14 @@ fn test_tracking_error_perfect_fit() {
 
     let te = TrackingErrorAnalysis::new(&actual, &fitted, 0.0, 1.0).unwrap();
 
-    // Com fit perfeito, tracking error deve ser zero (ou muito próximo)
+    // Com fit perfeito, tracking error should be zero (ou muito próximo)
     assert!(te.tracking_error < 1e-10);
     assert!((te.correlation - 1.0).abs() < 1e-10);
 }
 
 #[test]
 fn test_tracking_error_rolling() {
-    // Dados suficientes para rolling window (12+)
+    // Data suficientes for rolling window (12+)
     let actual = array![
         0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01, 0.03, 0.015, -0.005,
         0.025
@@ -209,7 +209,7 @@ fn test_tracking_error_rolling() {
 
 #[test]
 fn test_tracking_error_no_rolling() {
-    // Dados insuficientes para rolling window (< 12)
+    // Insufficient data for rolling window (< 12)
     let actual = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005];
     let fitted = array![0.009, 0.019, -0.011, 0.029, 0.014, -0.006];
 
@@ -242,7 +242,7 @@ fn test_tracking_error_classification() {
 
 #[test]
 fn test_ivol_vs_tracking_error_equivalence() {
-    // IVOL e TE devem ter o mesmo valor (ambos são std dos resíduos)
+    // IVOL e TE should ter o mesmo value (ambos are std of the residuals)
     let asset = array![
         0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
     ];
@@ -256,7 +256,7 @@ fn test_ivol_vs_tracking_error_equivalence() {
     let te = TrackingErrorAnalysis::new(&asset, &capm.fitted_values, capm.alpha, capm.r_squared)
         .unwrap();
 
-    // IVOL e TE devem ser praticamente iguais
+    // IVOL e TE should be praticamente iguais
     assert!((ivol.ivol - te.tracking_error).abs() < 1e-10);
 }
 
@@ -267,7 +267,7 @@ fn test_display_ivol() {
 
     let display = format!("{}", ivol);
     assert!(display.contains("IVOL"));
-    assert!(display.contains("ANÁLISE"));
+    assert!(display.contains("ANALYSIS"));
 }
 
 #[test]

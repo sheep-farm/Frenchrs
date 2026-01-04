@@ -2,24 +2,24 @@ use greeners::{CovarianceType, DataFrame, GreenersError, InferenceType, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado do modelo Fama-French 5 Factor (2015)
+/// Result of the model Fama-French 5 Factor (2015)
 ///
-/// Modelo: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + β_RMW(RMW) + β_CMA(CMA) + ε
+/// Model: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML) + β_RMW(RMW) + β_CMA(CMA) + ε
 ///
-/// Fatores:
-/// - MKT: mercado
-/// - SMB: Small Minus Big (tamanho)
-/// - HML: High Minus Low (valor)
-/// - RMW: Robust Minus Weak (rentabilidade) - NOVO
-/// - CMA: Conservative Minus Aggressive (investimento) - NOVO
+/// Factors:
+/// - MKT: market
+/// - SMB: Small Minus Big (size)
+/// - HML: High Minus Low (value)
+/// - RMW: Robust Minus Weak (profitability) - NOVO
+/// - CMA: Conbevative Minus Aggressive (investment) - NOVO
 #[derive(Debug, Clone)]
 pub struct FamaFrench5FactorResult {
     pub alpha: f64,
     pub beta_market: f64,
     pub beta_smb: f64,
     pub beta_hml: f64,
-    pub beta_rmw: f64, // Rentabilidade: profitable - unprofitable
-    pub beta_cma: f64, // Investimento: low investment - high investment
+    pub beta_rmw: f64, // Profitability: profitable - unprofitable
+    pub beta_cma: f64, // Investment: low investment - high investment
 
     pub alpha_se: f64,
     pub beta_market_se: f64,
@@ -90,29 +90,29 @@ impl FamaFrench5FactorResult {
 
     pub fn profitability_classification(&self) -> &str {
         if !self.is_rmw_significant(0.05) {
-            "Neutro (RMW não significativo)"
+            "Neutral (RMW not significant)"
         } else if self.beta_rmw > 0.3 {
-            "Fortemente Profitable"
+            "Strongly Profitable"
         } else if self.beta_rmw > 0.0 {
             "Profitable"
         } else if self.beta_rmw > -0.3 {
             "Weak"
         } else {
-            "Fortemente Weak"
+            "Strongly Weak"
         }
     }
 
     pub fn investment_classification(&self) -> &str {
         if !self.is_cma_significant(0.05) {
-            "Neutro (CMA não significativo)"
+            "Neutral (CMA not significant)"
         } else if self.beta_cma > 0.3 {
-            "Fortemente Conservative"
+            "Strongly Conservative"
         } else if self.beta_cma > 0.0 {
             "Conservative"
         } else if self.beta_cma > -0.3 {
             "Aggressive"
         } else {
-            "Fortemente Aggressive"
+            "Strongly Aggressive"
         }
     }
 
@@ -146,28 +146,24 @@ impl FamaFrench5FactorResult {
 impl fmt::Display for FamaFrench5FactorResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "FAMA-FRENCH 5 FACTOR MODEL (2015) - RESULTADOS")?;
+        writeln!(f, "FAMA-FRENCH 5 FACTOR MODEL (2015) - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
         writeln!(
             f,
-            "\nMODELO: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML)"
+            "\nMODEL: R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB(SMB) + β_HML(HML)"
         )?;
         writeln!(f, "                  + β_RMW(RMW) + β_CMA(CMA) + ε")?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
-        writeln!(f, "Tipo de Covariância: {:?}", self.cov_type)?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
+        writeln!(f, "Covariesnce Type: {:?}", self.cov_type)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<20} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -252,7 +248,7 @@ impl fmt::Display for FamaFrench5FactorResult {
         let total = mkt + smb + hml + rmw + cma;
         writeln!(
             f,
-            "Mercado: {:>8.4}% ({:>5.1}%)",
+            "Market: {:>8.4}% ({:>5.1}%)",
             mkt * 100.0,
             if total != 0.0 {
                 mkt / total * 100.0
@@ -302,18 +298,14 @@ impl fmt::Display for FamaFrench5FactorResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CLASSIFICAÇÕES")?;
+        writeln!(f, "CLASSIFICATIONS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Rentabilidade (RMW): {}",
+            "Profitability (RMW): {}",
             self.profitability_classification()
         )?;
-        writeln!(
-            f,
-            "Investimento (CMA):  {}",
-            self.investment_classification()
-        )?;
+        writeln!(f, "Investment (CMA):  {}", self.investment_classification())?;
 
         writeln!(f, "\n{}", "=".repeat(80))?;
         Ok(())
@@ -323,7 +315,7 @@ impl fmt::Display for FamaFrench5FactorResult {
 pub struct FamaFrench5Factor;
 
 impl FamaFrench5Factor {
-    /// Estima o modelo Fama-French 5 Factor
+    /// Estimates the model Fama-French 5 Factor
     ///
     /// # Example
     /// ```
@@ -343,6 +335,7 @@ impl FamaFrench5Factor {
     ///     0.0001, CovarianceType::HC3,
     /// ).unwrap();
     /// ```
+    #[allow(clippy::too_many_arguments)]
     pub fn fit(
         asset_returns: &Array1<f64>,
         market_returns: &Array1<f64>,
@@ -445,7 +438,8 @@ impl FamaFrench5Factor {
         })
     }
 
-    /// Estima FF5 a partir de DataFrame
+    /// Estimates FF5 from DataFrame
+    #[allow(clippy::too_many_arguments)]
     pub fn from_dataframe(
         df: &DataFrame,
         asset_col: &str,

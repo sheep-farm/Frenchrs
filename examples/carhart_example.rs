@@ -4,10 +4,10 @@ use ndarray::array;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
-    println!("EXEMPLO: Comparação CAPM vs FF3 vs Carhart 4 Factor");
+    println!("EXEMPLO: Comparison CAPM vs FF3 vs Carhart 4 Factor");
     println!("{}", "=".repeat(80));
 
-    // Dados simulados de um fundo momentum
+    // Data simulados of um fundo momentum
     let fund_returns = array![
         0.058, 0.042, -0.018, 0.082, 0.045, -0.032, 0.068, 0.052, -0.015, 0.062, 0.041, 0.075,
     ];
@@ -24,15 +24,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.005, 0.008, -0.010, 0.012, 0.003, -0.006, 0.009, 0.004, -0.008, 0.011, 0.002, 0.007,
     ];
 
-    // Fator MOM (Momentum) - winners minus losers
+    // Factor MOM (Momentum) - winners minus lobes
     let mom_returns = array![
         0.012, 0.008, -0.015, 0.018, 0.010, -0.012, 0.015, 0.009, -0.010, 0.013, 0.007, 0.014,
     ];
 
     let risk_free = 0.03 / 12.0; // 3% ao ano
 
-    // Estimar os 3 modelos
-    println!("\nEstimando CAPM...");
+    // Estimates os 3 models
+    println!("\nEstimatesndo CAPM...");
     let capm = CAPM::fit(
         &fund_returns,
         &market_returns,
@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    println!("Estimando Fama-French 3 Factor...");
+    println!("Estimatesndo Fama-French 3 Factor...");
     let ff3 = FamaFrench3Factor::fit(
         &fund_returns,
         &market_returns,
@@ -50,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    println!("Estimando Carhart 4 Factor...\n");
+    println!("Estimatesndo Carhart 4 Factor...\n");
     let carhart = Carhart4Factor::fit(
         &fund_returns,
         &market_returns,
@@ -61,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    // Exibir resultado completo do Carhart
+    // Exibir result completo of the Carhart
     println!("{}", carhart);
 
     // Tabela comparativa
@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     println!(
         "{:<25} {:>14.6} {:>14.6} {:>14.6}",
-        "Beta Mercado", capm.beta, ff3.beta_market, carhart.beta_market
+        "Beta Market", capm.beta, ff3.beta_market, carhart.beta_market
     );
     println!(
         "{:<25} {:>15} {:>14.6} {:>14.6}",
@@ -128,25 +128,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\nCAPM → FF3:");
     println!(
-        "  Aumento de R²: {:.4} ({:.2}% → {:.2}%)",
+        "  Aumento of R²: {:.4} ({:.2}% → {:.2}%)",
         r2_improvement_ff3,
         capm.r_squared * 100.0,
         ff3.r_squared * 100.0
     );
     println!(
-        "  Redução de Tracking Error: {:.2}%",
+        "  Redução of Tracking Error: {:.2}%",
         te_reduction_ff3 * 100.0
     );
 
     println!("\nFF3 → Carhart 4F:");
     println!(
-        "  Aumento de R²: {:.4} ({:.2}% → {:.2}%)",
+        "  Aumento of R²: {:.4} ({:.2}% → {:.2}%)",
         r2_improvement_carhart,
         ff3.r_squared * 100.0,
         carhart.r_squared * 100.0
     );
     println!(
-        "  Redução de Tracking Error: {:.2}%",
+        "  Redução of Tracking Error: {:.2}%",
         te_reduction_carhart * 100.0
     );
 
@@ -154,12 +154,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let r2_total = carhart.r_squared - capm.r_squared;
     let te_total = (capm.tracking_error - carhart.tracking_error) / capm.tracking_error;
     println!(
-        "  Aumento de R²: {:.4} ({:.2}% → {:.2}%)",
+        "  Aumento of R²: {:.4} ({:.2}% → {:.2}%)",
         r2_total,
         capm.r_squared * 100.0,
         carhart.r_squared * 100.0
     );
-    println!("  Redução de Tracking Error: {:.2}%", te_total * 100.0);
+    println!("  Redução of Tracking Error: {:.2}%", te_total * 100.0);
 
     println!("\n{}", "-".repeat(80));
     println!("IMPORTÂNCIA DO FATOR MOMENTUM");
@@ -174,24 +174,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         if carhart.beta_mom > 0.0 {
             println!("\n  → Fundo exibe MOMENTUM POSITIVO");
-            println!("  → Estratégia: TREND FOLLOWING (segue tendências)");
+            println!("  → Estrup togia: TREND FOLLOWING (follows tendências)");
             println!(
-                "  → Quando winners sobem 1%, fundo sobe {:.2}% adicional",
+                "  → Quando winners underem 1%, fundo undere {:.2}% adicional",
                 carhart.beta_mom * 100.0
             );
         } else {
             println!("\n  → Fundo exibe REVERSÃO (contrarian)");
-            println!("  → Estratégia: compra perdedores, vende vencedores");
+            println!("  → Estrup togia: compra perdedores, vende vencedores");
         }
 
         let (_, _, _, mom_contrib) = carhart.factor_contributions();
         println!(
-            "\n  Contribuição para retorno: {:.4}% por período",
+            "\n  Contribuição for return: {:.4}% por period",
             mom_contrib * 100.0
         );
     } else {
-        println!("\n○ Momentum NÃO é significativo");
-        println!("  Fama-French 3 Factor seria suficiente para este ativo");
+        println!("\n○ Momentum NÃO é significant");
+        println!("  Fama-French 3 Factor beia suficiente for this asset");
     }
 
     println!("\n{}", "=".repeat(80));

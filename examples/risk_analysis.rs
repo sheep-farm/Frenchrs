@@ -6,7 +6,7 @@ use ndarray::array;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
-    println!("ANÁLISE DE RISCO: IVOL & TRACKING ERROR");
+    println!("ANALYSIS OF RISCO: IVOL & TRACKING ERROR");
     println!("{}", "=".repeat(80));
 
     // ========================================================================
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ========================================================================
     // ESTIMAÇÃO DOS MODELOS
     // ========================================================================
-    println!("\nEstimando modelos...\n");
+    println!("\nEstimatesndthe models...\n");
 
     let capm = CAPM::fit(&fund, &market, rf, CovarianceType::HC3)?;
     let ff3 = FamaFrench3Factor::fit(&fund, &market, &smb, &hml, rf, CovarianceType::HC3)?;
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
 
     // ========================================================================
-    // ANÁLISE DE IVOL
+    // ANALYSIS OF IVOL
     // ========================================================================
     println!("{}", "=".repeat(80));
     println!("COMPARAÇÃO DE IVOL (IDIOSYNCRATIC VOLATILITY)");
@@ -69,7 +69,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "\n{:<20} {:>15} {:>20} {:>20}",
-        "Modelo", "IVOL", "IVOL Anual (Mensal)", "Classificação"
+        "Model", "IVOL", "IVOL Anual (Monthly)", "Classification"
     );
     println!("{}", "-".repeat(80));
 
@@ -106,13 +106,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     println!("\n{}", "-".repeat(80));
-    println!("INTERPRETAÇÃO:");
-    println!("• IVOL diminui à medida que adicionamos fatores ao modelo");
-    println!("• Menor IVOL indica que o modelo explica melhor os retornos");
-    println!("• IVOL representa o risco diversificável/específico do ativo");
+    println!("INTERPRETATION:");
+    println!("• IVOL diminui à medida que adicionamos factors to the model");
+    println!("• Menor IVOL indica que the model explica better the returns");
+    println!("• IVOL representa the risk diversificável/específico of the asset");
 
     // ========================================================================
-    // ANÁLISE DE TRACKING ERROR
+    // ANALYSIS OF TRACKING ERROR
     // ========================================================================
     println!("\n{}", "=".repeat(80));
     println!("COMPARAÇÃO DE TRACKING ERROR");
@@ -131,7 +131,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "\n{:<20} {:>12} {:>18} {:>18} {:>15}",
-        "Modelo", "TE", "TE Anual (Mensal)", "Info Ratio", "Classificação"
+        "Model", "TE", "TE Anual (Monthly)", "Info Ratio", "Classification"
     );
     println!("{}", "-".repeat(80));
 
@@ -172,41 +172,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     println!("\n{}", "-".repeat(80));
-    println!("INTERPRETAÇÃO:");
-    println!("• Tracking Error mede o quanto o fundo desvia do modelo");
+    println!("INTERPRETATION:");
+    println!("• Tracking Error measures o how much o fundo desvia of the model");
     println!("• Information Ratio = Alpha / Tracking Error");
     println!("• IR > 0.5 é considerado bom, > 1.0 é excelente");
 
     // ========================================================================
-    // ANÁLISE DETALHADA: CAPM
+    // ANALYSIS OFTALHADA: CAPM
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("ANÁLISE DETALHADA: CAPM");
+    println!("ANALYSIS OFTALHADA: CAPM");
     println!("{}", "=".repeat(80));
 
     println!("{}", ivol_capm);
     println!("{}", te_capm);
 
     // ========================================================================
-    // ANÁLISE DETALHADA: FAMA-FRENCH 5 FACTOR
+    // ANALYSIS OFTALHADA: FAMA-FRENCH 5 FACTOR
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("ANÁLISE DETALHADA: FAMA-FRENCH 5 FACTOR");
+    println!("ANALYSIS OFTALHADA: FAMA-FRENCH 5 FACTOR");
     println!("{}", "=".repeat(80));
 
     println!("{}", ivol_ff5);
     println!("{}", te_ff5);
 
     // ========================================================================
-    // ESTATÍSTICAS COMPARATIVAS DOS RESÍDUOS
+    // STATISTICS COMPARATIVAS Dthe residuals
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("ESTATÍSTICAS DOS RESÍDUOS");
+    println!("RESIDUAL STATISTICS");
     println!("{}", "=".repeat(80));
 
     println!(
         "\n{:<20} {:>12} {:>12} {:>12} {:>12}",
-        "Modelo", "Média", "Skewness", "Kurtosis", "Normal?"
+        "Model", "Mean", "Skewness", "Kurtosis", "Normal?"
     );
     println!("{}", "-".repeat(80));
 
@@ -263,22 +263,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     println!("\n{}", "-".repeat(80));
-    println!("INTERPRETAÇÃO:");
-    println!("• Média dos resíduos deve ser próxima de zero");
-    println!("• Skewness mede assimetria (0 = simétrico)");
-    println!("• Kurtosis mede caudas pesadas (0 = normal)");
-    println!("• Teste de normalidade: Jarque-Bera a 5%");
+    println!("INTERPRETATION:");
+    println!("• Mean of the residuals should be próxima of zero");
+    println!("• Skewness measures assimetria (0 = simétrico)");
+    println!("• Kurtosis measures caudas pesadas (0 = normal)");
+    println!("• Test of normalidade: Jarque-Bera a 5%");
 
     // ========================================================================
-    // MÉTRICAS DE QUALIDADE DO AJUSTE
+    // METRICS DE FIT QUALITY
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("QUALIDADE DO AJUSTE");
+    println!("FIT QUALITY");
     println!("{}", "=".repeat(80));
 
     println!(
         "\n{:<20} {:>12} {:>12} {:>12} {:>12}",
-        "Modelo", "R²", "Correlação", "RMSE", "MAE"
+        "Model", "R²", "Correlação", "RMSE", "MAE"
     );
     println!("{}", "-".repeat(80));
 
@@ -303,9 +303,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     println!("\n{}", "-".repeat(80));
-    println!("INTERPRETAÇÃO:");
-    println!("• R² = proporção da variância explicada");
-    println!("• Correlação = relação linear entre observado e previsto");
+    println!("INTERPRETATION:");
+    println!("• R² = proportion of the variesnce explieach");
+    println!("• Correlação = relação linear between obbevado e prevthis");
     println!("• RMSE = erro quadrático médio");
     println!("• MAE = erro absoluto médio");
 
@@ -318,11 +318,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n1. EVOLUÇÃO DO IVOL:");
     println!(
-        "   • CAPM:    {:.2}% (anualizado)",
+        "   • CAPM:    {:.2}% (annualized)",
         ivol_capm.ivol_annualized_monthly * 100.0
     );
     println!(
-        "   • FF5:     {:.2}% (anualizado)",
+        "   • FF5:     {:.2}% (annualized)",
         ivol_ff5.ivol_annualized_monthly * 100.0
     );
     println!(
@@ -334,7 +334,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   • CAPM:    {:.4}", te_capm.information_ratio);
     println!("   • FF5:     {:.4}", te_ff5.information_ratio);
     println!(
-        "   • Melhor modelo por IR: {}",
+        "   • Melhor model por IR: {}",
         if te_ff5.information_ratio.abs() > te_capm.information_ratio.abs() {
             "FF5"
         } else {
@@ -342,10 +342,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     );
 
-    println!("\n3. DISTRIBUIÇÃO DOS RESÍDUOS:");
+    println!("\n3. DISTRIBUIÇÃO Dthe residuals:");
     println!(
-        "   • Modelos com resíduos normais: {}",
-        vec![
+        "   • Models with residuals normore: {}",
+        [
             ("CAPM", ivol_capm.is_residuals_normal(0.05)),
             ("FF3", ivol_ff3.is_residuals_normal(0.05)),
             ("Carhart", ivol_carhart.is_residuals_normal(0.05)),
@@ -360,11 +360,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n4. RECOMENDAÇÃO:");
     if ivol_ff5.ivol < ivol_capm.ivol * 0.8 {
-        println!("   • FF5 reduz significativamente o IVOL (>20%)");
-        println!("   • Recomenda-se usar FF5 para melhor explicação dos retornos");
+        println!("   • FF5 reduz significantly o IVOL (>20%)");
+        println!("   • Recomenda-if usar FF5 for better explicação of the returns");
     } else {
-        println!("   • Ganho marginal com modelos multi-fatoriais");
-        println!("   • CAPM pode ser suficiente para este ativo");
+        println!("   • Ganho marginal with models multi-fatoriais");
+        println!("   • CAPM can be suficiente for this asset");
     }
 
     println!("\n{}", "=".repeat(80));

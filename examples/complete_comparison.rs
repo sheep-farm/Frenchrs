@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
     println!("FRENCHRS - COMPARAÇÃO COMPLETA DE TODOS OS MODELOS");
     println!("{}", "=".repeat(80));
-    println!("\nModelos: CAPM → FF3 → Carhart → FF5 → FF6 → APT");
+    println!("\nModels: CAPM → FF3 → Carhart → FF5 → FF6 → APT");
 
     // ========================================================================
     // DADOS SIMULADOS
@@ -44,7 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ESTIMAÇÃO DE TODOS OS MODELOS
     // ========================================================================
     println!("\n{}", "-".repeat(80));
-    println!("Estimando modelos...");
+    println!("Estimatesndthe models...");
     println!("{}", "-".repeat(80));
 
     let capm = CAPM::fit(&fund, &market, rf, CovarianceType::HC3)?;
@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     println!("✓ Fama-French 6 Factor (2023)");
 
-    // APT com 6 fatores (equivalente ao FF6, mas com framework genérico)
+    // APT with 6 factors (equivalente ao FF6, mas with framework genérico)
     let apt_factors = Array2::from_shape_vec(
         (12, 6),
         vec![
@@ -171,18 +171,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ]);
 
     let apt = APT::fit(&fund, &apt_factors, rf, CovarianceType::HC3, apt_names)?;
-    println!("✓ APT (1976) - 6 fatores customizados");
+    println!("✓ APT (1976) - 6 factors customizados");
 
     // ========================================================================
-    // TABELA COMPARATIVA DE PARÂMETROS
+    // TABELA COMPARATIVA DE PARAMETERS
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("COMPARAÇÃO DE PARÂMETROS ESTIMADOS");
+    println!("COMPARAÇÃO DE ESTIMATED PARAMETERS");
     println!("{}", "=".repeat(80));
 
     println!(
         "\n{:<25} {:>10} {:>10} {:>10} {:>10} {:>10} {:>10}",
-        "Parâmetro", "CAPM", "FF3", "Carhart", "FF5", "FF6", "APT-6"
+        "Parameter", "CAPM", "FF3", "Carhart", "FF5", "FF6", "APT-6"
     );
     println!("{}", "-".repeat(80));
 
@@ -193,7 +193,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<25} {:>10.6} {:>10.6} {:>10.6} {:>10.6} {:>10.6} {:>10.6}",
-        "Beta Mercado",
+        "Beta Market",
         capm.beta,
         ff3.beta_market,
         carhart.beta_market,
@@ -233,7 +233,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // ========================================================================
-    // QUALIDADE DO AJUSTE
+    // FIT QUALITY
     // ========================================================================
     println!("\n{}", "=".repeat(80));
     println!("EVOLUÇÃO DO PODER EXPLICATIVO");
@@ -241,13 +241,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "\n{:<30} {:>12} {:>15} {:>12}",
-        "Modelo", "R²", "R² Ajustado", "Track Error"
+        "Model", "R²", "R² Adjusted", "Track Error"
     );
     println!("{}", "-".repeat(80));
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%",
-        "CAPM (1 fator)",
+        "CAPM (1 factor)",
         capm.r_squared,
         capm.adj_r_squared,
         capm.tracking_error * 100.0
@@ -255,7 +255,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%  [+{:.4}]",
-        "FF3 (3 fatores)",
+        "FF3 (3 factors)",
         ff3.r_squared,
         ff3.adj_r_squared,
         ff3.tracking_error * 100.0,
@@ -264,7 +264,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%  [+{:.4}]",
-        "Carhart (4 fatores)",
+        "Carhart (4 factors)",
         carhart.r_squared,
         carhart.adj_r_squared,
         carhart.tracking_error * 100.0,
@@ -273,7 +273,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%  [+{:.4}]",
-        "FF5 (5 fatores)",
+        "FF5 (5 factors)",
         ff5.r_squared,
         ff5.adj_r_squared,
         ff5.tracking_error * 100.0,
@@ -282,7 +282,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%  [+{:.4}]",
-        "FF6 (6 fatores)",
+        "FF6 (6 factors)",
         ff6.r_squared,
         ff6.adj_r_squared,
         ff6.tracking_error * 100.0,
@@ -291,7 +291,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "{:<30} {:>12.4} {:>15.4} {:>11.4}%",
-        "APT-6 (6 fatores)",
+        "APT-6 (6 factors)",
         apt.r_squared,
         apt.adj_r_squared,
         apt.tracking_error * 100.0
@@ -306,10 +306,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // ========================================================================
-    // SIGNIFICÂNCIA DO ALPHA
+    // SIGNIFICÂNCIA Dthe alpha
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("ANÁLISE DE ALPHA (α = 0.05)");
+    println!("ANALYSIS OF ALPHA (α = 0.05)");
     println!("{}", "=".repeat(80));
 
     let models = vec![
@@ -323,7 +323,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "\n{:<15} {:>12} {:>12} {:>20}",
-        "Modelo", "Alpha", "P-value", "Significância"
+        "Model", "Alpha", "P-value", "Significance"
     );
     println!("{}", "-".repeat(80));
 
@@ -335,24 +335,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else if pvalue < 0.05 {
             "*   (p < 0.05)"
         } else {
-            "    (não sig.)"
+            "    (not sig.)"
         };
 
         println!("{:<15} {:>12.6} {:>12.4} {:>20}", name, alpha, pvalue, sig);
     }
 
     // ========================================================================
-    // CLASSIFICAÇÕES (FF6)
+    // CLASSIFICATIONS (FF6)
     // ========================================================================
     println!("\n{}", "=".repeat(80));
     println!("CLASSIFICAÇÃO DO FUNDO (Baseado em FF6)");
     println!("{}", "=".repeat(80));
 
     println!("\nPerformance:     {}", ff6.performance_classification());
-    println!("Tamanho:         {}", ff6.size_classification());
-    println!("Valor:           {}", ff6.value_classification());
-    println!("Rentabilidade:   {}", ff6.profitability_classification());
-    println!("Investimento:    {}", ff6.investment_classification());
+    println!("Size:         {}", ff6.size_classification());
+    println!("Value:           {}", ff6.value_classification());
+    println!("Profitability:   {}", ff6.profitability_classification());
+    println!("Investment:    {}", ff6.investment_classification());
     println!("Momentum:        {}", ff6.momentum_classification());
 
     // ========================================================================
@@ -363,28 +363,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "=".repeat(80));
 
     println!("\n1. EVOLUÇÃO HISTÓRICA DOS MODELOS:");
-    println!("   • 1964: CAPM introduz o conceito de beta de mercado");
-    println!("   • 1993: FF3 adiciona fatores tamanho (SMB) e valor (HML)");
-    println!("   • 1997: Carhart adiciona fator momentum");
-    println!("   • 2015: FF5 adiciona rentabilidade (RMW) e investimento (CMA)");
-    println!("   • 2023: FF6 combina FF5 com momentum (UMD)");
-    println!("   • 1976: APT oferece framework flexível para N fatores");
+    println!("   • 1964: CAPM introduz o conceito of beta of market");
+    println!("   • 1993: FF3 adiciona factors size (SMB) e value (HML)");
+    println!("   • 1997: Carhart adiciona factor momentum");
+    println!("   • 2015: FF5 adiciona profitability (RMW) e investment (CMA)");
+    println!("   • 2023: FF6 combina FF5 with momentum (UMD)");
+    println!("   • 1976: APT oferece framework flexível for N factors");
 
     println!("\n2. PODER EXPLICATIVO:");
     println!(
-        "   • CAPM captura {:.1}% da variação",
+        "   • CAPM captura {:.1}% of the variestion",
         capm.r_squared * 100.0
     );
-    println!("   • FF6 captura {:.1}% da variação", ff6.r_squared * 100.0);
     println!(
-        "   • Ganho de {:.1} pontos percentuais",
+        "   • FF6 captura {:.1}% of the variestion",
+        ff6.r_squared * 100.0
+    );
+    println!(
+        "   • Ganho of {:.1} pontos percentuais",
         (ff6.r_squared - capm.r_squared) * 100.0
     );
 
     println!("\n3. FRAMEWORK APT:");
-    println!("   • Permite escolha flexível de fatores");
-    println!("   • Não restringe a número específico de fatores");
-    println!("   • Ideal para modelos customizados e pesquisa");
+    println!("   • Permite escolha flexível of factors");
+    println!("   • Não restringe a número específico of factors");
+    println!("   • Ideal for models customizados e pesquisa");
 
     println!("\n{}", "=".repeat(80));
 

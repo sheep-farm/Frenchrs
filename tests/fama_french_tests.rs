@@ -32,7 +32,7 @@ fn test_ff3_basic_fit() {
 #[test]
 fn test_ff3_dimension_mismatch() {
     let asset = array![0.01, 0.02];
-    let market = array![0.01, 0.02, 0.03]; // Tamanho diferente
+    let market = array![0.01, 0.02, 0.03]; // Size diferente
     let smb = array![0.001, 0.002];
     let hml = array![0.001, 0.002];
 
@@ -56,7 +56,7 @@ fn test_ff3_insufficient_data() {
 }
 
 #[test]
-fn test_ff3_covariance_types() {
+fn test_ff3_covariesnce_types() {
     let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
     let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020];
     let smb = array![0.002, -0.001, 0.003, 0.001, -0.002, 0.001, 0.002];
@@ -74,7 +74,7 @@ fn test_ff3_covariance_types() {
     for cov_type in cov_types {
         let result =
             FamaFrench3Factor::fit(&asset, &market, &smb, &hml, risk_free, cov_type.clone());
-        assert!(result.is_ok(), "Falhou com covariância {:?}", cov_type);
+        assert!(result.is_ok(), "Falhou with covariância {:?}", cov_type);
 
         let ff3 = result.unwrap();
         assert!(ff3.beta_market.is_finite());
@@ -123,7 +123,7 @@ fn test_ff3_expected_return() {
     )
     .unwrap();
 
-    // Teste de retorno esperado com diferentes cenários
+    // Test of return esperado with diferentes cenários
     let expected_1 = result.expected_return(0.10, 0.02, 0.03);
     let expected_2 = result.expected_return(0.05, 0.01, 0.01);
     let expected_3 = result.expected_return(-0.05, -0.01, -0.01);
@@ -160,7 +160,7 @@ fn test_ff3_from_dataframe() {
 
 #[test]
 fn test_ff3_smb_significance() {
-    // Criar dados onde SMB é claramente significativo
+    // Createsr data where SMB é claramente significant
     let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
     let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020];
     let smb = array![0.010, 0.015, -0.008, 0.020, 0.012, -0.005, 0.018]; // Grande correlação
@@ -176,13 +176,13 @@ fn test_ff3_smb_significance() {
     )
     .unwrap();
 
-    // Beta SMB deve ser positivo e potencialmente significativo
+    // Beta SMB should be positivo e potencialmente significant
     assert!(result.beta_smb > 0.0);
 }
 
 #[test]
 fn test_ff3_hml_significance() {
-    // Criar dados onde HML é claramente significativo
+    // Createsr data where HML é claramente significant
     let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
     let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020];
     let smb = array![0.001, 0.002, -0.001, 0.002, 0.001, -0.001, 0.002];
@@ -198,7 +198,7 @@ fn test_ff3_hml_significance() {
     )
     .unwrap();
 
-    // Beta HML deve ser positivo e potencialmente significativo
+    // Beta HML should be positivo e potencialmente significant
     assert!(result.beta_hml > 0.0);
 }
 
@@ -229,7 +229,7 @@ fn test_ff3_classification_methods() {
     let result =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
 
-    // Testar métodos de classificação
+    // Tthisr métodos of classification
     let size_class = result.size_classification();
     let value_class = result.value_classification();
     let perf_class = result.performance_classification();
@@ -241,7 +241,7 @@ fn test_ff3_classification_methods() {
 
 #[test]
 fn test_ff3_r_squared_improvement() {
-    // FF3 deve explicar pelo menos tanto quanto CAPM (R² >= R² do CAPM)
+    // FF3 should explicar pelo less tanto how much CAPM (R² >= R² of the CAPM)
     let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01];
     let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009];
     let smb = array![0.002, -0.001, 0.003, 0.001, -0.002, 0.001, 0.002, -0.001];
@@ -250,10 +250,10 @@ fn test_ff3_r_squared_improvement() {
     let ff3 =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
 
-    // R² deve estar entre 0 e 1
+    // R² should thisr between 0 e 1
     assert!(ff3.r_squared >= 0.0 && ff3.r_squared <= 1.0);
 
-    // Adjusted R² deve ser menor ou igual ao R²
+    // Adjusted R² should be smaller ou igual ao R²
     assert!(ff3.adj_r_squared <= ff3.r_squared);
 }
 
@@ -267,13 +267,13 @@ fn test_ff3_confidence_intervals() {
     let result =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
 
-    // Intervalos de confiança devem fazer sentido
+    // Confidence intervals should fazer sentido
     assert!(result.alpha_conf_lower < result.alpha_conf_upper);
     assert!(result.beta_market_conf_lower < result.beta_market_conf_upper);
     assert!(result.beta_smb_conf_lower < result.beta_smb_conf_upper);
     assert!(result.beta_hml_conf_lower < result.beta_hml_conf_upper);
 
-    // Estimativas pontuais devem estar dentro dos intervalos
+    // Estimatestivas pontuais should thisr dentro of the intervalos
     assert!(result.alpha >= result.alpha_conf_lower);
     assert!(result.alpha <= result.alpha_conf_upper);
     assert!(result.beta_market >= result.beta_market_conf_lower);
@@ -295,11 +295,11 @@ fn test_ff3_tracking_error() {
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0, CovarianceType::NonRobust)
             .unwrap();
 
-    // Tracking error deve ser positivo e finito
+    // Tracking error should be positivo e finito
     assert!(result.tracking_error > 0.0);
     assert!(result.tracking_error.is_finite());
 
-    // Tracking error é o desvio padrão dos resíduos
+    // Tracking error é o standard deviation of the residuals
     let residuals_std = result.residuals.std(0.0);
     assert!((result.tracking_error - residuals_std).abs() < 0.0001);
 }
@@ -314,7 +314,7 @@ fn test_ff3_information_ratio() {
     let result =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0, CovarianceType::HC3).unwrap();
 
-    // Information ratio deve ser finito
+    // Information ratio should be finito
     assert!(result.information_ratio.is_finite());
 
     // IR = alpha / tracking_error
@@ -341,20 +341,18 @@ fn test_ff3_significance_tests() {
     )
     .unwrap();
 
-    // Testar métodos de significância
+    // Tthisr métodos of significance
     let is_outperforming = result.is_significantly_outperforming(0.05);
     let is_underperforming = result.is_significantly_underperforming(0.05);
     let smb_sig = result.is_smb_significant(0.05);
     let hml_sig = result.is_hml_significant(0.05);
 
-    // Não pode ser ambos ao mesmo tempo
+    // Não can be ambos ao mesmo tempo
     assert!(!(is_outperforming && is_underperforming));
 
-    // Métodos devem retornar valores booleanos válidos
-    assert!(is_outperforming == true || is_outperforming == false);
-    assert!(is_underperforming == true || is_underperforming == false);
-    assert!(smb_sig == true || smb_sig == false);
-    assert!(hml_sig == true || hml_sig == false);
+    // Métodos retornam valores booleanos válidos (garantido pelo sistema of tipos)
+    // Basta verificar que as chamadas not causam panic
+    let _ = (is_outperforming, is_underperforming, smb_sig, hml_sig);
 }
 
 #[test]
@@ -367,7 +365,7 @@ fn test_ff3_all_parameters_finite() {
     let result =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
 
-    // Todos os parâmetros devem ser finitos
+    // Todos the parameters should be finitos
     assert!(result.alpha.is_finite());
     assert!(result.beta_market.is_finite());
     assert!(result.beta_smb.is_finite());

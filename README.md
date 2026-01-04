@@ -1,82 +1,93 @@
+Below is the English translation of the **Frenchrs** documentation, formatted as a Markdown file.
+
+---
+
 # Frenchrs
 
-Biblioteca Rust de alto desempenho para precificação de ativos e análise financeira, construída sobre a infraestrutura econométrica robusta do [Greeners](https://crates.io/crates/greeners).
+A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners).
 
-## 📊 Modelos Implementados
+## 📊 Implemented Models
 
-### Modelos Clássicos
-- **CAPM** (Capital Asset Pricing Model, 1964)
-  - Modelo fundamental de precificação baseado no risco sistemático
-  - Retorno esperado = Rf + β(Rm - Rf)
+### Classic Models
 
-### Modelos Fama-French
-- **Fama-French 3 Factor** (1993)
-  - CAPM + fatores tamanho (SMB) e valor (HML)
-  - Melhora significativa no poder explicativo
+* **CAPM** (Capital Asset Pricing Model, 1964): A fundamental pricing model based on systematic risk.
+* **Formula**: .
 
-- **Fama-French 5 Factor** (2015)
-  - FF3 + fatores rentabilidade (RMW) e investimento (CMA)
-  - Estado da arte em precificação de ativos
 
-- **Fama-French 6 Factor** (2023)
-  - FF5 + fator momentum (UMD/Up Minus Down)
-  - Modelo mais completo disponível
 
-### Modelos Multi-fatoriais
-- **Carhart 4 Factor** (1997)
-  - FF3 + fator momentum (MOM)
-  - Popular para análise de fundos de investimento
+### Fama-French Models
 
-- **APT** (Arbitrage Pricing Theory, 1976)
-  - Framework genérico com N fatores arbitrários
-  - Máxima flexibilidade para pesquisa e modelos customizados
+* **Fama-French 3 Factor** (1993): Extends CAPM with size (SMB) and value (HML) factors. It provides a significant improvement in explanatory power.
+* **Fama-French 5 Factor** (2015): Adds profitability (RMW) and investment (CMA) factors to the FF3 model. This represents the state-of-the-art in asset pricing.
+* **Fama-French 6 Factor** (2023): Incorporates the momentum factor (UMD/Up Minus Down) into the FF5 framework. This is the most comprehensive model available in the library.
 
-### Métricas de Risco
-- **IVOL (Idiosyncratic Volatility)**
-  - Volatilidade específica não explicada pelos fatores
-  - IVOL anualizado (diário e mensal)
-  - Estatísticas completas dos resíduos (skewness, kurtosis)
-  - Teste de normalidade Jarque-Bera
+### Multi-factor Models
 
-- **Tracking Error Analysis**
-  - Tracking error ex-post
-  - Information ratio
-  - Rolling tracking error (janela de 12 períodos)
-  - Métricas de qualidade do ajuste (RMSE, MAE, correlação)
+* **Carhart 4 Factor** (1997): Combines FF3 with the momentum factor (MOM). It is popular for analyzing investment funds.
+* **APT** (Arbitrage Pricing Theory, 1976): A generic framework utilizing  arbitrary factors. Offers maximum flexibility for research and custom models.
 
-### Análise Temporal
-- **Rolling Betas**
-  - Análise de janelas móveis para CAPM e Fama-French 3
-  - Evolução temporal de alphas e betas
-  - Estatísticas de estabilidade (CV, tendência, autocorrelação)
-  - Identificação de mudanças estruturais
-  - Classificação automática de estabilidade
+---
 
-## 🚀 Características
+## 🛡️ Risk Metrics
 
-- ✅ **Alto Desempenho**: Construído em Rust com BLAS/LAPACK
-- ✅ **Estatisticamente Robusto**: Múltiplos tipos de erros padrão (HC0-HC4, Newey-West, Clustering)
-- ✅ **Completo**: Estatísticas t, p-values, intervalos de confiança, métricas de performance
-- ✅ **Flexível**: Suporte para DataFrame e arrays ndarray
-- ✅ **Bem Testado**: >87 testes unitários e de integração
-- ✅ **Bem Documentado**: Exemplos completos e documentação inline
+* **IVOL (Idiosyncratic Volatility)**:
+* Measures specific volatility not explained by model factors.
+* Provides annualized IVOL (daily and monthly).
+* Includes complete residual statistics such as skewness and kurtosis.
+* Features the Jarque-Bera normality test.
 
-## 📦 Instalação
+
+* **Tracking Error Analysis**:
+* Includes ex-post tracking error and information ratio.
+* Calculates rolling tracking error with a 12-period window.
+* Includes Fit Quality metrics such as RMSE, MAE, and correlation.
+
+
+
+## 🕒 Temporal Analysis
+
+* **Rolling Betas**:
+* Analysis using moving windows for CAPM and Fama-French 3 models.
+* Tracks the temporal evolution of alphas and betas.
+* Provides stability statistics including Coefficient of Variation (CV), trend, and autocorrelation.
+* Identifies structural changes and provides automatic stability classification.
+
+
+
+---
+
+## 🚀 Key Features
+
+* ✅ **High Performance**: Built in Rust using BLAS/LAPACK for speed.
+* ✅ **Statistically Robust**: Supports multiple standard error types, including HC0-HC4, Newey-West, and Clustering.
+* ✅ **Comprehensive**: Provides t-statistics, p-values, confidence intervals, and performance metrics.
+* ✅ **Flexible**: Compatible with DataFrames and `ndarray` arrays.
+* ✅ **Thoroughly Tested**: Includes over 128 unit and integration tests.
+* ✅ **Well-Documented**: Features full examples and inline documentation.
+
+---
+
+## 📦 Installation
+
+Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
 frenchrs = "0.1.0"
 greeners = "1.3.2"
 ndarray = "0.17.1"
+
 ```
 
-## 📚 Uso Básico
+---
 
-### CAPM
+## 📚 Basic Usage
+
+### CAPM Example
 
 ```rust
 use frenchrs::CAPM;
-use greeners::CovarianceType;
+use greeners::CovariesnceType;
 use ndarray::array;
 
 let asset_returns = array![0.01, 0.02, -0.01, 0.03];
@@ -87,45 +98,25 @@ let result = CAPM::fit(
     &asset_returns,
     &market_returns,
     risk_free_rate,
-    CovarianceType::HC3,
+    CovariesnceType::HC3,
 ).unwrap();
 
 println!("Beta: {:.4}", result.beta);
 println!("Alpha: {:.4}", result.alpha);
 println!("R²: {:.4}", result.r_squared);
+
 ```
 
-### Fama-French 3 Factor
-
-```rust
-use frenchrs::FamaFrench3Factor;
-use greeners::CovarianceType;
-use ndarray::array;
-
-let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005];
-let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003];
-let smb = array![0.002, -0.001, 0.003, 0.001, -0.002, 0.001];
-let hml = array![0.001, 0.002, -0.002, 0.003, 0.001, -0.001];
-
-let result = FamaFrench3Factor::fit(
-    &asset, &market, &smb, &hml,
-    0.0001,
-    CovarianceType::HC3
-).unwrap();
-
-println!("{}", result);
-```
-
-### APT (Arbitrage Pricing Theory)
+### APT (Arbitrage Pricing Theory) Example
 
 ```rust
 use frenchrs::APT;
-use greeners::CovarianceType;
+use greeners::CovariesnceType;
 use ndarray::{array, Array2};
 
 let returns = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
 
-// Matriz de fatores (n_obs × n_factors)
+// Factor Matrix (n_obs × n_factors)
 let factors = Array2::from_shape_vec((7, 3), vec![
     0.008, 0.002, 0.001,
     0.015, -0.001, 0.002,
@@ -136,219 +127,62 @@ let factors = Array2::from_shape_vec((7, 3), vec![
     0.020, 0.002, 0.002,
 ]).unwrap();
 
-let factor_names = Some(vec![
-    "Market".to_string(),
-    "Size".to_string(),
-    "Value".to_string(),
-]);
-
 let result = APT::fit(
     &returns,
     &factors,
     0.0001,
-    CovarianceType::HC3,
-    factor_names,
+    CovariesnceType::HC3,
+    Some(vec!["Market".into(), "Size".into(), "Value".into()]),
 ).unwrap();
 
-println!("{}", result);
 ```
-
-### IVOL & Tracking Error
-
-```rust
-use frenchrs::{CAPM, IVOLAnalysis, TrackingErrorAnalysis};
-use greeners::CovarianceType;
-use ndarray::array;
-
-let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005];
-let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003];
-
-// Estimar CAPM
-let capm = CAPM::fit(&asset, &market, 0.0001, CovarianceType::HC3).unwrap();
-
-// Análise de IVOL (Idiosyncratic Volatility)
-let ivol = IVOLAnalysis::from_residuals(&capm.residuals).unwrap();
-println!("IVOL: {:.4}%", ivol.ivol * 100.0);
-println!("IVOL Anualizado: {:.2}%", ivol.ivol_annualized_monthly * 100.0);
-println!("Classificação: {}", ivol.ivol_classification());
-
-// Análise de Tracking Error
-let te = TrackingErrorAnalysis::new(
-    &asset,
-    &capm.fitted_values,
-    capm.alpha,
-    capm.r_squared,
-).unwrap();
-
-println!("Tracking Error: {:.4}%", te.tracking_error * 100.0);
-println!("Information Ratio: {:.4}", te.information_ratio);
-println!("Classificação: {}", te.te_classification());
-```
-
-### Rolling Betas
-
-```rust
-use frenchrs::RollingCAPM;
-use greeners::CovarianceType;
-use ndarray::array;
-
-// Dados de 24 meses
-let asset = array![/* 24 retornos mensais */];
-let market = array![/* 24 retornos mensais */];
-
-// Rolling window de 12 meses
-let rolling = RollingCAPM::fit(
-    &asset,
-    &market,
-    0.0025, // taxa livre de risco mensal
-    12,     // janela de 12 meses
-    CovarianceType::HC3
-).unwrap();
-
-// Análise de estabilidade do beta
-let stability = rolling.beta_stability();
-println!("Beta Médio: {:.4}", stability.mean);
-println!("Coef. Variação: {:.4}", stability.coefficient_of_variation);
-println!("Classificação: {}", stability.stability_classification());
-println!("Tendência: {}", stability.trend_classification());
-
-// Verificar se beta é estável (CV < 10%)
-if rolling.is_beta_stable(0.1) {
-    println!("Beta estável ao longo do tempo");
-}
-```
-
-## 📖 Exemplos
-
-Execute os exemplos incluídos:
-
-```bash
-# Comparação completa de todos os modelos
-cargo run --example complete_comparison
-
-# Demonstração do APT com múltiplos fatores
-cargo run --example apt_example
-
-# Análise de risco: IVOL & Tracking Error
-cargo run --example risk_analysis
-
-# Rolling Betas: Análise temporal de estabilidade
-cargo run --example rolling_betas
-
-# Comparação CAPM vs FF3 vs Carhart vs FF5
-cargo run --example model_comparison
-
-# Uso básico do CAPM
-cargo run --example capm_example
-
-# Uso com DataFrame
-cargo run --example capm_dataframe
-```
-
-## 📊 Tipos de Covariância Suportados
-
-- `NonRobust` - OLS clássico (Gauss-Markov)
-- `HC0`, `HC1`, `HC2`, `HC3`, `HC4` - Heteroskedasticity-consistent (White)
-- `NeweyWest` - Autocorrelation and heteroskedasticity consistent
-- `Clustering` - Cluster-robust standard errors
-
-## 🔬 Estatísticas Fornecidas
-
-Todos os modelos fornecem:
-
-- **Parâmetros**: α (alpha), β (betas dos fatores)
-- **Inferência**: Erros padrão, estatísticas t, p-values, intervalos de confiança
-- **Qualidade de Ajuste**: R², R² ajustado, tracking error, information ratio
-- **Diagnóstico**: Resíduos, valores ajustados
-- **Classificações**: Performance, tamanho, valor, rentabilidade, etc.
-
-## 🧪 Testes
-
-```bash
-# Rodar todos os testes
-cargo test --all
-
-# Rodar testes com output
-cargo test --all -- --nocapture
-
-# Rodar testes específicos
-cargo test --test capm_tests
-```
-
-**Cobertura de Testes:**
-- 20 testes CAPM
-- 17 testes Fama-French 3 Factor
-- 10 testes Carhart 4 Factor
-- 11 testes Fama-French 6 Factor
-- 12 testes APT
-- 19 testes IVOL & Tracking Error
-- 20 testes Rolling Betas
-- 19 testes internos adicionais
-- **Total: 128+ testes**
-
-## 📈 Performance
-
-Frenchrs é construído para performance máxima:
-
-- Usa BLAS/LAPACK via `ndarray-linalg` para álgebra linear otimizada
-- Aproveitamento de múltiplos núcleos quando disponível
-- Zero-copy sempre que possível
-- Compilação otimizada com LTO
-
-```toml
-[profile.release]
-opt-level = 3
-lto = true
-```
-
-## 🗺️ Roadmap
-
-- [ ] Value-at-Risk (VaR)
-- [ ] Conditional VaR (CVaR)
-- [ ] Portfolio Optimization (Markowitz, Black-Litterman)
-- [ ] Rolling window analysis
-- [ ] Bindings para Python (PyO3)
-- [ ] Suporte para séries temporais irregulares
-
-## 📚 Referências
-
-### Artigos Fundamentais
-
-1. **Sharpe, W. F.** (1964). "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk". *Journal of Finance*, 19(3), 425-442.
-
-2. **Fama, E. F., & French, K. R.** (1993). "Common Risk Factors in the Returns on Stocks and Bonds". *Journal of Financial Economics*, 33(1), 3-56.
-
-3. **Carhart, M. M.** (1997). "On Persistence in Mutual Fund Performance". *Journal of Finance*, 52(1), 57-82.
-
-4. **Fama, E. F., & French, K. R.** (2015). "A Five-Factor Asset Pricing Model". *Journal of Financial Economics*, 116(1), 1-22.
-
-5. **Ross, S. A.** (1976). "The Arbitrage Theory of Capital Asset Pricing". *Journal of Economic Theory*, 13(3), 341-360.
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Por favor:
-
-1. Fork o repositório
-2. Crie uma branch para sua feature (`git checkout -b feature/NovaFuncionalidade`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/NovaFuncionalidade`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
-
-## 🙏 Agradecimentos
-
-- **Greeners**: Infraestrutura econométrica robusta
-- **ndarray**: Arrays N-dimensionais de alto desempenho
-- **statrs**: Distribuições estatísticas
-- Comunidade Rust de finanças quantitativas
-
-## 📞 Contato
-
-Para questões, sugestões ou bugs, por favor abra uma issue no GitHub.
 
 ---
 
-**Desenvolvido com ❤️ em Rust para a comunidade de finanças quantitativas**
+## 🔬 Provided Statistics
+
+All models return:
+
+* **Parameters**:  (alpha) and  (factor betas).
+* **Inference**: Standard errors, t-statistics, p-values, and confidence intervals.
+* **Fit Quality**: , Adjusted , tracking error, and information ratio.
+* **Diagnostics**: Residuals and fitted values.
+* **Classifications**: Categorizations for performance, size, value, profitability, etc.
+
+---
+
+## 📈 Performance and Optimization
+
+Frenchrs is optimized for maximum efficiency:
+
+* Uses **BLAS/LAPACK** via `ndarray-linalg`.
+* Supports **multi-core processing** when available.
+* Utilizes **zero-copy** operations wherever possible.
+* Supports **LTO (Link Time Optimization)** for release builds.
+
+---
+
+## 🗺️ Roadmap
+
+* [ ] Value-at-Risk (VaR)
+* [ ] Conditional VaR (CVaR)
+* [ ] Portfolio Optimization (Markowitz, Black-Litterman)
+* [ ] Expanded rolling window analysis
+* [ ] Python Bindings (PyO3)
+* [ ] Support for irregular time series
+
+---
+
+## 📚 References
+
+1. **Sharpe, W. F.** (1964). "Capital Asset Prices..." *Journal of Finance*.
+2. **Fama, E. F., & French, K. R.** (1993). "Common Risk Factors..." *Journal of Financial Economics*.
+3. **Carhart, M. M.** (1997). "On Persistence in Mutual Fund Performance". *Journal of Finance*.
+4. **Fama, E. F., & French, K. R.** (2015). "A Five-Factor Asset Pricing Model". *Journal of Financial Economics*.
+5. **Ross, S. A.** (1976). "The Arbitrage Theory of Capital Asset Pricing". *Journal of Economic Theory*.
+
+---
+
+**Developed with ❤️ in Rust for the quantitative finance community.**
+
+Would you like me to refine the **Rust code examples** to ensure they follow the latest idiomatic patterns, or should I help you draft the **Python (PyO3) binding** logic mentioned in the roadmap?

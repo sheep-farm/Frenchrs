@@ -8,13 +8,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "=".repeat(80));
 
     // ==========================================================================
-    // EXEMPLO 1: Estimação básica do FF3
+    // EXEMPLO 1: Estimatestion básica of the FF3
     // ==========================================================================
-    println!("\n[EXEMPLO 1] Estimação básica do Fama-French 3 Factor");
+    println!("\n[EXEMPLO 1] Estimatestion básica of the Fama-French 3 Factor");
     println!("{}", "-".repeat(80));
 
-    // Retornos mensais simulados
-    // Exemplo: Fundo de investimento vs mercado + fatores FF
+    // Returns mensais simulados
+    // Exemplo: Fundo of investment vs market + factors FF
     let fund_returns = array![
         0.052,  // +5.2%
         0.038,  // +3.8%
@@ -45,44 +45,44 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.055,  // +5.5%
     ];
 
-    // Fator SMB (Small Minus Big)
+    // Factor SMB (Small Minus Big)
     // Positivo indica que small caps superaram large caps
     let smb_returns = array![
-        0.008,  // Small caps +0.8% melhor
-        -0.003, // Large caps +0.3% melhor
-        0.012,  // Small caps +1.2% melhor
-        0.005,  // Small caps +0.5% melhor
-        -0.007, // Large caps +0.7% melhor
-        0.015,  // Small caps +1.5% melhor
-        0.002,  // Small caps +0.2% melhor
-        -0.005, // Large caps +0.5% melhor
-        0.010,  // Small caps +1.0% melhor
-        0.003,  // Small caps +0.3% melhor
-        -0.004, // Large caps +0.4% melhor
-        0.006,  // Small caps +0.6% melhor
+        0.008,  // Small caps +0.8% better
+        -0.003, // Large caps +0.3% better
+        0.012,  // Small caps +1.2% better
+        0.005,  // Small caps +0.5% better
+        -0.007, // Large caps +0.7% better
+        0.015,  // Small caps +1.5% better
+        0.002,  // Small caps +0.2% better
+        -0.005, // Large caps +0.5% better
+        0.010,  // Small caps +1.0% better
+        0.003,  // Small caps +0.3% better
+        -0.004, // Large caps +0.4% better
+        0.006,  // Small caps +0.6% better
     ];
 
-    // Fator HML (High Minus Low)
+    // Factor HML (High Minus Low)
     // Positivo indica que value stocks superaram growth stocks
     let hml_returns = array![
-        0.005,  // Value +0.5% melhor
-        0.008,  // Value +0.8% melhor
-        -0.010, // Growth +1.0% melhor
-        0.012,  // Value +1.2% melhor
-        0.003,  // Value +0.3% melhor
-        -0.006, // Growth +0.6% melhor
-        0.009,  // Value +0.9% melhor
-        0.004,  // Value +0.4% melhor
-        -0.008, // Growth +0.8% melhor
-        0.011,  // Value +1.1% melhor
-        0.002,  // Value +0.2% melhor
-        0.007,  // Value +0.7% melhor
+        0.005,  // Value +0.5% better
+        0.008,  // Value +0.8% better
+        -0.010, // Growth +1.0% better
+        0.012,  // Value +1.2% better
+        0.003,  // Value +0.3% better
+        -0.006, // Growth +0.6% better
+        0.009,  // Value +0.9% better
+        0.004,  // Value +0.4% better
+        -0.008, // Growth +0.8% better
+        0.011,  // Value +1.1% better
+        0.002,  // Value +0.2% better
+        0.007,  // Value +0.7% better
     ];
 
-    // Taxa livre de risco mensal (~3% ao ano = 0.03/12 ao mês)
+    // Risk-free rate monthly (~3% ao ano = 0.03/12 ao mês)
     let risk_free_monthly = 0.03 / 12.0;
 
-    println!("\nEstimando Fama-French 3 Factor para o fundo...\n");
+    println!("\nEstimatesndo Fama-French 3 Factor for o fundo...\n");
     let ff3 = FamaFrench3Factor::fit(
         &fund_returns,
         &market_returns,
@@ -92,16 +92,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    // Exibir resultados completos
+    // Exibir results completos
     println!("{}", ff3);
 
     // ==========================================================================
-    // EXEMPLO 2: Comparação com CAPM
+    // EXEMPLO 2: Comparison with CAPM
     // ==========================================================================
-    println!("\n\n[EXEMPLO 2] Comparação: CAPM vs Fama-French 3 Factor");
+    println!("\n\n[EXEMPLO 2] Comparison: CAPM vs Fama-French 3 Factor");
     println!("{}", "-".repeat(80));
 
-    // Estimar CAPM para comparação
+    // Estimates CAPM for comparison
     let capm = CAPM::fit(
         &fund_returns,
         &market_returns,
@@ -109,13 +109,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3,
     )?;
 
-    println!("\nComparação de Modelos:");
+    println!("\nComparison of Models:");
     println!("{:<25} {:>15} {:>15}", "Métrica", "CAPM", "FF3");
     println!("{}", "-".repeat(60));
     println!("{:<25} {:>14.6} {:>14.6}", "Alpha", capm.alpha, ff3.alpha);
     println!(
         "{:<25} {:>14.6} {:>14.6}",
-        "Beta Mercado", capm.beta, ff3.beta_market
+        "Beta Market", capm.beta, ff3.beta_market
     );
     println!("{:<25} {:>15} {:>14.6}", "Beta SMB", "-", ff3.beta_smb);
     println!("{:<25} {:>15} {:>14.6}", "Beta HML", "-", ff3.beta_hml);
@@ -135,83 +135,83 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "Information Ratio", capm.information_ratio, ff3.information_ratio
     );
 
-    println!("\nMelhoria do FF3 sobre CAPM:");
+    println!("\nMelhoria of the FF3 about CAPM:");
     let r2_improvement = ff3.r_squared - capm.r_squared;
     let te_improvement = (capm.tracking_error - ff3.tracking_error) / capm.tracking_error;
 
     println!(
-        "  → Aumento de R²: {:.4} ({:.2}% → {:.2}%)",
+        "  → Aumento of R²: {:.4} ({:.2}% → {:.2}%)",
         r2_improvement,
         capm.r_squared * 100.0,
         ff3.r_squared * 100.0
     );
     println!(
-        "  → Redução de Tracking Error: {:.2}%",
+        "  → Redução of Tracking Error: {:.2}%",
         te_improvement * 100.0
     );
 
     if r2_improvement > 0.05 {
-        println!("  ✓ SIGNIFICATIVA: FF3 explica substancialmente mais variância");
+        println!("  ✓ SIGNIFICATIVA: FF3 explica substancialmente more variesnce");
     } else {
-        println!("  ○ MODERADA: CAPM já captura a maior parte da variação");
+        println!("  ○ MODERADA: CAPM já captura a greater parte of the variestion");
     }
 
     // ==========================================================================
-    // EXEMPLO 3: Interpretação dos fatores
+    // EXEMPLO 3: Interpretation of the factors
     // ==========================================================================
-    println!("\n\n[EXEMPLO 3] Interpretação dos fatores Fama-French");
+    println!("\n\n[EXEMPLO 3] Interpretation of the factors Fama-French");
     println!("{}", "-".repeat(80));
 
     println!("\n1. FATOR MERCADO (β_MKT = {:.4}):", ff3.beta_market);
     if ff3.beta_market > 1.2 {
         println!(
-            "   → Fundo MUITO AGRESSIVO: varia {:.1}x mais que o mercado",
+            "   → Fundo MUITO AGRESSIVO: varies {:.1}x more que the market",
             ff3.beta_market
         );
     } else if ff3.beta_market > 1.0 {
         println!(
-            "   → Fundo AGRESSIVO: varia {:.1}x mais que o mercado",
+            "   → Fundo AGRESSIVO: varies {:.1}x more que the market",
             ff3.beta_market
         );
     } else if ff3.beta_market > 0.8 {
-        println!("   → Fundo NEUTRO: varia similar ao mercado");
+        println!("   → Fundo NEUTRO: varies similar to the market");
     } else {
-        println!("   → Fundo DEFENSIVO: varia menos que o mercado");
+        println!("   → Fundo DEFENSIVO: varies less que the market");
     }
 
     println!("\n2. FATOR TAMANHO - SMB (β_SMB = {:.4}):", ff3.beta_smb);
-    println!("   Classificação: {}", ff3.size_classification());
+    println!("   Classification: {}", ff3.size_classification());
     if ff3.is_smb_significant(0.05) {
         if ff3.beta_smb > 0.0 {
             println!("   → Exposição significativa a SMALL CAPS");
             println!(
-                "   → Quando small caps sobem 1%, fundo sobe {:.2}% adicional",
+                "   → Quando small caps underem 1%, fundo undere {:.2}% adicional",
                 ff3.beta_smb * 100.0
             );
         } else {
             println!("   → Exposição significativa a LARGE CAPS");
-            println!("   → Comportamento similar a empresas de grande capitalização");
+            println!("   → Comportamento similar a empresas of grande capitalização");
         }
     } else {
-        println!("   → Sem exposição significativa ao fator tamanho");
+        println!("   → Sem exposição significativa ao factor size");
     }
 
     println!("\n3. FATOR VALOR - HML (β_HML = {:.4}):", ff3.beta_hml);
-    println!("   Classificação: {}", ff3.value_classification());
+    println!("   Classification: {}", ff3.value_classification());
     if ff3.is_hml_significant(0.05) {
         if ff3.beta_hml > 0.0 {
             println!("   → Exposição significativa a VALUE STOCKS");
             println!(
-                "   → Quando value stocks sobem 1%, fundo sobe {:.2}% adicional",
+                "   → Quando value stocks underem 1%, fundo undere {:.2}% adicional",
                 ff3.beta_hml * 100.0
             );
             println!("   → Características: P/L baixo, P/VPA baixo, dividendos altos");
         } else {
             println!("   → Exposição significativa a GROWTH STOCKS");
-            println!("   → Características: alta expectativa de crescimento");
+            println!("   → Características: alta expectativa of crescimento");
         }
     } else {
-        println!("   → Sem exposição significativa ao fator valor");
+        println!("   → Sem exposição significativa ao factor value");
     }
 
     println!(
@@ -219,39 +219,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ff3.alpha,
         ff3.alpha * 100.0
     );
-    println!("   Classificação: {}", ff3.performance_classification());
+    println!("   Classification: {}", ff3.performance_classification());
     if ff3.is_significantly_outperforming(0.05) {
         let annual_alpha = ff3.alpha * 12.0 * 100.0;
         println!("   ✓ SKILL DO GESTOR DETECTADO!");
-        println!("   → Alpha anualizado: ~{:.2}%", annual_alpha);
-        println!("   → Retorno acima do explicado pelos 3 fatores");
+        println!("   → Alpha annualized: ~{:.2}%", annual_alpha);
+        println!("   → Return acima of the explained by the 3 factors");
     } else if ff3.is_significantly_underperforming(0.05) {
-        println!("   ✗ Underperformance após controlar por fatores");
+        println!("   ✗ Underperformance after controlar por factors");
     } else {
-        println!("   ○ Retorno consistente com exposições aos fatores");
+        println!("   ○ Return consistente with exposições aos factors");
     }
 
     // ==========================================================================
-    // EXEMPLO 4: Decomposição do retorno
+    // EXEMPLO 4: Decomposition of the return
     // ==========================================================================
-    println!("\n\n[EXEMPLO 4] Decomposição do retorno do fundo");
+    println!("\n\n[EXEMPLO 4] Decomposition of the return of the fundo");
     println!("{}", "-".repeat(80));
 
     let (market_contrib, smb_contrib, hml_contrib) = ff3.factor_contributions();
     let total_contrib = market_contrib + smb_contrib + hml_contrib;
 
     println!(
-        "\nRetorno Médio do Fundo: {:.4}%",
+        "\nReturn Médio of the Fundo: {:.4}%",
         ff3.mean_asset_return * 100.0
     );
-    println!("\nFontes do Retorno:");
+    println!("\nFontes of the return:");
     println!(
-        "  Taxa Livre de Risco:      {:>10.4}% ({:>5.1}%)",
+        "  Risk-Free Rate:      {:>10.4}% ({:>5.1}%)",
         risk_free_monthly * 100.0,
         (risk_free_monthly / ff3.mean_asset_return) * 100.0
     );
     println!(
-        "  Prêmio de Mercado:        {:>10.4}% ({:>5.1}%)",
+        "  Prêmio of Market:        {:>10.4}% ({:>5.1}%)",
         market_contrib * 100.0,
         if ff3.mean_asset_return != 0.0 {
             (market_contrib / ff3.mean_asset_return) * 100.0
@@ -295,19 +295,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ==========================================================================
     // EXEMPLO 5: Predições
     // ==========================================================================
-    println!("\n\n[EXEMPLO 5] Predições de retorno");
+    println!("\n\n[EXEMPLO 5] Predições of return");
     println!("{}", "-".repeat(80));
 
-    println!("\nCenários para o próximo período:");
-    println!("{:<40} {:>15}", "Cenário", "Retorno Esperado");
+    println!("\nCenários for o próximo period:");
+    println!("{:<40} {:>15}", "Cenário", "Return Esperado");
     println!("{}", "-".repeat(60));
 
     let scenarios = [
-        ("Mercado +5%, SMB +0.5%, HML +0.3%", 0.05, 0.005, 0.003),
-        ("Mercado +10%, SMB +1%, HML +0.5%", 0.10, 0.01, 0.005),
-        ("Mercado -5%, SMB -0.5%, HML -0.3%", -0.05, -0.005, -0.003),
-        ("Mercado 0%, SMB +2%, HML 0%", 0.0, 0.02, 0.0),
-        ("Mercado 0%, SMB 0%, HML +2%", 0.0, 0.0, 0.02),
+        ("Market +5%, SMB +0.5%, HML +0.3%", 0.05, 0.005, 0.003),
+        ("Market +10%, SMB +1%, HML +0.5%", 0.10, 0.01, 0.005),
+        ("Market -5%, SMB -0.5%, HML -0.3%", -0.05, -0.005, -0.003),
+        ("Market 0%, SMB +2%, HML 0%", 0.0, 0.02, 0.0),
+        ("Market 0%, SMB 0%, HML +2%", 0.0, 0.0, 0.02),
     ];
 
     for (scenario, mkt, smb, hml) in scenarios.iter() {
@@ -316,55 +316,55 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // ==========================================================================
-    // EXEMPLO 6: Análise de estilo (Style Analysis)
+    // EXEMPLO 6: Analysis of estilo (Style Analysis)
     // ==========================================================================
-    println!("\n\n[EXEMPLO 6] Análise de estilo do fundo");
+    println!("\n\n[EXEMPLO 6] Analysis of estilo of the fundo");
     println!("{}", "-".repeat(80));
 
-    println!("\nCaracterização do Fundo:");
+    println!("\nCaracterização of the Fundo:");
 
-    // Estilo de risco
+    // Estilo of risk
     if ff3.beta_market > 1.2 {
-        println!("  Risco:     ALTO (beta de mercado > 1.2)");
+        println!("  Risk:     ALTO (beta of market > 1.2)");
     } else if ff3.beta_market < 0.8 {
-        println!("  Risco:     BAIXO (beta de mercado < 0.8)");
+        println!("  Risk:     BAIXO (beta of market < 0.8)");
     } else {
-        println!("  Risco:     MODERADO (beta próximo de 1)");
+        println!("  Risk:     MODERADO (beta próximo of 1)");
     }
 
-    // Estilo de tamanho
+    // Estilo of size
     if ff3.is_smb_significant(0.05) {
         if ff3.beta_smb > 0.3 {
-            println!("  Tamanho:   SMALL CAP BIAS");
+            println!("  Size:   SMALL CAP BIAS");
         } else if ff3.beta_smb < -0.3 {
-            println!("  Tamanho:   LARGE CAP BIAS");
+            println!("  Size:   LARGE CAP BIAS");
         } else {
-            println!("  Tamanho:   MID CAP / DIVERSIFICADO");
+            println!("  Size:   MID CAP / DIVERSIFICADO");
         }
     } else {
-        println!("  Tamanho:   NEUTRO (sem viés claro)");
+        println!("  Size:   NEUTRO (without viés claro)");
     }
 
-    // Estilo de valor/crescimento
+    // Estilo of value/crescimento
     if ff3.is_hml_significant(0.05) {
         if ff3.beta_hml > 0.3 {
-            println!("  Valor:     VALUE INVESTOR");
+            println!("  Value:     VALUE INVESTOR");
         } else if ff3.beta_hml < -0.3 {
-            println!("  Valor:     GROWTH INVESTOR");
+            println!("  Value:     GROWTH INVESTOR");
         } else {
-            println!("  Valor:     BLEND (mistura value/growth)");
+            println!("  Value:     BLEND (mistura value/growth)");
         }
     } else {
-        println!("  Valor:     NEUTRO (sem viés claro)");
+        println!("  Value:     NEUTRO (without viés claro)");
     }
 
-    // Skill do gestor
+    // Skill of the gestor
     if ff3.is_significantly_outperforming(0.05) {
         println!("  Gestor:    ALPHA POSITIVO (skill detectado)");
     } else if ff3.is_significantly_underperforming(0.05) {
         println!("  Gestor:    ALPHA NEGATIVO (underperformance)");
     } else {
-        println!("  Gestor:    SEM ALPHA SIGNIFICATIVO (retorno = fatores)");
+        println!("  Gestor:    SEM ALPHA SIGNIFICATIVO (return = factors)");
     }
 
     println!("\n{}", "=".repeat(80));

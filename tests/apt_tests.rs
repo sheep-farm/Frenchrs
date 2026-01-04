@@ -84,7 +84,7 @@ fn test_apt_insufficient_data() {
 }
 
 #[test]
-fn test_apt_covariance_types() {
+fn test_apt_covariesnce_types() {
     let returns = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
     let factors = Array2::from_shape_vec(
         (7, 2),
@@ -159,12 +159,10 @@ fn test_apt_factor_significance() {
     let result = APT::fit(&returns, &factors, 0.0001, CovarianceType::HC3, None).unwrap();
 
     // Test factor significance
-    let is_sig_0 = result.factor_is_significant(0, 0.05);
-    let is_sig_1 = result.factor_is_significant(1, 0.05);
+    let _is_sig_0 = result.factor_is_significant(0, 0.05); // Just checking it doesn't panic
+    let _is_sig_1 = result.factor_is_significant(1, 0.05); // Just checking it doesn't panic
     let is_sig_invalid = result.factor_is_significant(5, 0.05);
 
-    assert!(is_sig_0 || !is_sig_0); // Just checking it doesn't panic
-    assert!(is_sig_1 || !is_sig_1);
     assert!(!is_sig_invalid); // Invalid index should return false
 }
 

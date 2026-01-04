@@ -2,37 +2,37 @@ use greeners::{CovarianceType, GreenersError, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado do modelo Fama-MacBeth Two-Pass
+/// Result of the model Fama-MacBeth Two-Pass
 ///
-/// Implementa a metodologia de Fama-MacBeth (1973) para estimar prêmios de risco
-/// dos fatores usando regressão em duas passagens.
+/// Implementa a metodologia of Fama-MacBeth (1973) for estimar prêmios of risk
+/// of the factors usando regresare em duas passagens.
 #[derive(Debug, Clone)]
 pub struct FamaMacBethResult {
-    /// Lambdas médios (prêmios de risco dos fatores) - (K+1) incluindo constante
+    /// Lambdas médios (prêmios of risk of the factors) - (K+1) incluindo constante
     pub lambda_mean: Array1<f64>,
 
-    /// Estatísticas t dos lambdas (Fama-MacBeth padrão)
+    /// Statistics t of the lambdas (Fama-MacBeth padrão)
     pub tstat_fm: Array1<f64>,
 
-    /// P-values dos lambdas (Fama-MacBeth padrão)
+    /// P-values of the lambdas (Fama-MacBeth padrão)
     pub pval_fm: Array1<f64>,
 
-    /// Estatísticas t com correção de Shanken
+    /// Statistics t with correção of Shanken
     pub tstat_shanken: Array1<f64>,
 
-    /// P-values com correção de Shanken
+    /// P-values with correção of Shanken
     pub pval_shanken: Array1<f64>,
 
-    /// Betas estimados por ativo (N × K)
+    /// Betas estimated por asset (N × K)
     pub betas: Array2<f64>,
 
-    /// Lambdas ao longo do tempo (T_eff × (K+1))
+    /// Lambdas over time (T_eff × (K+1))
     pub lambda_t: Array2<f64>,
 
-    /// Retornos médios realizados por ativo
+    /// Returns médios realizados por asset
     pub mean_returns: Array1<f64>,
 
-    /// Retornos previstos pelo modelo
+    /// Returns prevthiss pelthe model
     pub model_returns: Array1<f64>,
 
     /// Pricing errors (alphas)
@@ -41,38 +41,38 @@ pub struct FamaMacBethResult {
     /// R² cross-sectional médio
     pub r2_cross_sectional_mean: f64,
 
-    /// Número de ativos
+    /// Número of assets
     pub n_assets: usize,
 
-    /// Número de fatores
+    /// Número of factors
     pub n_factors: usize,
 
-    /// Número efetivo de períodos (T_eff)
+    /// Número efetivo of periods (T_eff)
     pub t_eff: usize,
 
-    /// Nomes dos fatores (opcional)
+    /// Nomes of the factors (opcional)
     pub factor_names: Option<Vec<String>>,
 
-    /// Nomes dos ativos (opcional)
+    /// Nomes of the assets (opcional)
     pub asset_names: Option<Vec<String>>,
 }
 
 impl FamaMacBethResult {
-    /// Retorna o lambda de um fator específico
+    /// Returns the lambda of um specific factor
     pub fn lambda(&self, factor_idx: usize) -> f64 {
-        // índice 0 é a constante, fatores começam em 1
+        // índice 0 é a constante, factors começam em 1
         if factor_idx + 1 >= self.lambda_mean.len() {
             return 0.0;
         }
         self.lambda_mean[factor_idx + 1]
     }
 
-    /// Retorna a constante (lambda_0)
+    /// Returns a constante (lambda_0)
     pub fn lambda_const(&self) -> f64 {
         self.lambda_mean[0]
     }
 
-    /// Verifica se um fator é significativo (Shanken, α=5%)
+    /// Checks if um factor é significant (Shanken, α=5%)
     pub fn is_significant_shanken(&self, factor_idx: usize, alpha: f64) -> bool {
         if factor_idx + 1 >= self.pval_shanken.len() {
             return false;
@@ -80,7 +80,7 @@ impl FamaMacBethResult {
         self.pval_shanken[factor_idx + 1] < alpha
     }
 
-    /// R² médio dos pricing errors
+    /// R² médio of the pricing errors
     pub fn r2_pricing(&self) -> f64 {
         let tss: f64 = self
             .mean_returns
@@ -96,14 +96,14 @@ impl FamaMacBethResult {
         if tss > 1e-10 { 1.0 - (rss / tss) } else { 0.0 }
     }
 
-    /// RMSE dos pricing errors
+    /// RMSE of the pricing errors
     pub fn rmse_pricing(&self) -> f64 {
         let mse: f64 =
             self.pricing_errors.iter().map(|&e| e.powi(2)).sum::<f64>() / self.n_assets as f64;
         mse.sqrt()
     }
 
-    /// MAE dos pricing errors
+    /// MAE of the pricing errors
     pub fn mae_pricing(&self) -> f64 {
         self.pricing_errors.iter().map(|&e| e.abs()).sum::<f64>() / self.n_assets as f64
     }
@@ -116,9 +116,9 @@ impl fmt::Display for FamaMacBethResult {
         writeln!(f, "{}", "=".repeat(80))?;
 
         writeln!(f, "\nDimensões:")?;
-        writeln!(f, "  • Ativos: {}", self.n_assets)?;
-        writeln!(f, "  • Fatores: {}", self.n_factors)?;
-        writeln!(f, "  • Períodos efetivos: {}", self.t_eff)?;
+        writeln!(f, "  • Assets: {}", self.n_assets)?;
+        writeln!(f, "  • Factors: {}", self.n_factors)?;
+        writeln!(f, "  • Periods efetivos: {}", self.t_eff)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
         writeln!(f, "PRÊMIOS DE RISCO (λ) - Risk Premia")?;
@@ -126,7 +126,7 @@ impl fmt::Display for FamaMacBethResult {
         writeln!(
             f,
             "{:<15} {:>12} {:>10} {:>10} {:>10} {:>10}",
-            "Fator", "Lambda", "t(FM)", "p(FM)", "t(Shank)", "p(Shank)"
+            "Factor", "Lambda", "t(FM)", "p(FM)", "t(Shank)", "p(Shank)"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -142,7 +142,7 @@ impl fmt::Display for FamaMacBethResult {
             self.pval_shanken[0]
         )?;
 
-        // Fatores
+        // Factors
         for i in 0..self.n_factors {
             let name = if let Some(ref names) = self.factor_names {
                 names.get(i).map(|s| s.as_str()).unwrap_or("Factor")
@@ -192,17 +192,17 @@ impl fmt::Display for FamaMacBethResult {
 pub struct FamaMacBeth;
 
 impl FamaMacBeth {
-    /// Estima o modelo Fama-MacBeth
+    /// Estimates the model Fama-MacBeth
     ///
     /// # Arguments
-    /// * `returns_excess` - Matriz de retornos excedentes (T × N)
-    /// * `factors` - Matriz de fatores (T × K)
-    /// * `cov_type` - Tipo de covariância para primeira passagem
-    /// * `asset_names` - Nomes dos ativos (opcional)
-    /// * `factor_names` - Nomes dos fatores (opcional)
+    /// * `returns_excess` - Matriz of returns excedentes (T × N)
+    /// * `factors` - Matriz of factors (T × K)
+    /// * `cov_type` - Tipo for covariesnce primeira passagem
+    /// * `asset_names` - Nomes of the assets (opcional)
+    /// * `factor_names` - Nomes of the factors (opcional)
     ///
     /// # Returns
-    /// `FamaMacBethResult` com lambdas, betas, pricing errors, etc.
+    /// `FamaMacBethResult` with lambdas, betas, pricing errors, etc.
     ///
     /// # Example
     /// ```
@@ -210,18 +210,18 @@ impl FamaMacBeth {
     /// use greeners::CovarianceType;
     /// use ndarray::Array2;
     ///
-    /// // Gerar dados sintéticos
+    /// // Gerar Synthetic data
     /// let mut rng = 42u64;
     /// let mut rand = || {
     ///     rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
     ///     ((rng / 65536) % 32768) as f64 / 32768.0 - 0.5
     /// };
     ///
-    /// // 60 meses, 25 ativos, 3 fatores
+    /// // 60 meses, 25 assets, 3 factors
     /// let factors = Array2::from_shape_fn((60, 3), |_| rand() * 0.03);
     /// let mut returns = Array2::from_shape_fn((60, 25), |_| rand() * 0.02);
     ///
-    /// // Adicionar exposição aos fatores
+    /// // Adicionar exposição aos factors
     /// for i in 0..60 {
     ///     for j in 0..25 {
     ///         for f in 0..3 {
@@ -274,7 +274,7 @@ impl FamaMacBeth {
         let mut betas = Array2::<f64>::zeros((n_assets, n_factors));
         let mut valid_assets = vec![true; n_assets];
 
-        // Matriz de design para time-series: [1, factors]
+        // Matriz of design for time-beies: [1, factors]
         let mut x_ts = Array2::<f64>::zeros((t, n_factors + 1));
         x_ts.column_mut(0).fill(1.0);
         for j in 0..n_factors {
@@ -284,7 +284,7 @@ impl FamaMacBeth {
         for asset_idx in 0..n_assets {
             let y = returns_excess.column(asset_idx).to_owned();
 
-            // Checar se tem dados suficientes
+            // Checar if tem data suficientes
             let valid_count = y.iter().filter(|&&v| v.is_finite()).count();
             if valid_count <= n_factors + 2 {
                 valid_assets[asset_idx] = false;
@@ -293,7 +293,7 @@ impl FamaMacBeth {
 
             match OLS::fit(&y, &x_ts, cov_type.clone()) {
                 Ok(ols) => {
-                    // Extrair betas (pular a constante)
+                    // Extract betas (pular a constante)
                     for j in 0..n_factors {
                         betas[[asset_idx, j]] = ols.params[j + 1];
                     }
@@ -304,7 +304,7 @@ impl FamaMacBeth {
             }
         }
 
-        // Verificar se temos ativos válidos
+        // Verificar if temos assets válidos
         let n_valid = valid_assets.iter().filter(|&&v| v).count();
         if n_valid <= n_factors + 1 {
             return Err(GreenersError::InvalidOperation(
@@ -322,7 +322,7 @@ impl FamaMacBeth {
         for time_idx in 0..t {
             let y_t = returns_excess.row(time_idx);
 
-            // Filtrar ativos válidos e sem NaN neste período
+            // Filtrar assets válidos and without NaN nthis period
             let mut assets_t = Vec::new();
             let mut betas_t = Vec::new();
             let mut returns_t = Vec::new();
@@ -377,7 +377,7 @@ impl FamaMacBeth {
 
         let t_eff = lambda_t_list.len();
 
-        // Converter lambda_t_list para Array2
+        // Converter lambda_t_list for Array2
         let mut lambda_t = Array2::<f64>::zeros((t_eff, n_factors + 1));
         for (i, lam) in lambda_t_list.iter().enumerate() {
             for j in 0..(n_factors + 1) {
@@ -395,27 +395,27 @@ impl FamaMacBeth {
         let mut tstat_shanken = Array1::<f64>::zeros(n_factors + 1);
         let mut pval_shanken = Array1::<f64>::zeros(n_factors + 1);
 
-        // Calcular covariância dos fatores (para Shanken)
+        // Calculates covariance of the factors (for Shanken)
         let sigma_f = Self::cov_matrix(factors);
         let sigma_f_inv = match Self::invert_matrix(&sigma_f) {
             Ok(inv) => inv,
             Err(_) => {
                 return Err(GreenersError::InvalidOperation(
-                    "Cannot invert factor covariance matrix".to_string(),
+                    "Cannot invert factor covariesnce matrix".to_string(),
                 ));
             }
         };
 
         for param_idx in 0..(n_factors + 1) {
-            let lam_series = lambda_t.column(param_idx).to_owned();
-            let lam_mean_val = lam_series.mean().unwrap_or(0.0);
+            let lam_beies = lambda_t.column(param_idx).to_owned();
+            let lam_mean_val = lam_beies.mean().unwrap_or(0.0);
             lambda_mean[param_idx] = lam_mean_val;
 
             if t_eff < 3 {
                 continue;
             }
 
-            let std_dev = lam_series.std(1.0);
+            let std_dev = lam_beies.std(1.0);
             let se_fm = std_dev / (t_eff as f64).sqrt();
 
             // t-stat padrão Fama-MacBeth
@@ -425,13 +425,13 @@ impl FamaMacBeth {
                 pval_fm[param_idx] = Self::t_test_pvalue(t_val, t_eff - 1);
             }
 
-            // Shanken correction (apenas para fatores, não para constante)
+            // Shanken correction (apenas for factors, not for constante)
             if param_idx == 0 {
-                // Constante: não aplica Shanken
+                // Constante: not aplica Shanken
                 tstat_shanken[param_idx] = tstat_fm[param_idx];
                 pval_shanken[param_idx] = pval_fm[param_idx];
             } else {
-                // Fator: aplicar Shanken
+                // Factor: aplicar Shanken
                 let lambda_factors = lambda_mean.slice(ndarray::s![1..]).to_owned();
 
                 // correction_factor = 1 + λ' Σ_f^{-1} λ
@@ -457,7 +457,7 @@ impl FamaMacBeth {
         // PRICING ERRORS
         // ========================================================================
 
-        // Retornos médios por ativo
+        // Returns médios por asset
         let mut mean_returns = Array1::<f64>::zeros(n_assets);
         for asset_idx in 0..n_assets {
             let col = returns_excess.column(asset_idx);
@@ -467,7 +467,7 @@ impl FamaMacBeth {
             }
         }
 
-        // Retornos previstos: model_ret = betas × lambda_factors
+        // Returns prevthiss: model_ret = betas × lambda_factors
         let lambda_factors = lambda_mean.slice(ndarray::s![1..]).to_owned();
         let mut model_returns = Array1::<f64>::zeros(n_assets);
 
@@ -512,7 +512,7 @@ impl FamaMacBeth {
     // FUNÇÕES AUXILIARES
     // ========================================================================
 
-    /// Calcula matriz de covariância
+    /// Calculates covariance matrix
     fn cov_matrix(data: &Array2<f64>) -> Array2<f64> {
         let n = data.nrows();
         let k = data.ncols();
@@ -549,10 +549,10 @@ impl FamaMacBeth {
             ));
         }
 
-        // Usar pseudo-inversa via SVD seria melhor, mas por simplicidade usamos LU
-        // (assumindo que Greeners ou ndarray-linalg tem isso disponível)
+        // Usar pseudo-inversa via SVD beia better, mas por simplicidade usamos LU
+        // (assumindo que Greeners ou ndarray-linalg tem that disponível)
 
-        // Por enquanto, implementação simples para 3x3 ou menos
+        // Por enhow much, implementação simples for 3x3 ou less
         if n == 1 {
             let val = mat[[0, 0]];
             if val.abs() < 1e-10 {
@@ -565,16 +565,16 @@ impl FamaMacBeth {
             return Ok(inv);
         }
 
-        // Para matrizes maiores, usar pseudo-inversa (simplificado)
+        // Para matrizes greateres, usar pseudo-inversa (simplificado)
         // Em produção, usar ndarray-linalg ou similar
         Self::pseudo_inverse(mat)
     }
 
-    /// Pseudo-inversa simplificada (Moore-Penrose via Gauss-Jordan)
+    /// Pseudo-inversa simplifieach (Moore-Penrose via Gauss-Jordan)
     fn pseudo_inverse(mat: &Array2<f64>) -> Result<Array2<f64>, GreenersError> {
         let n = mat.nrows();
 
-        // Criar matriz aumentada [A | I]
+        // Createsr matriz aumentada [A | I]
         let mut aug = Array2::<f64>::zeros((n, 2 * n));
         for i in 0..n {
             for j in 0..n {
@@ -583,7 +583,7 @@ impl FamaMacBeth {
             aug[[i, n + i]] = 1.0;
         }
 
-        // Eliminação de Gauss-Jordan
+        // Eliminação of Gauss-Jordan
         for i in 0..n {
             // Encontrar pivot
             let mut max_row = i;
@@ -614,7 +614,7 @@ impl FamaMacBeth {
                 aug[[i, j]] /= pivot;
             }
 
-            // Eliminar coluna i nas outras linhas
+            // Eliminar column i nas outras linhas
             for k in 0..n {
                 if k != i {
                     let factor = aug[[k, i]];
@@ -625,7 +625,7 @@ impl FamaMacBeth {
             }
         }
 
-        // Extrair inversa (metade direita da matriz aumentada)
+        // Extract inversa (metade direita of the matriz aumentada)
         let mut inv = Array2::<f64>::zeros((n, n));
         for i in 0..n {
             for j in 0..n {
@@ -636,20 +636,20 @@ impl FamaMacBeth {
         Ok(inv)
     }
 
-    /// P-value do teste t bilateral
+    /// P-value of the test t bilateral
     fn t_test_pvalue(t: f64, df: usize) -> f64 {
         if df == 0 {
             return 1.0;
         }
 
-        // Aproximação simples para p-value do teste t
-        // Em produção, usar biblioteca estatística adequada
+        // Aproximação simples for p-value of the test t
+        // Em produção, usar biblioteca statistic adequada
         let x = df as f64 / (df as f64 + t * t);
-        
+
         Self::incomplete_beta(df as f64 / 2.0, 0.5, x)
     }
 
-    /// Função beta incompleta regularizada (aproximação)
+    /// Funçãthe beta incompleta regularizada (aproximação)
     fn incomplete_beta(a: f64, b: f64, x: f64) -> f64 {
         if x <= 0.0 {
             return 0.0;
@@ -658,7 +658,7 @@ impl FamaMacBeth {
             return 1.0;
         }
 
-        // Aproximação simples (não precisa para uso real)
+        // Aproximação simples (not precisa for uso real)
         // Em produção, usar statrs ou similar
         let n = 100;
         let mut sum = 0.0;
@@ -680,7 +680,7 @@ mod tests {
 
     #[test]
     fn test_fama_macbeth_basic() {
-        // 60 meses, 25 ativos, 3 fatores
+        // 60 meses, 25 assets, 3 factors
         let t = 60;
         let n = 25;
         let k = 3;
@@ -691,11 +691,11 @@ mod tests {
             ((rng / 65536) % 32768) as f64 / 32768.0 - 0.5
         };
 
-        // Gerar dados sintéticos
+        // Gerar Synthetic data
         let factors = Array2::from_shape_fn((t, k), |_| next_rand() * 0.05);
         let mut returns = Array2::from_shape_fn((t, n), |_| next_rand() * 0.03);
 
-        // Adicionar exposição aos fatores
+        // Adicionar exposição aos factors
         for i in 0..t {
             for j in 0..n {
                 let mut exposure = 0.0;
@@ -722,7 +722,7 @@ mod tests {
         assert_eq!(result.n_assets, 25);
         assert_eq!(result.n_factors, 3);
         assert!(result.t_eff > 0);
-        assert_eq!(result.lambda_mean.len(), 4); // const + 3 fatores
+        assert_eq!(result.lambda_mean.len(), 4); // const + 3 factors
         assert_eq!(result.betas.nrows(), 25);
         assert_eq!(result.betas.ncols(), 3);
     }
@@ -742,7 +742,7 @@ mod tests {
         let factors = Array2::from_shape_fn((t, k), |_| next_rand() * 0.03);
         let mut returns = Array2::from_shape_fn((t, n), |_| next_rand() * 0.02);
 
-        // Adicionar exposição aos fatores
+        // Adicionar exposição aos factors
         for i in 0..t {
             for j in 0..n {
                 let mut exposure = 0.0;

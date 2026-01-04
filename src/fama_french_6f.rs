@@ -2,24 +2,24 @@ use greeners::{CovarianceType, DataFrame, GreenersError, InferenceType, OLS};
 use ndarray::{Array1, Array2};
 use std::fmt;
 
-/// Resultado do modelo Fama-French 6 Factor
+/// Result of the model Fama-French 6 Factor
 ///
 /// FF6 = FF5 + UMD (Up Minus Down - momentum)
 /// R_i - R_f = α + β_MKT(R_m - R_f) + β_SMB·SMB + β_HML·HML + β_RMW·RMW + β_CMA·CMA + β_UMD·UMD + ε
 ///
-/// Onde:
-/// - MKT: Market premium (retorno de mercado em excesso)
-/// - SMB: Small Minus Big (fator tamanho)
-/// - HML: High Minus Low (fator valor)
-/// - RMW: Robust Minus Weak (fator rentabilidade)
-/// - CMA: Conservative Minus Aggressive (fator investimento)
-/// - UMD: Up Minus Down (fator momentum)
+/// Where:
+/// - MKT: Market premium (excess market return)
+/// - SMB: Small Minus Big (size factor)
+/// - HML: High Minus Low (value factor)
+/// - RMW: Robust Minus Weak (profitability factor)
+/// - CMA: Conservative Minus Aggressive (investment factor)
+/// - UMD: Up Minus Down (momentum factor)
 #[derive(Debug, Clone)]
 pub struct FamaFrench6FactorResult {
     /// Alpha (intercepto)
     pub alpha: f64,
 
-    /// Betas dos fatores
+    /// Betas of the factors
     pub beta_market: f64,
     pub beta_smb: f64,
     pub beta_hml: f64,
@@ -36,7 +36,7 @@ pub struct FamaFrench6FactorResult {
     pub beta_cma_se: f64,
     pub beta_umd_se: f64,
 
-    /// Estatísticas t
+    /// Statistics t
     pub alpha_tstat: f64,
     pub beta_market_tstat: f64,
     pub beta_smb_tstat: f64,
@@ -54,7 +54,7 @@ pub struct FamaFrench6FactorResult {
     pub beta_cma_pvalue: f64,
     pub beta_umd_pvalue: f64,
 
-    /// Intervalos de confiança
+    /// Confidence intervals
     pub alpha_conf_lower: f64,
     pub alpha_conf_upper: f64,
     pub beta_market_conf_lower: f64,
@@ -70,13 +70,13 @@ pub struct FamaFrench6FactorResult {
     pub beta_umd_conf_lower: f64,
     pub beta_umd_conf_upper: f64,
 
-    /// Qualidade do ajuste
+    /// Fit whichity
     pub r_squared: f64,
     pub adj_r_squared: f64,
     pub tracking_error: f64,
     pub information_ratio: f64,
 
-    /// Dados
+    /// Data
     pub n_obs: usize,
     pub residuals: Array1<f64>,
     pub fitted_values: Array1<f64>,
@@ -86,50 +86,50 @@ pub struct FamaFrench6FactorResult {
 }
 
 impl FamaFrench6FactorResult {
-    /// Testa se o ativo está com performance superior ao esperado pelo modelo
+    /// Tests if the asset is with performance upper ao esperado pelthe model
     pub fn is_significantly_outperforming(&self, sig: f64) -> bool {
         self.alpha > 0.0 && self.alpha_pvalue / 2.0 < sig
     }
 
-    /// Testa se o ativo está com performance inferior ao esperado pelo modelo
+    /// Tests if the asset is with performance lower ao esperado pelthe model
     pub fn is_significantly_underperforming(&self, sig: f64) -> bool {
         self.alpha < 0.0 && self.alpha_pvalue / 2.0 < sig
     }
 
-    /// Teste de significância para o fator de mercado
+    /// Test of significance for o factor of market
     pub fn is_market_significant(&self, sig: f64) -> bool {
         self.beta_market_pvalue < sig
     }
 
-    /// Teste de significância para SMB
+    /// Test of significance for SMB
     pub fn is_smb_significant(&self, sig: f64) -> bool {
         self.beta_smb_pvalue < sig
     }
 
-    /// Teste de significância para HML
+    /// Test of significance for HML
     pub fn is_hml_significant(&self, sig: f64) -> bool {
         self.beta_hml_pvalue < sig
     }
 
-    /// Teste de significância para RMW
+    /// Test of significance for RMW
     pub fn is_rmw_significant(&self, sig: f64) -> bool {
         self.beta_rmw_pvalue < sig
     }
 
-    /// Teste de significância para CMA
+    /// Test of significance for CMA
     pub fn is_cma_significant(&self, sig: f64) -> bool {
         self.beta_cma_pvalue < sig
     }
 
-    /// Teste de significância para UMD
+    /// Test of significance for UMD
     pub fn is_umd_significant(&self, sig: f64) -> bool {
         self.beta_umd_pvalue < sig
     }
 
-    /// Classificação por tamanho baseado em SMB
+    /// Classification by size based on SMB
     pub fn size_classification(&self) -> &str {
         if !self.is_smb_significant(0.05) {
-            "Neutro"
+            "Neutral"
         } else if self.beta_smb > 0.3 {
             "Small Cap"
         } else if self.beta_smb < -0.3 {
@@ -139,10 +139,10 @@ impl FamaFrench6FactorResult {
         }
     }
 
-    /// Classificação de valor baseado em HML
+    /// Classification by value based on HML
     pub fn value_classification(&self) -> &str {
         if !self.is_hml_significant(0.05) {
-            "Neutro"
+            "Neutral"
         } else if self.beta_hml > 0.3 {
             "Value"
         } else if self.beta_hml < -0.3 {
@@ -152,57 +152,57 @@ impl FamaFrench6FactorResult {
         }
     }
 
-    /// Classificação de rentabilidade baseado em RMW
+    /// Classification by profitability based on RMW
     pub fn profitability_classification(&self) -> &str {
         if !self.is_rmw_significant(0.05) {
-            "Neutro"
+            "Neutral"
         } else if self.beta_rmw > 0.2 {
-            "Alta Rentabilidade"
+            "High Profitability"
         } else if self.beta_rmw < -0.2 {
-            "Baixa Rentabilidade"
+            "Low Profitability"
         } else {
-            "Rentabilidade Média"
+            "Average Profitability"
         }
     }
 
-    /// Classificação de investimento baseado em CMA
+    /// Classification by investment based on CMA
     pub fn investment_classification(&self) -> &str {
         if !self.is_cma_significant(0.05) {
-            "Neutro"
+            "Neutral"
         } else if self.beta_cma > 0.2 {
-            "Conservador"
+            "Conservative"
         } else if self.beta_cma < -0.2 {
-            "Agressivo"
+            "Aggressive"
         } else {
-            "Moderado"
+            "Moderate"
         }
     }
 
-    /// Classificação de momentum baseado em UMD
+    /// Classification by momentum based on UMD
     pub fn momentum_classification(&self) -> &str {
         if !self.is_umd_significant(0.05) {
-            "Neutro"
+            "Neutral"
         } else if self.beta_umd > 0.3 {
-            "Alto Momentum"
+            "High Momentum"
         } else if self.beta_umd < -0.3 {
-            "Baixo Momentum"
+            "Low Momentum"
         } else {
-            "Momentum Moderado"
+            "Moderate Momentum"
         }
     }
 
-    /// Classificação geral de performance
+    /// Overall performance classification
     pub fn performance_classification(&self) -> &str {
         if self.is_significantly_outperforming(0.05) {
             "Superior"
         } else if self.is_significantly_underperforming(0.05) {
             "Inferior"
         } else {
-            "Em linha com o modelo"
+            "In line with model"
         }
     }
 
-    /// Retorno esperado dado os fatores de risco
+    /// Expected return given the risk factors
     pub fn expected_return(
         &self,
         market_premium: f64,
@@ -222,7 +222,7 @@ impl FamaFrench6FactorResult {
             + self.beta_umd * umd
     }
 
-    /// Predições para múltiplos períodos
+    /// Predições for multiple periods
     pub fn predict(
         &self,
         market_premium: &Array1<f64>,
@@ -243,9 +243,9 @@ impl FamaFrench6FactorResult {
         predictions
     }
 
-    /// Contribuição de cada fator para o retorno esperado
+    /// Contribuição of each factor for the return esperado
     pub fn factor_contributions(&self) -> (f64, f64, f64, f64, f64, f64) {
-        // Usando média histórica dos fatores (assumindo normalized)
+        // Usando mean histórica of the factors (assumindo normalized)
         let market_contrib = self.beta_market;
         let smb_contrib = self.beta_smb;
         let hml_contrib = self.beta_hml;
@@ -267,22 +267,18 @@ impl FamaFrench6FactorResult {
 impl fmt::Display for FamaFrench6FactorResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "FAMA-FRENCH 6 FACTOR MODEL - RESULTADOS")?;
+        writeln!(f, "FAMA-FRENCH 6 FACTOR MODEL - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<20} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -308,7 +304,7 @@ impl fmt::Display for FamaFrench6FactorResult {
         writeln!(
             f,
             "{:<20} {:>12.6} {:>12.6} {:>12.4} {:>12.4}{}",
-            "β_MKT (Mercado)",
+            "β_MKT (Market)",
             self.beta_market,
             self.beta_market_se,
             self.beta_market_tstat,
@@ -327,7 +323,7 @@ impl fmt::Display for FamaFrench6FactorResult {
         writeln!(
             f,
             "{:<20} {:>12.6} {:>12.6} {:>12.4} {:>12.4}{}",
-            "β_SMB (Tamanho)",
+            "β_SMB (Size)",
             self.beta_smb,
             self.beta_smb_se,
             self.beta_smb_tstat,
@@ -346,7 +342,7 @@ impl fmt::Display for FamaFrench6FactorResult {
         writeln!(
             f,
             "{:<20} {:>12.6} {:>12.6} {:>12.4} {:>12.4}{}",
-            "β_HML (Valor)",
+            "β_HML (Value)",
             self.beta_hml,
             self.beta_hml_se,
             self.beta_hml_tstat,
@@ -426,18 +422,18 @@ impl fmt::Display for FamaFrench6FactorResult {
             self.r_squared,
             self.r_squared * 100.0
         )?;
-        writeln!(f, "R² Ajustado: {:.4}", self.adj_r_squared)?;
+        writeln!(f, "R² Adjusted: {:.4}", self.adj_r_squared)?;
         writeln!(f, "Tracking Error: {:.4}%", self.tracking_error * 100.0)?;
         writeln!(f, "Information Ratio: {:.4}", self.information_ratio)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CLASSIFICAÇÕES")?;
+        writeln!(f, "CLASSIFICATIONS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(f, "Performance: {}", self.performance_classification())?;
-        writeln!(f, "Tamanho: {}", self.size_classification())?;
-        writeln!(f, "Valor: {}", self.value_classification())?;
-        writeln!(f, "Rentabilidade: {}", self.profitability_classification())?;
-        writeln!(f, "Investimento: {}", self.investment_classification())?;
+        writeln!(f, "Size: {}", self.size_classification())?;
+        writeln!(f, "Value: {}", self.value_classification())?;
+        writeln!(f, "Profitability: {}", self.profitability_classification())?;
+        writeln!(f, "Investment: {}", self.investment_classification())?;
         writeln!(f, "Momentum: {}", self.momentum_classification())?;
 
         writeln!(f, "\n{}", "=".repeat(80))?;
@@ -446,22 +442,22 @@ impl fmt::Display for FamaFrench6FactorResult {
     }
 }
 
-/// Implementação do modelo Fama-French 6 Factor
+/// Implementation of the model Fama-French 6 Factor
 pub struct FamaFrench6Factor;
 
 impl FamaFrench6Factor {
-    /// Estima o modelo FF6
+    /// Estimates the model FF6
     ///
     /// # Arguments
-    /// * `asset_returns` - retornos do ativo
-    /// * `market_returns` - retornos de mercado
-    /// * `smb_returns` - retornos do fator SMB (Small Minus Big)
-    /// * `hml_returns` - retornos do fator HML (High Minus Low)
-    /// * `rmw_returns` - retornos do fator RMW (Robust Minus Weak)
-    /// * `cma_returns` - retornos do fator CMA (Conservative Minus Aggressive)
-    /// * `umd_returns` - retornos do fator UMD (Up Minus Down - momentum)
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de matriz de covariância
+    /// * `asset_returns` - asset returns
+    /// * `market_returns` - returns of market
+    /// * `smb_returns` - returns of the factor SMB (Small Minus Big)
+    /// * `hml_returns` - returns of the factor HML (High Minus Low)
+    /// * `rmw_returns` - returns of the factor RMW (Robust Minus Weak)
+    /// * `cma_returns` - returns of the factor CMA (Conbevative Minus Aggressive)
+    /// * `umd_returns` - returns of the factor UMD (Up Minus Down - momentum)
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - covariance matrix type
     ///
     /// # Example
     /// ```
@@ -482,6 +478,7 @@ impl FamaFrench6Factor {
     ///     0.0001, CovarianceType::HC3
     /// ).unwrap();
     /// ```
+    #[allow(clippy::too_many_arguments)]
     pub fn fit(
         asset_returns: &Array1<f64>,
         market_returns: &Array1<f64>,
@@ -521,11 +518,11 @@ impl FamaFrench6Factor {
             )));
         }
 
-        // Retornos em excesso
+        // Returns in excess
         let asset_excess: Array1<f64> = asset_returns.mapv(|r| r - risk_free_rate);
         let market_excess: Array1<f64> = market_returns.mapv(|r| r - risk_free_rate);
 
-        // Matriz de design: [1, MKT, SMB, HML, RMW, CMA, UMD]
+        // Matriz of design: [1, MKT, SMB, HML, RMW, CMA, UMD]
         let mut x = Array2::<f64>::zeros((n, 7));
         x.column_mut(0).fill(1.0);
         x.column_mut(1).assign(&market_excess);
@@ -600,7 +597,8 @@ impl FamaFrench6Factor {
         })
     }
 
-    /// Estima o modelo a partir de um DataFrame
+    /// Estimates the model from a DataFrame
+    #[allow(clippy::too_many_arguments)]
     pub fn from_dataframe(
         df: &DataFrame,
         asset_col: &str,

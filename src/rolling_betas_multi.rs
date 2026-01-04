@@ -2,56 +2,56 @@ use greeners::{CovarianceType, GreenersError, OLS};
 use ndarray::{Array1, Array2};
 use std::collections::HashMap;
 
-/// Resultado de Rolling Betas para múltiplos ativos
+/// Result of Rolling Betas for multiple assets
 ///
-/// Estrutura similar ao output do Python: DataFrame com índice (asset, date)
+/// Estrutura similar ao output of the Python: DataFrame with índice (asset, date)
 #[derive(Debug, Clone)]
 pub struct RollingBetasMulti {
-    /// Resultados por ativo
+    /// Results por asset
     pub results: HashMap<String, RollingBetasAsset>,
 
-    /// Tamanho da janela
+    /// Size of the window
     pub window_size: usize,
 
-    /// Número de fatores
+    /// Número of factors
     pub n_factors: usize,
 
-    /// Nomes dos fatores (opcional)
+    /// Nomes of the factors (opcional)
     pub factor_names: Option<Vec<String>>,
 }
 
-/// Resultado de Rolling Betas para um único ativo
+/// Result of Rolling Betas for um single asset
 #[derive(Debug, Clone)]
 pub struct RollingBetasAsset {
-    /// Nome do ativo
+    /// Nome of the asset
     pub asset_name: String,
 
-    /// Datas de cada janela (índice final de cada janela)
+    /// Datas of each window (índice final of each window)
     pub dates: Vec<usize>,
 
-    /// Alpha ao longo do tempo
+    /// Alpha over time
     pub alphas: Array1<f64>,
 
-    /// Betas ao longo do tempo (n_windows × n_factors)
+    /// Betas over time (n_windows × n_factors)
     pub betas: Array2<f64>,
 
-    /// R² ao longo do tempo
+    /// R² over time
     pub r_squared: Array1<f64>,
 
-    /// Número de janelas
+    /// Número of janelas
     pub n_windows: usize,
 }
 
 impl RollingBetasMulti {
-    /// Calcula rolling betas para múltiplos ativos
+    /// Calculates rolling betas for multiple assets
     ///
     /// # Arguments
-    /// * `returns` - Matriz de retornos (n_obs × n_assets)
-    /// * `factors` - Matriz de fatores (n_obs × n_factors)
-    /// * `window_size` - Tamanho da janela móvel
-    /// * `cov_type` - Tipo de covariância
-    /// * `asset_names` - Nomes dos ativos (opcional)
-    /// * `factor_names` - Nomes dos fatores (opcional)
+    /// * `returns` - Matriz of returns (n_obs × n_assets)
+    /// * `factors` - Matriz of factors (n_obs × n_factors)
+    /// * `window_size` - Size of the window móvel
+    /// * `cov_type` - Covariance type
+    /// * `asset_names` - Nomes of the assets (opcional)
+    /// * `factor_names` - Nomes of the factors (opcional)
     ///
     /// # Example
     /// ```
@@ -59,7 +59,7 @@ impl RollingBetasMulti {
     /// use greeners::CovarianceType;
     /// use ndarray::{array, Array2};
     ///
-    /// // 12 observações, 2 ativos
+    /// // 12 observations, 2 assets
     /// let returns = Array2::from_shape_vec((12, 2), vec![
     ///     0.01, 0.015,  // t=1
     ///     0.02, 0.025,  // t=2
@@ -75,7 +75,7 @@ impl RollingBetasMulti {
     ///     0.015, 0.020,
     /// ]).unwrap();
     ///
-    /// // 12 observações, 1 fator (mercado)
+    /// // 12 observations, 1 factor (market)
     /// let factors = Array2::from_shape_vec((12, 1), vec![
     ///     0.008, 0.015, -0.005, 0.025, 0.012, -0.003,
     ///     0.020, 0.009, 0.015, -0.005, 0.025, 0.012,
@@ -127,13 +127,13 @@ impl RollingBetasMulti {
             )));
         }
 
-        // Nomes padrão se não fornecidos
+        // Nomes padrão if not fornecidos
         let asset_names = asset_names
             .unwrap_or_else(|| (0..n_assets).map(|i| format!("Asset{}", i + 1)).collect());
 
         let mut results = HashMap::new();
 
-        // Processar cada ativo
+        // Procthatr each asset
         for (asset_idx, asset_name) in asset_names.iter().enumerate() {
             let asset_returns = returns.column(asset_idx);
 
@@ -156,7 +156,7 @@ impl RollingBetasMulti {
         })
     }
 
-    /// Calcula rolling betas para um único ativo
+    /// Calculates rolling betas for um single asset
     fn fit_single_asset(
         asset_returns: &Array1<f64>,
         factors: &Array2<f64>,
@@ -177,14 +177,14 @@ impl RollingBetasMulti {
             let y_window = asset_returns.slice(ndarray::s![i..i + window_size]);
             let x_factors = factors.slice(ndarray::s![i..i + window_size, ..]);
 
-            // Matriz de design: [1, factors]
+            // Matriz of design: [1, factors]
             let mut x = Array2::<f64>::zeros((window_size, n_factors + 1));
             x.column_mut(0).fill(1.0);
             for j in 0..n_factors {
                 x.column_mut(j + 1).assign(&x_factors.column(j));
             }
 
-            // Estimar OLS
+            // Estimates OLS
             let ols = OLS::fit(&y_window.to_owned(), &x, cov_type.clone())?;
 
             alphas[i] = ols.params[0];
@@ -193,7 +193,7 @@ impl RollingBetasMulti {
             }
             r_squared[i] = ols.r_squared;
 
-            // Data é o índice final da janela
+            // Data é o índice final of the window
             dates.push(i + window_size - 1);
         }
 
@@ -207,19 +207,19 @@ impl RollingBetasMulti {
         })
     }
 
-    /// Obtém resultados para um ativo específico
+    /// Gets results for um asset específico
     pub fn get_asset(&self, asset_name: &str) -> Option<&RollingBetasAsset> {
         self.results.get(asset_name)
     }
 
-    /// Lista todos os ativos
+    /// Lists all assets
     pub fn asset_names(&self) -> Vec<String> {
         self.results.keys().cloned().collect()
     }
 
-    /// Converte para formato tabular (similar ao DataFrame do Python)
+    /// Converts to formato tabular (similar ao DataFrame of the Python)
     ///
-    /// Retorna: Vec de (asset_name, date_idx, alpha, betas..., r_squared)
+    /// Returns: Vec of (asset_name, date_idx, alpha, betas..., r_squared)
     pub fn to_table(&self) -> Vec<RollingBetasRow> {
         let mut rows = Vec::new();
 
@@ -242,7 +242,7 @@ impl RollingBetasMulti {
         rows
     }
 
-    /// Exporta para CSV-like string
+    /// Exports to CSV-like string
     pub fn to_csv_string(&self) -> String {
         let mut result = String::new();
 
@@ -287,19 +287,19 @@ impl RollingBetasMulti {
     }
 }
 
-/// Linha de resultado rolling betas (formato tabular)
+/// Linha of result rolling betas (formato tabular)
 #[derive(Debug, Clone)]
 pub struct RollingBetasRow {
-    /// Nome do ativo
+    /// Nome of the asset
     pub asset: String,
 
-    /// Índice da data (índice final da janela)
+    /// Índice of the data (índice final of the window)
     pub date_idx: usize,
 
     /// Alpha
     pub alpha: f64,
 
-    /// Betas dos fatores
+    /// Betas of the factors
     pub betas: Vec<f64>,
 
     /// R²
@@ -307,7 +307,7 @@ pub struct RollingBetasRow {
 }
 
 impl RollingBetasAsset {
-    /// Retorna o beta médio para um fator específico
+    /// Returns the beta médio for um specific factor
     pub fn mean_beta(&self, factor_idx: usize) -> f64 {
         if factor_idx >= self.betas.ncols() {
             return 0.0;
@@ -315,7 +315,7 @@ impl RollingBetasAsset {
         self.betas.column(factor_idx).mean().unwrap_or(0.0)
     }
 
-    /// Retorna o desvio padrão do beta para um fator específico
+    /// Returns the standard deviation of the beta for um specific factor
     pub fn std_beta(&self, factor_idx: usize) -> f64 {
         if factor_idx >= self.betas.ncols() {
             return 0.0;
@@ -323,7 +323,7 @@ impl RollingBetasAsset {
         self.betas.column(factor_idx).std(1.0)
     }
 
-    /// Coeficiente de variação do beta
+    /// Coefficient of variation of the beta
     pub fn cv_beta(&self, factor_idx: usize) -> f64 {
         let mean = self.mean_beta(factor_idx);
         if mean.abs() < 1e-10 {
@@ -332,56 +332,56 @@ impl RollingBetasAsset {
         self.std_beta(factor_idx) / mean.abs()
     }
 
-    /// Estatísticas de estabilidade para um fator específico
+    /// Stability statistics for um specific factor
     pub fn beta_stability(&self, factor_idx: usize) -> BetaStability {
         if factor_idx >= self.betas.ncols() {
-            // Retornar estabilidade vazia se índice inválido
+            // Returnsr stability vazia if índice inválido
             return BetaStability::default();
         }
-        let beta_series = self.betas.column(factor_idx).to_owned();
-        BetaStability::from_series(&beta_series)
+        let beta_beies = self.betas.column(factor_idx).to_owned();
+        BetaStability::from_beies(&beta_beies)
     }
 
-    /// Estatísticas de estabilidade do alpha
+    /// Stability statistics of the alpha
     pub fn alpha_stability(&self) -> BetaStability {
-        BetaStability::from_series(&self.alphas)
+        BetaStability::from_beies(&self.alphas)
     }
 
-    /// Verifica se beta é estável ao longo do tempo
+    /// Checks if beta é stable over time
     pub fn is_beta_stable(&self, factor_idx: usize, threshold: f64) -> bool {
         let stability = self.beta_stability(factor_idx);
-        stability.coefficient_of_variation < threshold
+        stability.coefficient_of_variestion < threshold
     }
 }
 
-/// Estatísticas de estabilidade de uma série temporal
+/// Stability statistics of a série temporal
 #[derive(Debug, Clone)]
 pub struct BetaStability {
-    /// Média da série
+    /// Mean of the série
     pub mean: f64,
 
-    /// Mediana da série
+    /// Median of the série
     pub median: f64,
 
-    /// Desvio padrão
+    /// Standard deviation
     pub std_dev: f64,
 
-    /// Mínimo
+    /// Minimum
     pub min: f64,
 
-    /// Máximo
+    /// Maximum
     pub max: f64,
 
     /// Range (max - min)
     pub range: f64,
 
-    /// Coeficiente de variação (std_dev / mean)
-    pub coefficient_of_variation: f64,
+    /// Coefficient of variation (std_dev / mean)
+    pub coefficient_of_variestion: f64,
 
-    /// Tendência linear (slope)
+    /// Trend linear (slope)
     pub trend: f64,
 
-    /// Autocorrelação de lag 1
+    /// Autocorrelação of lag 1
     pub autocorrelation: f64,
 }
 
@@ -394,7 +394,7 @@ impl Default for BetaStability {
             min: 0.0,
             max: 0.0,
             range: 0.0,
-            coefficient_of_variation: 0.0,
+            coefficient_of_variestion: 0.0,
             trend: 0.0,
             autocorrelation: 0.0,
         }
@@ -402,37 +402,37 @@ impl Default for BetaStability {
 }
 
 impl BetaStability {
-    /// Calcula estatísticas de estabilidade de uma série
-    pub fn from_series(series: &Array1<f64>) -> Self {
-        let n = series.len();
+    /// Calculates stability statistics of a série
+    pub fn from_beies(beies: &Array1<f64>) -> Self {
+        let n = beies.len();
 
         if n == 0 {
             return BetaStability::default();
         }
 
-        let mean = series.mean().unwrap_or(0.0);
+        let mean = beies.mean().unwrap_or(0.0);
 
-        let mut sorted = series.to_vec();
+        let mut sorted = beies.to_vec();
         sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let median = if n > 0 { sorted[n / 2] } else { 0.0 };
 
-        let std_dev = series.std(1.0);
+        let std_dev = beies.std(1.0);
         let min = sorted[0];
         let max = sorted[n - 1];
         let range = max - min;
 
-        let coefficient_of_variation = if mean.abs() > 1e-10 {
+        let coefficient_of_variestion = if mean.abs() > 1e-10 {
             std_dev / mean.abs()
         } else {
             0.0
         };
 
-        // Tendência linear (regressão simples: y = a + bx)
+        // Trend linear (regresare simples: y = a + bx)
         let x_mean = (n - 1) as f64 / 2.0;
         let mut numerator = 0.0;
         let mut denominator = 0.0;
 
-        for (i, &y) in series.iter().enumerate() {
+        for (i, &y) in beies.iter().enumerate() {
             let x = i as f64;
             numerator += (x - x_mean) * (y - mean);
             denominator += (x - x_mean).powi(2);
@@ -450,10 +450,10 @@ impl BetaStability {
 
         if n > 1 {
             for i in 0..n - 1 {
-                autocorr_num += (series[i] - mean) * (series[i + 1] - mean);
+                autocorr_num += (beies[i] - mean) * (beies[i + 1] - mean);
             }
 
-            for &val in series.iter() {
+            for &val in beies.iter() {
                 autocorr_den += (val - mean).powi(2);
             }
         }
@@ -471,39 +471,39 @@ impl BetaStability {
             min,
             max,
             range,
-            coefficient_of_variation,
+            coefficient_of_variestion,
             trend,
             autocorrelation,
         }
     }
 
-    /// Classifica o nível de estabilidade
+    /// Classifies the level of stability
     pub fn stability_classification(&self) -> &str {
-        if self.coefficient_of_variation < 0.05 {
-            "Muito Estável"
-        } else if self.coefficient_of_variation < 0.10 {
-            "Estável"
-        } else if self.coefficient_of_variation < 0.20 {
-            "Moderadamente Estável"
-        } else if self.coefficient_of_variation < 0.50 {
-            "Instável"
+        if self.coefficient_of_variestion < 0.05 {
+            "Muito Stable"
+        } else if self.coefficient_of_variestion < 0.10 {
+            "Stable"
+        } else if self.coefficient_of_variestion < 0.20 {
+            "Moderadamente Stable"
+        } else if self.coefficient_of_variestion < 0.50 {
+            "Unstable"
         } else {
-            "Muito Instável"
+            "Muito Unstable"
         }
     }
 
-    /// Classifica a tendência
+    /// Classifies the trend
     pub fn trend_classification(&self) -> &str {
         if self.trend > 0.01 {
-            "Tendência Crescente Forte"
+            "Increasing Trend Forte"
         } else if self.trend > 0.001 {
-            "Tendência Crescente"
+            "Increasing Trend"
         } else if self.trend > -0.001 {
-            "Estável (sem tendência)"
+            "Stable (without trend)"
         } else if self.trend > -0.01 {
-            "Tendência Decrescente"
+            "Decreasing Trend"
         } else {
-            "Tendência Decrescente Forte"
+            "Decreasing Trend Forte"
         }
     }
 }
@@ -511,39 +511,35 @@ impl BetaStability {
 impl std::fmt::Display for BetaStability {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "ANÁLISE DE ESTABILIDADE")?;
+        writeln!(f, "ANALYSIS OF STABILITY")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ESTATÍSTICAS DESCRITIVAS")?;
+        writeln!(f, "DESCRIPTIVE STATISTICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Média:               {:>10.4}", self.mean)?;
-        writeln!(f, "Mediana:             {:>10.4}", self.median)?;
-        writeln!(f, "Desvio Padrão:       {:>10.4}", self.std_dev)?;
-        writeln!(f, "Mínimo:              {:>10.4}", self.min)?;
-        writeln!(f, "Máximo:              {:>10.4}", self.max)?;
+        writeln!(f, "Mean:               {:>10.4}", self.mean)?;
+        writeln!(f, "Median:             {:>10.4}", self.median)?;
+        writeln!(f, "Standard Deviation:       {:>10.4}", self.std_dev)?;
+        writeln!(f, "Minimum:              {:>10.4}", self.min)?;
+        writeln!(f, "Maximum:              {:>10.4}", self.max)?;
         writeln!(f, "Range:               {:>10.4}", self.range)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "MÉTRICAS DE ESTABILIDADE")?;
+        writeln!(f, "METRICS DE STABILITY")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "Coef. Variação:      {:>10.4}",
-            self.coefficient_of_variation
+            self.coefficient_of_variestion
         )?;
-        writeln!(f, "Tendência:           {:>10.6}", self.trend)?;
+        writeln!(f, "Trend:           {:>10.6}", self.trend)?;
         writeln!(f, "Autocorrelação:      {:>10.4}", self.autocorrelation)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "CLASSIFICAÇÕES")?;
+        writeln!(f, "CLASSIFICATIONS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(
-            f,
-            "Estabilidade:        {}",
-            self.stability_classification()
-        )?;
-        writeln!(f, "Tendência:           {}", self.trend_classification())?;
+        writeln!(f, "Stability:        {}", self.stability_classification())?;
+        writeln!(f, "Trend:           {}", self.trend_classification())?;
 
         writeln!(f, "\n{}", "=".repeat(80))?;
 

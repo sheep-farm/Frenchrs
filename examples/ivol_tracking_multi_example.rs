@@ -6,13 +6,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
     println!("IVOL & TRACKING ERROR - MÚLTIPLOS ATIVOS");
     println!("{}", "=".repeat(80));
-    println!("\nAnálise similar ao Python: processa múltiplos ativos simultaneamente");
+    println!("\nAnálise similar ao Python: procthat multiple assets simultaneamente");
 
     // ========================================================================
-    // DADOS SIMULADOS - 3 ativos, 24 meses, 3 fatores (Mercado, SMB, HML)
+    // DADOS SIMULADOS - 3 assets, 24 meses, 3 factors (Market, SMB, HML)
     // ========================================================================
 
-    // Matriz de retornos excedentes: 24 observações × 3 ativos
+    // Matriz of returns excedentes: 24 obbevations × 3 assets
     #[rustfmt::skip]
     let returns_excess = Array2::from_shape_vec((24, 3), vec![
         // Tech Fund, Value Fund, Growth Fund
@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.072, 0.065, 0.068,  // mês 24
     ])?;
 
-    // Matriz de fatores: 24 observações × 3 fatores (MKT, SMB, HML)
+    // Matriz of factors: 24 obbevations × 3 factors (MKT, SMB, HML)
     #[rustfmt::skip]
     let factors = Array2::from_shape_vec((24, 3), vec![
         // MKT,    SMB,    HML
@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.052,  0.005,  0.006,   // mês 24
     ])?;
 
-    // Benchmark opcional (índice de mercado)
+    // Benchmark opcional (índice of market)
     #[rustfmt::skip]
     let benchmark = array![
         0.044, 0.031, -0.014, 0.062, 0.034, -0.024,
@@ -97,15 +97,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ivol_no_bench = IVOLTrackingMulti::fit(
         &returns_excess,
         &factors,
-        None, // sem benchmark
+        None, // without benchmark
         CovarianceType::HC3,
         Some(asset_names.clone()),
-        12.0, // dados mensais
+        12.0, // data mensais
     )?;
 
     println!(
         "\n{:<20} {:>15} {:>15} {:>15} {:>8}",
-        "Ativo", "Retorno Anual", "IVOL Mensal", "IVOL Anual", "R²"
+        "Asset", "Return Anual", "IVOL Monthly", "IVOL Anual", "R²"
     );
     println!("{}", "-".repeat(80));
 
@@ -131,7 +131,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ivol_with_bench = IVOLTrackingMulti::fit(
         &returns_excess,
         &factors,
-        Some(&benchmark), // com benchmark
+        Some(&benchmark), // with benchmark
         CovarianceType::HC3,
         Some(asset_names.clone()),
         12.0,
@@ -139,7 +139,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!(
         "\n{:<15} {:>12} {:>12} {:>12} {:>12} {:>8}",
-        "Ativo", "Ret. Anual", "IVOL Anual", "TE Mensal", "TE Anual", "R²"
+        "Asset", "Ret. Anual", "IVOL Anual", "TE Monthly", "TE Anual", "R²"
     );
     println!("{}", "-".repeat(80));
 
@@ -180,7 +180,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         println!(
-            "  • {:<18} - IVOL: {:>6.2}% - Risco: {}",
+            "  • {:<18} - IVOL: {:>6.2}% - Risk: {}",
             asset_name, ivol_pct, classification
         );
     }
@@ -218,11 +218,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // EXPORTAÇÃO TABULAR
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("FORMATO TABULAR (Compatível com Python/Pandas)");
+    println!("FORMATO TABULAR (Compatível with Python/Pandas)");
     println!("{}", "=".repeat(80));
 
     let table = ivol_with_bench.to_table();
-    println!("\nTotal de linhas: {}", table.len());
+    println!("\nTotal of linhas: {}", table.len());
     println!("\nPrimeiras linhas:");
     println!(
         "{:<15} {:>12} {:>12} {:>12} {:>12} {:>8}",
@@ -252,7 +252,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let csv = ivol_with_bench.to_csv_string();
     let csv_lines: Vec<&str> = csv.lines().collect();
 
-    println!("\nPrimeiras linhas do CSV:");
+    println!("\nPrimeiras linhas of the CSV:");
     println!("{}", "-".repeat(80));
     for line in csv_lines.iter().take(5) {
         println!("{}", line);
@@ -260,7 +260,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Salvar em arquivo (opcional)
     // std::fs::write("ivol_tracking.csv", csv)?;
-    // println!("\n✓ Arquivo 'ivol_tracking.csv' salvo com sucesso!");
+    // println!("\n✓ Arquivo 'ivol_tracking.csv' salvo with sucesso!");
 
     // ========================================================================
     // COMPARAÇÃO ENTRE ATIVOS
@@ -269,7 +269,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("COMPARAÇÃO ENTRE ATIVOS");
     println!("{}", "=".repeat(80));
 
-    // Encontrar ativo com maior IVOL
+    // Encontrar asset with greater IVOL
     let max_ivol_asset = asset_names
         .iter()
         .max_by(|a, b| {
@@ -289,7 +289,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             * 100.0
     );
 
-    // Encontrar ativo com maior Tracking Error
+    // Encontrar asset with greater Tracking Error
     let max_te_asset = asset_names
         .iter()
         .max_by(|a, b| {
@@ -318,7 +318,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             * 100.0
     );
 
-    // Encontrar ativo com melhor R²
+    // Encontrar asset with better R²
     let best_r2_asset = asset_names
         .iter()
         .max_by(|a, b| {
@@ -328,40 +328,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .unwrap();
 
-    println!("\n✓ Melhor ajuste aos fatores: {}", best_r2_asset);
+    println!("\n✓ Melhor fit aos factors: {}", best_r2_asset);
     println!(
         "  R²: {:.4}",
         ivol_with_bench.get_asset(best_r2_asset).unwrap().r_squared
     );
 
     // ========================================================================
-    // INTERPRETAÇÃO
+    // INTERPRETATION
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("INTERPRETAÇÃO DOS RESULTADOS");
+    println!("INTERPRETATION DOS RESULTS");
     println!("{}", "=".repeat(80));
 
     println!("\n1. IDIOSYNCRATIC VOLATILITY (IVOL):");
-    println!("   • Mede a volatilidade não explicada pelos fatores de risco");
-    println!("   • IVOL alto = maior risco específico do ativo");
-    println!("   • IVOL baixo = retornos bem explicados pelos fatores");
+    println!("   • Mede a volatility not explieach by the factors of risk");
+    println!("   • IVOL alto = greater risk específico of the asset");
+    println!("   • IVOL baixo = returns bem explicados by the factors");
 
     println!("\n2. TRACKING ERROR (TE):");
-    println!("   • Mede o desvio em relação ao benchmark");
+    println!("   • Mede o desvio relative to ao benchmark");
     println!("   • TE < 1%: Fundo passivo (index fund)");
     println!("   • TE 1-3%: Enhanced index");
     println!("   • TE 3-6%: Gestão ativa moderada");
     println!("   • TE > 6%: Gestão altamente ativa");
 
     println!("\n3. R² (COEFICIENTE DE DETERMINAÇÃO):");
-    println!("   • Proporção da variância explicada pelos fatores");
-    println!("   • R² alto = retornos bem modelados");
-    println!("   • R² baixo = risco idiossincrático elevado");
+    println!("   • Proporção of the variesnce explieach by the factors");
+    println!("   • R² alto = returns bem modelados");
+    println!("   • R² baixo = idiosyncratic risk elevado");
 
     println!("\n4. FORMATO DE DADOS:");
-    println!("   • Tabela com 1 linha por ativo");
-    println!("   • Compatível com análises Python/Pandas");
-    println!("   • Exportação CSV para análises posteriores");
+    println!("   • Tabela with 1 linha por asset");
+    println!("   • Compatível with análises Python/Pandas");
+    println!("   • Exportação CSV for análises posteriores");
 
     println!("\n{}", "=".repeat(80));
 

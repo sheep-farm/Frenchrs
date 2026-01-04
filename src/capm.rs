@@ -3,149 +3,149 @@ use ndarray::{Array1, Array2};
 use statrs::distribution::{ContinuousCDF, StudentsT};
 use std::fmt;
 
-/// Resultado da estimação do Capital Asset Pricing Model (CAPM)
+/// Result of the Capital Asset Pricing Model (CAPM) estimation
 ///
-/// O CAPM relaciona o retorno de um ativo ao retorno do mercado:
+/// CAPM relates asset return tthe market return:
 /// R_i - R_f = α + β(R_m - R_f) + ε
 ///
-/// onde:
-/// - R_i: retorno do ativo
-/// - R_f: taxa livre de risco
-/// - R_m: retorno do mercado
-/// - α (alpha): excesso de retorno não explicado pelo mercado (Jensen's alpha)
-/// - β (beta): sensibilidade do ativo ao risco de mercado (risco sistemático)
-/// - ε: erro idiossincrático
+/// where:
+/// - R_i: asset return
+/// - R_f: risk-free rate
+/// - R_m: market return
+/// - α (alpha): excess return not explained by the market (Jensen's alpha)
+/// - β (beta): asset sensitivity tthe market risk (systematic risk)
+/// - ε: idiosyncratic error
 #[derive(Debug, Clone)]
 pub struct CAPMResult {
-    /// Intercepto (α) - Jensen's alpha
+    /// Intercept (α) - Jensen's alpha
     ///
-    /// Representa o excesso de retorno não explicado pelo mercado.
-    /// α > 0: ativo supera o mercado (outperformance)
-    /// α < 0: ativo fica atrás do mercado (underperformance)
-    /// α = 0: ativo segue exatamente o CAPM
+    /// Representa o excess of return unexplained pelthe market.
+    /// α > 0: asset supera the market (outperformance)
+    /// α < 0: asset fica atrás of the market (underperformance)
+    /// α = 0: asset follows exactly o CAPM
     pub alpha: f64,
 
-    /// Sensibilidade ao mercado (β) - risco sistemático
+    /// Sensibilidade to the market (β) - systematic risk
     ///
-    /// Mede quanto o ativo varia para cada 1% de variação no mercado.
-    /// β > 1: ativo é mais volátil que o mercado (agressivo)
-    /// β = 1: ativo varia igual ao mercado
-    /// β < 1: ativo é menos volátil que o mercado (defensivo)
-    /// β < 0: ativo se move inversamente ao mercado
+    /// Mede how much the asset varies for each 1% of variestion nthe market.
+    /// β > 1: asset é more volátil que the market (agressivo)
+    /// β = 1: asset varies igual to the market
+    /// β < 1: asset é less volátil que the market (defensivo)
+    /// β < 0: asset if moves inversely to the market
     pub beta: f64,
 
-    /// Erro padrão do α
+    /// Standard error of the α
     pub alpha_se: f64,
 
-    /// Erro padrão do β
+    /// Standard error of the β
     pub beta_se: f64,
 
-    /// Estatística t para α
+    /// Statistic t for α
     pub alpha_tstat: f64,
 
-    /// Estatística t para β
+    /// Statistic t for β
     pub beta_tstat: f64,
 
-    /// p-value para teste H0: α = 0
+    /// p-value for the test H0: α = 0
     pub alpha_pvalue: f64,
 
-    /// p-value para teste H0: β = 0
+    /// p-value for the test H0: β = 0
     pub beta_pvalue: f64,
 
-    /// Intervalo de confiança inferior para α (95%)
+    /// Confidence interval lower for α (95%)
     pub alpha_conf_lower: f64,
 
-    /// Intervalo de confiança superior para α (95%)
+    /// Confidence interval upper for α (95%)
     pub alpha_conf_upper: f64,
 
-    /// Intervalo de confiança inferior para β (95%)
+    /// Confidence interval lower for β (95%)
     pub beta_conf_lower: f64,
 
-    /// Intervalo de confiança superior para β (95%)
+    /// Confidence interval upper for β (95%)
     pub beta_conf_upper: f64,
 
-    /// R² - proporção da variância explicada pelo mercado
+    /// R² - proportion of the variance explained pelthe market
     pub r_squared: f64,
 
-    /// R² ajustado por graus de liberdade
+    /// R² adjusted for degrees of freedom
     pub adj_r_squared: f64,
 
-    /// Razão de Sharpe do ativo
+    /// Razão of Sharpe of the asset
     ///
     /// Sharpe = (E[R_i] - R_f) / σ_i
     pub sharpe_ratio: f64,
 
-    /// Razão de Sharpe do mercado
+    /// Razão of Sharpe of the market
     ///
     /// Sharpe_market = (E[R_m] - R_f) / σ_m
     pub market_sharpe: f64,
 
-    /// Razão de Treynor
+    /// Razão of Treynor
     ///
     /// Treynor = (E[R_i] - R_f) / β
-    /// Mede retorno por unidade de risco sistemático
+    /// Mede return per unit of systematic risk
     pub treynor_ratio: f64,
 
     /// Information Ratio
     ///
     /// IR = α / σ(ε)
-    /// Mede retorno anormal por unidade de risco idiossincrático
+    /// Mede return anormal per unit of idiosyncratic risk
     pub information_ratio: f64,
 
-    /// Tracking Error (volatilidade dos resíduos)
+    /// Tracking Error (residual volatility)
     ///
     /// TE = σ(ε) = std(R_i - (α + β·R_m))
     pub tracking_error: f64,
 
-    /// Número de observações
+    /// Number of observations
     pub n_obs: usize,
 
-    /// Resíduos (ε) - risco idiossincrático
+    /// Residuals (ε) - idiosyncratic risk
     pub residuals: Array1<f64>,
 
-    /// Valores ajustados (α + β·(R_m - R_f))
+    /// Fitted values (α + β·(R_m - R_f))
     pub fitted_values: Array1<f64>,
 
-    /// Taxa livre de risco utilizada
+    /// Risk-free rate used
     pub risk_free_rate: f64,
 
-    /// Tipo de covariância utilizado
+    /// Covariance type used
     pub cov_type: CovarianceType,
 
-    /// Tipo de inferência (t ou normal)
+    /// Inference type (t ou normal)
     pub inference_type: InferenceType,
 
-    /// Retorno médio do ativo
+    /// Average asset return
     pub mean_asset_return: f64,
 
-    /// Retorno médio do mercado
+    /// Average market return
     pub mean_market_return: f64,
 
-    /// Volatilidade do ativo (desvio padrão)
+    /// Asset volatility (standard deviation)
     pub asset_volatility: f64,
 
-    /// Volatilidade do mercado (desvio padrão)
+    /// Market volatility (standard deviation)
     pub market_volatility: f64,
 
-    /// Variância sistemática (β² × σ²_m)
-    pub systematic_variance: f64,
+    /// Variance sistemática (β² × σ²_m)
+    pub systematic_variesnce: f64,
 
-    /// Variância idiossincrática (σ²_ε)
-    pub idiosyncratic_variance: f64,
+    /// Variance idiossincrática (σ²_ε)
+    pub idiosyncratic_variesnce: f64,
 }
 
 impl CAPMResult {
-    /// Testa se o ativo está significativamente superando o mercado
+    /// Tests if the asset is significantly outperforming the market
     ///
-    /// H0: α ≤ 0 vs H1: α > 0 (teste unilateral)
+    /// H0: α ≤ 0 vs H1: α > 0 (test unilateral)
     ///
     /// # Arguments
-    /// * `significance_level` - nível de significância (ex: 0.05 para 5%)
+    /// * `significance_level` - level of significance (ex: 0.05 for 5%)
     ///
     /// # Returns
-    /// `true` se H0 é rejeitada (α é significativamente positivo)
+    /// `true` if H0 is rejected (α é significantly positivo)
     pub fn is_significantly_outperforming(&self, significance_level: f64) -> bool {
-        // Teste unilateral: p-value / 2 se α > 0
+        // Test unilateral: p-value / 2 if α > 0
         if self.alpha > 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
         } else {
@@ -153,15 +153,15 @@ impl CAPMResult {
         }
     }
 
-    /// Testa se o ativo está significativamente ficando atrás do mercado
+    /// Tests if the asset is significantly underperforming of the market
     ///
-    /// H0: α ≥ 0 vs H1: α < 0 (teste unilateral)
+    /// H0: α ≥ 0 vs H1: α < 0 (test unilateral)
     ///
     /// # Arguments
-    /// * `significance_level` - nível de significância (ex: 0.05 para 5%)
+    /// * `significance_level` - level of significance (ex: 0.05 for 5%)
     ///
     /// # Returns
-    /// `true` se H0 é rejeitada (α é significativamente negativo)
+    /// `true` if H0 is rejected (α is significantly negative)
     pub fn is_significantly_underperforming(&self, significance_level: f64) -> bool {
         if self.alpha < 0.0 {
             self.alpha_pvalue / 2.0 < significance_level
@@ -170,15 +170,15 @@ impl CAPMResult {
         }
     }
 
-    /// Testa se β é significativamente diferente de 1
+    /// Tests if β is significantly different from 1
     ///
     /// H0: β = 1 vs H1: β ≠ 1
     ///
     /// # Arguments
-    /// * `significance_level` - nível de significância (ex: 0.05 para 5%)
+    /// * `significance_level` - level of significance (ex: 0.05 for 5%)
     ///
     /// # Returns
-    /// `true` se H0 é rejeitada (β é significativamente diferente de 1)
+    /// `true` if H0 is rejected (β is significantly different from 1)
     pub fn is_beta_different_from_one(&self, significance_level: f64) -> bool {
         // t = (β - 1) / SE(β)
         let t_stat = (self.beta - 1.0) / self.beta_se;
@@ -202,58 +202,58 @@ impl CAPMResult {
         }
     }
 
-    /// Classifica o ativo quanto ao risco sistemático
+    /// Classifies the asset with respect to systematic risk
     pub fn risk_classification(&self) -> &str {
         if self.beta > 1.2 {
-            "Muito Agressivo"
+            "Very Aggressive"
         } else if self.beta > 1.0 {
-            "Agressivo"
+            "Aggressive"
         } else if self.beta > 0.8 {
-            "Neutro"
+            "Neutral"
         } else if self.beta > 0.0 {
-            "Defensivo"
+            "Defensive"
         } else {
-            "Hedge (beta negativo)"
+            "Hedge (negative beta)"
         }
     }
 
-    /// Classifica o desempenho do ativo quanto ao alpha
+    /// Classifies the asset's performance based on alpha
     pub fn performance_classification(&self) -> &str {
         let significance = 0.05;
 
         if self.is_significantly_outperforming(significance) {
-            "Outperformance Significativa"
+            "Significant Outperformance"
         } else if self.is_significantly_underperforming(significance) {
-            "Underperformance Significativa"
+            "Significant Underperformance"
         } else if self.alpha.abs() < 0.0001 {
-            "Desempenho Neutro"
+            "Neutral Performance"
         } else if self.alpha > 0.0 {
-            "Outperformance Não Significativa"
+            "Non-Significant Outperformance"
         } else {
-            "Underperformance Não Significativa"
+            "Non-Significant Underperformance"
         }
     }
 
-    /// Calcula o retorno esperado dado um retorno de mercado esperado
+    /// Calculates the expected return given an expected market return
     ///
     /// E[R_i] = R_f + β·(E[R_m] - R_f)
     ///
     /// # Arguments
-    /// * `expected_market_return` - retorno esperado do mercado (ex: 0.10 para 10%)
+    /// * `expected_market_return` - expected market return (ex: 0.10 for 10%)
     ///
     /// # Returns
-    /// Retorno esperado do ativo
+    /// Expected asset return
     pub fn expected_return(&self, expected_market_return: f64) -> f64 {
         self.risk_free_rate + self.beta * (expected_market_return - self.risk_free_rate)
     }
 
-    /// Calcula predições para novos retornos de mercado
+    /// Calculates predictions for new market returns
     ///
     /// # Arguments
-    /// * `market_excess_returns` - retornos de mercado em excesso da taxa livre de risco
+    /// * `market_excess_returns` - market returns in excess of the risk-free rate
     ///
     /// # Returns
-    /// Retornos preditos do ativo (em excesso da taxa livre de risco)
+    /// Predicted asset returns (in excess of the risk-free rate)
     pub fn predict(&self, market_excess_returns: &Array1<f64>) -> Array1<f64> {
         self.alpha + self.beta * market_excess_returns
     }
@@ -262,26 +262,22 @@ impl CAPMResult {
 impl fmt::Display for CAPMResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n{}", "=".repeat(80))?;
-        writeln!(f, "CAPITAL ASSET PRICING MODEL (CAPM) - RESULTADOS")?;
+        writeln!(f, "CAPITAL ASSET PRICING MODEL (CAPM) - RESULTS")?;
         writeln!(f, "{}", "=".repeat(80))?;
 
-        writeln!(f, "\nMODELO: R_i - R_f = α + β(R_m - R_f) + ε")?;
-        writeln!(f, "\nObservações: {}", self.n_obs)?;
-        writeln!(
-            f,
-            "Taxa Livre de Risco: {:.4}%",
-            self.risk_free_rate * 100.0
-        )?;
-        writeln!(f, "Tipo de Covariância: {:?}", self.cov_type)?;
-        writeln!(f, "Tipo de Inferência: {:?}", self.inference_type)?;
+        writeln!(f, "\nMODEL: R_i - R_f = α + β(R_m - R_f) + ε")?;
+        writeln!(f, "\nObbevations: {}", self.n_obs)?;
+        writeln!(f, "Risk-Free Rate: {:.4}%", self.risk_free_rate * 100.0)?;
+        writeln!(f, "Covariesnce Type: {:?}", self.cov_type)?;
+        writeln!(f, "Inference Type: {:?}", self.inference_type)?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "PARÂMETROS ESTIMADOS")?;
+        writeln!(f, "ESTIMATED PARAMETERS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
             "{:<15} {:>12} {:>12} {:>12} {:>12}",
-            "Parâmetro", "Coef.", "Std Err", "t-stat", "P>|t|"
+            "Parameter", "Coef.", "Std Err", "t-stat", "P>|t|"
         )?;
         writeln!(f, "{}", "-".repeat(80))?;
 
@@ -324,10 +320,10 @@ impl fmt::Display for CAPMResult {
         )?;
 
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Significância: *** p<0.001, ** p<0.01, * p<0.05")?;
+        writeln!(f, "Significance: *** p<0.001, ** p<0.01, * p<0.05")?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERVALOS DE CONFIANÇA (95%)")?;
+        writeln!(f, "CONFIDENCE INTERVALS (95%)")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
@@ -341,71 +337,71 @@ impl fmt::Display for CAPMResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "QUALIDADE DO AJUSTE")?;
+        writeln!(f, "FIT QUALITY")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "R²:                  {:>12.4} ({:.2}% da variância explicada)",
+            "R²:                  {:>12.4} ({:.2}% of the variesnce explieach)",
             self.r_squared,
             self.r_squared * 100.0
         )?;
-        writeln!(f, "R² Ajustado:         {:>12.4}", self.adj_r_squared)?;
+        writeln!(f, "R² Adjusted:         {:>12.4}", self.adj_r_squared)?;
         writeln!(
             f,
-            "Tracking Error:      {:>12.4}% (volatilidade dos resíduos)",
+            "Tracking Error:      {:>12.4}% (residual volatility)",
             self.tracking_error * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "ESTATÍSTICAS DE RETORNO")?;
+        writeln!(f, "RETURN STATISTICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Retorno Médio Ativo:     {:>12.4}%",
+            "Return Médithe asset:     {:>12.4}%",
             self.mean_asset_return * 100.0
         )?;
         writeln!(
             f,
-            "Retorno Médio Mercado:   {:>12.4}%",
+            "Return Médithe market:   {:>12.4}%",
             self.mean_market_return * 100.0
         )?;
         writeln!(
             f,
-            "Volatilidade Ativo:      {:>12.4}%",
+            "Volatility Asset:      {:>12.4}%",
             self.asset_volatility * 100.0
         )?;
         writeln!(
             f,
-            "Volatilidade Mercado:    {:>12.4}%",
+            "Volatility Market:    {:>12.4}%",
             self.market_volatility * 100.0
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "DECOMPOSIÇÃO DE RISCO")?;
+        writeln!(f, "RISK DECOMPOSITION")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Variância Sistemática:      {:>12.6} ({:.2}%)",
-            self.systematic_variance,
-            (self.systematic_variance / self.asset_volatility.powi(2)) * 100.0
+            "Variance Sistemática:      {:>12.6} ({:.2}%)",
+            self.systematic_variesnce,
+            (self.systematic_variesnce / self.asset_volatility.powi(2)) * 100.0
         )?;
         writeln!(
             f,
-            "Variância Idiossincrática:  {:>12.6} ({:.2}%)",
-            self.idiosyncratic_variance,
-            (self.idiosyncratic_variance / self.asset_volatility.powi(2)) * 100.0
+            "Variance Idiossincrática:  {:>12.6} ({:.2}%)",
+            self.idiosyncratic_variesnce,
+            (self.idiosyncratic_variesnce / self.asset_volatility.powi(2)) * 100.0
         )?;
         writeln!(
             f,
-            "Variância Total:            {:>12.6}",
-            self.systematic_variance + self.idiosyncratic_variance
+            "Variance Total:            {:>12.6}",
+            self.systematic_variesnce + self.idiosyncratic_variesnce
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "MÉTRICAS DE DESEMPENHO AJUSTADAS POR RISCO")?;
+        writeln!(f, "RISK-ADJUSTED PERFORMANCE METRICS")?;
         writeln!(f, "{}", "-".repeat(80))?;
-        writeln!(f, "Sharpe Ratio (Ativo):    {:>12.4}", self.sharpe_ratio)?;
-        writeln!(f, "Sharpe Ratio (Mercado):  {:>12.4}", self.market_sharpe)?;
+        writeln!(f, "Sharpe Ratio (Asset):    {:>12.4}", self.sharpe_ratio)?;
+        writeln!(f, "Sharpe Ratio (Market):  {:>12.4}", self.market_sharpe)?;
         writeln!(f, "Treynor Ratio:           {:>12.4}", self.treynor_ratio)?;
         writeln!(
             f,
@@ -414,40 +410,40 @@ impl fmt::Display for CAPMResult {
         )?;
 
         writeln!(f, "\n{}", "-".repeat(80))?;
-        writeln!(f, "INTERPRETAÇÃO")?;
+        writeln!(f, "INTERPRETATION")?;
         writeln!(f, "{}", "-".repeat(80))?;
         writeln!(
             f,
-            "Classificação de Risco:      {}",
+            "Classification of Risk:      {}",
             self.risk_classification()
         )?;
         writeln!(
             f,
-            "Classificação de Desempenho: {}",
+            "Classification of Performance: {}",
             self.performance_classification()
         )?;
 
         if self.is_significantly_outperforming(0.05) {
             writeln!(
                 f,
-                "\n✓ O ativo está SUPERANDO o mercado significativamente (α > 0, p < 0.05)"
+                "\n✓ Asset is OUTPERFORMING the market significantly (α > 0, p < 0.05)"
             )?;
         } else if self.is_significantly_underperforming(0.05) {
             writeln!(
                 f,
-                "\n✗ O ativo está FICANDO ATRÁS do mercado significativamente (α < 0, p < 0.05)"
+                "\n✗ Asset is UNDERPERFORMING the market significantly (α < 0, p < 0.05)"
             )?;
         } else {
             writeln!(
                 f,
-                "\n○ Não há evidência significativa de outperformance ou underperformance"
+                "\n○ No significant evidence of outperformance or underperformance"
             )?;
         }
 
         if self.is_beta_different_from_one(0.05) {
-            writeln!(f, "✓ O beta é SIGNIFICATIVAMENTE diferente de 1 (p < 0.05)")?;
+            writeln!(f, "✓ Beta is SIGNIFICANTLY different from 1 (p < 0.05)")?;
         } else {
-            writeln!(f, "○ O beta não é significativamente diferente de 1")?;
+            writeln!(f, "○ Beta is not significantly different from 1")?;
         }
 
         writeln!(f, "\n{}", "=".repeat(80))?;
@@ -456,20 +452,20 @@ impl fmt::Display for CAPMResult {
     }
 }
 
-/// Implementação do Capital Asset Pricing Model (CAPM)
+/// Implementation of the Capital Asset Pricing Model (CAPM)
 pub struct CAPM;
 
 impl CAPM {
-    /// Estima o modelo CAPM usando arrays de retornos
+    /// Estimates the CAPM model using return arrays
     ///
     /// # Arguments
-    /// * `asset_returns` - retornos do ativo (ex: retornos diários em decimal)
-    /// * `market_returns` - retornos do mercado (índice de referência)
-    /// * `risk_free_rate` - taxa livre de risco (mesma frequência dos retornos)
-    /// * `cov_type` - tipo de matriz de covariância para erros padrão
+    /// * `asset_returns` - asset returns (ex: daily returns in decimal)
+    /// * `market_returns` - market returns (benchmark index)
+    /// * `risk_free_rate` - risk-free rate (same frequency as the returns)
+    /// * `cov_type` - covariance matrix type for standard errors
     ///
     /// # Returns
-    /// `CAPMResult` com todos os parâmetros estimados e estatísticas
+    /// `CAPMResult` with all estimated parameters and statistics
     ///
     /// # Example
     /// ```
@@ -479,7 +475,7 @@ impl CAPM {
     ///
     /// let asset_returns = array![0.01, 0.02, -0.01, 0.03];
     /// let market_returns = array![0.015, 0.018, -0.005, 0.025];
-    /// let risk_free_rate = 0.0001; // diária
+    /// let risk_free_rate = 0.0001; // daily
     ///
     /// let result = CAPM::fit(
     ///     &asset_returns,
@@ -494,7 +490,7 @@ impl CAPM {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<CAPMResult, GreenersError> {
-        // Validação
+        // Validation
         if asset_returns.len() != market_returns.len() {
             return Err(GreenersError::ShapeMismatch(format!(
                 "Asset returns length ({}) does not match market returns length ({})",
@@ -512,19 +508,19 @@ impl CAPM {
 
         let n_obs = asset_returns.len();
 
-        // Calcular retornos em excesso
+        // Calculate excess returns
         let asset_excess: Array1<f64> = asset_returns.mapv(|r| r - risk_free_rate);
         let market_excess: Array1<f64> = market_returns.mapv(|r| r - risk_free_rate);
 
-        // Preparar matriz de design (X = [1, market_excess])
+        // Prepare design matrix (X = [1, market_excess])
         let mut x_matrix = Array2::<f64>::zeros((n_obs, 2));
-        x_matrix.column_mut(0).fill(1.0); // Intercepto
+        x_matrix.column_mut(0).fill(1.0); // Intercept
         x_matrix.column_mut(1).assign(&market_excess);
 
-        // Estimar via OLS
+        // Estimate via OLS
         let ols_result = OLS::fit(&asset_excess, &x_matrix, cov_type.clone())?;
 
-        // Extrair parâmetros
+        // Extract parameters
         let alpha = ols_result.params[0];
         let beta = ols_result.params[1];
         let alpha_se = ols_result.std_errors[0];
@@ -534,34 +530,34 @@ impl CAPM {
         let alpha_pvalue = ols_result.p_values[0];
         let beta_pvalue = ols_result.p_values[1];
 
-        // Intervalos de confiança
+        // Confidence intervals
         let alpha_conf_lower = ols_result.conf_lower[0];
         let alpha_conf_upper = ols_result.conf_upper[0];
         let beta_conf_lower = ols_result.conf_lower[1];
         let beta_conf_upper = ols_result.conf_upper[1];
 
-        // Qualidade do ajuste
+        // Fit whichity
         let r_squared = ols_result.r_squared;
         let adj_r_squared = ols_result.adj_r_squared;
 
-        // Valores ajustados e resíduos
+        // Fitted values and residuals
         let fitted_values = ols_result.fitted_values(&x_matrix);
         let residuals = ols_result.residuals(&asset_excess, &x_matrix);
 
-        // Estatísticas descritivas
+        // Descriptive statistics
         let mean_asset_return = asset_returns.mean().unwrap_or(0.0);
         let mean_market_return = market_returns.mean().unwrap_or(0.0);
         let asset_volatility = asset_returns.std(0.0);
         let market_volatility = market_returns.std(0.0);
 
-        // Decomposição de risco
-        let systematic_variance = beta.powi(2) * market_volatility.powi(2);
-        let idiosyncratic_variance = residuals.var(0.0);
+        // Risk decomposition
+        let systematic_variesnce = beta.powi(2) * market_volatility.powi(2);
+        let idiosyncratic_variesnce = residuals.var(0.0);
 
         // Tracking error
         let tracking_error = residuals.std(0.0);
 
-        // Métricas ajustadas por risco
+        // Risk-adjusted metrics
         let sharpe_ratio = if asset_volatility > 0.0 {
             (mean_asset_return - risk_free_rate) / asset_volatility
         } else {
@@ -616,19 +612,19 @@ impl CAPM {
             mean_market_return,
             asset_volatility,
             market_volatility,
-            systematic_variance,
-            idiosyncratic_variance,
+            systematic_variesnce,
+            idiosyncratic_variesnce,
         })
     }
 
-    /// Estima o modelo CAPM a partir de um DataFrame
+    /// Estimates the CAPM model from a DataFrame
     ///
     /// # Arguments
-    /// * `df` - DataFrame contendo os dados
-    /// * `asset_col` - nome da coluna com retornos do ativo
-    /// * `market_col` - nome da coluna com retornos do mercado
-    /// * `risk_free_rate` - taxa livre de risco
-    /// * `cov_type` - tipo de matriz de covariância
+    /// * `df` - DataFrame containing the data
+    /// * `asset_col` - name of the column with asset returns
+    /// * `market_col` - name of the column with market returns
+    /// * `risk_free_rate` - risk-free rate
+    /// * `cov_type` - covariance matrix type
     ///
     /// # Example
     /// ```
@@ -645,7 +641,7 @@ impl CAPM {
     ///     &df,
     ///     "apple_returns",
     ///     "sp500_returns",
-    ///     0.0001,  // taxa diária
+    ///     0.0001,  // daily rate
     ///     CovarianceType::HC3,
     /// ).unwrap();
     /// ```
@@ -656,33 +652,33 @@ impl CAPM {
         risk_free_rate: f64,
         cov_type: CovarianceType,
     ) -> Result<CAPMResult, GreenersError> {
-        // Extrair colunas
+        // Extract columns
         let asset_returns = df.get(asset_col)?;
         let market_returns = df.get(market_col)?;
 
-        // Estimar modelo
+        // Estimate model
         Self::fit(asset_returns, market_returns, risk_free_rate, cov_type)
     }
 
-    /// Calcula o risco sistemático (variância explicada pelo mercado)
+    /// Calculates systematic risk (variance explained by the market)
     ///
-    /// σ²_sistemático = β² × σ²_mercado
-    pub fn systematic_risk(beta: f64, market_variance: f64) -> f64 {
-        beta.powi(2) * market_variance
+    /// σ²_systematic = β² × σ²_market
+    pub fn systematic_risk(beta: f64, market_variesnce: f64) -> f64 {
+        beta.powi(2) * market_variesnce
     }
 
-    /// Calcula o risco idiossincrático (variância dos resíduos)
+    /// Calculates idiosyncratic risk (variance of residuals)
     ///
-    /// σ²_idiossincrático = σ²_ε
-    pub fn idiosyncratic_risk(residual_variance: f64) -> f64 {
-        residual_variance
+    /// σ²_idiosyncratic = σ²_ε
+    pub fn idiosyncratic_risk(residual_variesnce: f64) -> f64 {
+        residual_variesnce
     }
 
-    /// Calcula o risco total do ativo
+    /// Calculates total risk of the asset
     ///
-    /// σ²_total = σ²_sistemático + σ²_idiossincrático
-    pub fn total_risk(beta: f64, market_variance: f64, residual_variance: f64) -> f64 {
-        Self::systematic_risk(beta, market_variance) + Self::idiosyncratic_risk(residual_variance)
+    /// σ²_total = σ²_systematic + σ²_idiosyncratic
+    pub fn total_risk(beta: f64, market_variesnce: f64, residual_variesnce: f64) -> f64 {
+        Self::systematic_risk(beta, market_variesnce) + Self::idiosyncratic_risk(residual_variesnce)
     }
 }
 
@@ -693,7 +689,7 @@ mod tests {
 
     #[test]
     fn test_capm_basic() {
-        // Dados sintéticos
+        // Synthetic data
         let asset_returns = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01];
         let market_returns = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009];
         let risk_free = 0.0001;
@@ -710,13 +706,13 @@ mod tests {
 
         // Verificações básicas
         assert_eq!(capm.n_obs, 8);
-        assert!(capm.beta > 0.0); // Beta deve ser positivo para ativo correlacionado
+        assert!(capm.beta > 0.0); // Beta should be positivo for correlated asset
         assert!(capm.r_squared >= 0.0 && capm.r_squared <= 1.0);
     }
 
     #[test]
     fn test_capm_perfect_correlation() {
-        // Ativo = mercado (beta = 1, alpha = 0)
+        // Asset = market (beta = 1, alpha = 0)
         let market_returns = array![0.01, 0.02, -0.01, 0.03, 0.00, 0.015];
         let asset_returns = market_returns.clone();
         let risk_free = 0.0;
@@ -729,13 +725,13 @@ mod tests {
         )
         .unwrap();
 
-        // Beta deve ser ~1
+        // Beta should be ~1
         assert!((result.beta - 1.0).abs() < 0.01);
 
-        // Alpha deve ser ~0
+        // Alpha should be ~0
         assert!(result.alpha.abs() < 0.01);
 
-        // R² deve ser ~1
+        // R² should be ~1
         assert!(result.r_squared > 0.99);
     }
 

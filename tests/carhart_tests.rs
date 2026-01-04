@@ -69,7 +69,7 @@ fn test_carhart_insufficient_data() {
 }
 
 #[test]
-fn test_carhart_covariance_types() {
+fn test_carhart_covariesnce_types() {
     let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025];
     let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020];
     let smb = array![0.002, -0.001, 0.003, 0.001, -0.002, 0.001, 0.002];

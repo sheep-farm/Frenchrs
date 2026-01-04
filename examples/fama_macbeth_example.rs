@@ -6,11 +6,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
     println!("FAMA-MACBETH TWO-PASS REGRESSION");
     println!("{}", "=".repeat(80));
-    println!("\nEstimação de prêmios de risco usando metodologia de Fama-MacBeth (1973)");
-    println!("com correção de Shanken para erros padrão.");
+    println!("\nEstimatestion of prêmios of risk usando metodologia of Fama-MacBeth (1973)");
+    println!("with correção of Shanken for standard errors.");
 
     // ========================================================================
-    // DADOS SIMULADOS - 25 portfolios, 60 meses, 3 fatores
+    // DADOS SIMULADOS - 25 portfolios, 60 meses, 3 factors
     // ========================================================================
 
     let t = 60; // meses
@@ -20,11 +20,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "-".repeat(80));
     println!("Configuração:");
     println!("  • Portfolios: {}", n_portfolios);
-    println!("  • Fatores: {}", n_factors);
-    println!("  • Períodos: {} meses", t);
+    println!("  • Factors: {}", n_factors);
+    println!("  • Periods: {} meses", t);
     println!("{}", "-".repeat(80));
 
-    // Gerador de números pseudo-aleatórios simples
+    // Gerador of números pseudo-aleatórios simples
     let mut rng = 12345u64;
     let mut rand = || {
         rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
@@ -37,18 +37,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let factor_names = vec!["Market".to_string(), "SMB".to_string(), "HML".to_string()];
 
-    let factors = Array2::from_shape_fn((t, n_factors), |(i, j)| {
+    let factors = Array2::from_shape_fn((t, n_factors), |(_i, j)| {
         let base = match j {
-            0 => 0.008, // Market: média ~0.8% ao mês
-            1 => 0.002, // SMB: média ~0.2% ao mês
-            2 => 0.003, // HML: média ~0.3% ao mês
+            0 => 0.008, // Market: mean ~0.8% ao mês
+            1 => 0.002, // SMB: mean ~0.2% ao mês
+            2 => 0.003, // HML: mean ~0.3% ao mês
             _ => 0.0,
         };
         base + rand() * 0.04
     });
 
-    println!("\nFatores gerados:");
-    println!("{:<15} {:>12} {:>12}", "Fator", "Média", "Std Dev");
+    println!("\nFactors gerados:");
+    println!("{:<15} {:>12} {:>12}", "Factor", "Mean", "Std Dev");
     println!("{}", "-".repeat(40));
     for (i, name) in factor_names.iter().enumerate() {
         let col = factors.column(i);
@@ -65,8 +65,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ========================================================================
     // SIMULAR RETORNOS DOS PORTFOLIOS
     // ========================================================================
-    // Cada portfolio tem diferentes exposições aos fatores (betas)
-    // Organizados em quintis por tamanho e valor (5×5 = 25 portfolios)
+    // Cada portfolio tem diferentes exposições aos factors (betas)
+    // Organizados em quintis por size e value (5×5 = 25 portfolios)
 
     let mut portfolio_names = Vec::new();
     for size in &["Small", "2", "3", "4", "Big"] {
@@ -77,17 +77,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut returns = Array2::<f64>::zeros((t, n_portfolios));
 
-    // Definir betas "verdadeiros" para cada portfolio
+    // Definir betas "verdadeiros" for each portfolio
     let mut true_betas = Vec::new();
 
     for p in 0..n_portfolios {
         let size_quintile = p / 5; // 0-4
         let value_quintile = p % 5; // 0-4
 
-        // Betas variam por características:
-        // - Small caps têm beta_market maior
-        // - Small caps têm beta_smb positivo maior
-        // - Value stocks têm beta_hml positivo maior
+        // Betas variesm por características:
+        // - Small caps têm beta_market greater
+        // - Small caps têm beta_smb positivo greater
+        // - Value stocks têm beta_hml positivo greater
 
         let beta_market = 0.8 + (size_quintile as f64) * 0.1;
         let beta_smb = -0.5 + (4 - size_quintile) as f64 * 0.25; // small = high
@@ -95,13 +95,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         true_betas.push(vec![beta_market, beta_smb, beta_hml]);
 
-        // Gerar retornos baseados nos fatores + alpha + ruído idiossincrático
+        // Gerar returns baseados nos factors + alpha + ruído idiossincrático
         let alpha = 0.001 + rand() * 0.002; // alpha pequeno
 
         for time in 0..t {
             let mut ret = alpha;
 
-            // Exposição aos fatores
+            // Exposição aos factors
             ret += beta_market * factors[[time, 0]];
             ret += beta_smb * factors[[time, 1]];
             ret += beta_hml * factors[[time, 2]];
@@ -113,14 +113,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("\nRetornos gerados para {} portfolios", n_portfolios);
+    println!("\nReturns gerados for {} portfolios", n_portfolios);
 
     // ========================================================================
     // ESTIMAR FAMA-MACBETH
     // ========================================================================
 
     println!("\n{}", "=".repeat(80));
-    println!("ESTIMANDO MODELO FAMA-MACBETH...");
+    println!("ESTIMANDthe modelO FAMA-MACBETH...");
     println!("{}", "=".repeat(80));
 
     let result = FamaMacBeth::fit(
@@ -132,48 +132,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
 
     // ========================================================================
-    // RESULTADOS
+    // RESULTS
     // ========================================================================
 
     println!("{}", result);
 
     // ========================================================================
-    // ANÁLISE DETALHADA DOS LAMBDAS
+    // ANALYSIS OFTALHADA DOS LAMBDAS
     // ========================================================================
 
     println!("\n{}", "=".repeat(80));
-    println!("INTERPRETAÇÃO DOS PRÊMIOS DE RISCO");
+    println!("INTERPRETATION DOS PRÊMIOS DE RISCO");
     println!("{}", "=".repeat(80));
 
     println!("\n1. CONSTANTE (λ_0):");
-    println!("   Valor: {:.4}% ao mês", result.lambda_const() * 100.0);
-    println!("   Interpretação: Taxa de retorno para ativo com beta zero");
+    println!("   Value: {:.4}% ao mês", result.lambda_const() * 100.0);
+    println!("   Interpretation: Taxa of return for asset with beta zero");
     println!(
-        "   Significância (Shanken): {}",
+        "   Significance (Shanken): {}",
         if result.pval_shanken[0] < 0.05 {
             "Significativo a 5%"
         } else {
-            "Não significativo a 5%"
+            "Não significant a 5%"
         }
     );
 
     for (i, name) in factor_names.iter().enumerate() {
         println!("\n{}. {} (λ_{}):", i + 2, name, i + 1);
+        println!("   Prêmio of risk: {:.4}% ao mês", result.lambda(i) * 100.0);
         println!(
-            "   Prêmio de risco: {:.4}% ao mês",
-            result.lambda(i) * 100.0
-        );
-        println!(
-            "   Anualizado: {:.2}% ao ano",
+            "   Annualized: {:.2}% ao ano",
             result.lambda(i) * 12.0 * 100.0
         );
 
         if result.is_significant_shanken(i, 0.05) {
             println!("   ✓ Significativo a 5% (Shanken)");
-            println!("   Interpretação: Fator é precificado pelo mercado");
+            println!("   Interpretation: Factor é precificado pelthe market");
         } else {
-            println!("   ✗ Não significativo a 5% (Shanken)");
-            println!("   Interpretação: Fator pode não ser relevante para pricing");
+            println!("   ✗ Não significant a 5% (Shanken)");
+            println!("   Interpretation: Factor can not be relevante for pricing");
         }
 
         let t_shanken = result.tstat_shanken[i + 1];
@@ -181,11 +178,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // ========================================================================
-    // COMPARAÇÃO: BETAS VERDADEIROS vs ESTIMADOS
+    // COMPARAÇÃO: BETAS VERDADEIROS vs ESTIMATED
     // ========================================================================
 
     println!("\n{}", "=".repeat(80));
-    println!("COMPARAÇÃO: BETAS VERDADEIROS vs ESTIMADOS (Primeiros 5 portfolios)");
+    println!("COMPARAÇÃO: BETAS VERDADEIROS vs ESTIMATED (Primeiros 5 portfolios)");
     println!("{}", "=".repeat(80));
 
     println!(
@@ -216,7 +213,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    println!("\n... ({} portfolios restantes)", n_portfolios - 5);
+    println!("\n... ({} portfolios restbefore)", n_portfolios - 5);
 
     // ========================================================================
     // PRICING ERRORS
@@ -232,10 +229,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     println!("{}", "-".repeat(70));
 
-    for p in 0..10.min(n_portfolios) {
+    for (p, name) in portfolio_names
+        .iter()
+        .enumerate()
+        .take(10.min(n_portfolios))
+    {
         println!(
             "{:<20} {:>14.2}% {:>14.2}% {:>14.4}%",
-            &portfolio_names[p],
+            name,
             result.mean_returns[p] * 100.0,
             result.model_returns[p] * 100.0,
             result.pricing_errors[p] * 100.0
@@ -243,15 +244,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if n_portfolios > 10 {
-        println!("\n... ({} portfolios restantes)", n_portfolios - 10);
+        println!("\n... ({} portfolios restbefore)", n_portfolios - 10);
     }
 
     // ========================================================================
-    // MÉTRICAS DE AJUSTE
+    // METRICS DE AJUSTE
     // ========================================================================
 
     println!("\n{}", "=".repeat(80));
-    println!("MÉTRICAS DE QUALIDADE DO AJUSTE");
+    println!("METRICS DE FIT QUALITY");
     println!("{}", "=".repeat(80));
 
     println!("\nCross-Sectional:");
@@ -259,7 +260,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "  • R² médio: {:.2}%",
         result.r2_cross_sectional_mean * 100.0
     );
-    println!("  • Períodos efetivos: {}", result.t_eff);
+    println!("  • Periods efetivos: {}", result.t_eff);
 
     println!("\nPricing:");
     println!("  • R² pricing: {:.2}%", result.r2_pricing() * 100.0);
@@ -275,9 +276,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "=".repeat(80));
 
     println!("\n1. METODOLOGIA:");
-    println!("   • Primeira passagem: Estima betas via regressão time-series");
-    println!("   • Segunda passagem: Estima prêmios de risco via regressão cross-section");
-    println!("   • Shanken correction: Ajusta erros padrão para beta estimado");
+    println!("   • Primeira passagem: Estimates betas via regresare time-beies");
+    println!("   • Segunda passagem: Estimates prêmios of risk via regresare cross-section");
+    println!("   • Shanken correction: Ajusta erros padrão for beta estimated");
 
     println!("\n2. PRÊMIOS DE RISCO:");
     let significant_factors: Vec<String> = (0..n_factors)
@@ -286,22 +287,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect();
 
     if significant_factors.is_empty() {
-        println!("   • Nenhum fator é estatisticamente significativo a 5%");
+        println!("   • Nenhum factor é thististicamente significant a 5%");
     } else {
         let factors_str: Vec<&str> = significant_factors.iter().map(|s| s.as_str()).collect();
         println!(
-            "   • Fatores significativos (5%): {}",
+            "   • Factors significativos (5%): {}",
             factors_str.join(", ")
         );
     }
 
-    println!("\n3. QUALIDADE DO MODELO:");
+    println!("\n3. QUALIDADE Dthe model:");
     if result.r2_cross_sectional_mean > 0.7 {
-        println!("   ✓ Bom ajuste cross-sectional (R² > 70%)");
+        println!("   ✓ Bom fit cross-sectional (R² > 70%)");
     } else if result.r2_cross_sectional_mean > 0.4 {
-        println!("   ~ Ajuste moderado cross-sectional");
+        println!("   ~ Fit moderado cross-sectional");
     } else {
-        println!("   ✗ Ajuste fraco cross-sectional");
+        println!("   ✗ Fit fraco cross-sectional");
     }
 
     if result.rmse_pricing() < 0.01 {

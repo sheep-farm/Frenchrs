@@ -6,13 +6,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
     println!("ROLLING BETAS - MÚLTIPLOS ATIVOS");
     println!("{}", "=".repeat(80));
-    println!("\nAnálise similar ao Python: processa múltiplos ativos simultaneamente");
+    println!("\nAnálise similar ao Python: procthat multiple assets simultaneamente");
 
     // ========================================================================
-    // DADOS SIMULADOS - 3 ativos, 24 meses, 3 fatores (Mercado, SMB, HML)
+    // DADOS SIMULADOS - 3 assets, 24 meses, 3 factors (Market, SMB, HML)
     // ========================================================================
 
-    // Matriz de retornos: 24 observações × 3 ativos
+    // Matriz of returns: 24 obbevations × 3 assets
     #[rustfmt::skip]
     let returns = Array2::from_shape_vec((24, 3), vec![
         // Asset1, Asset2, Asset3
@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0.072, 0.065, 0.068,  // mês 24
     ])?;
 
-    // Matriz de fatores: 24 observações × 3 fatores (MKT, SMB, HML)
+    // Matriz of factors: 24 obbevations × 3 factors (MKT, SMB, HML)
     #[rustfmt::skip]
     let factors = Array2::from_shape_vec((24, 3), vec![
         // MKT,    SMB,    HML
@@ -81,28 +81,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let factor_names = vec!["Market".to_string(), "SMB".to_string(), "HML".to_string()];
 
     // ========================================================================
-    // CALCULAR ROLLING BETAS - Janela de 12 meses
+    // CALCULAR ROLLING BETAS - Window of 12 meses
     // ========================================================================
     println!("\n{}", "-".repeat(80));
     println!("Configuração:");
-    println!("  • Ativos: {}", asset_names.len());
-    println!("  • Fatores: {}", factor_names.len());
-    println!("  • Observações: {}", returns.nrows());
-    println!("  • Janela: 12 meses");
+    println!("  • Assets: {}", asset_names.len());
+    println!("  • Factors: {}", factor_names.len());
+    println!("  • Obbevations: {}", returns.nrows());
+    println!("  • Window: 12 meses");
     println!("{}", "-".repeat(80));
 
     let rolling = RollingBetasMulti::fit(
         &returns,
         &factors,
-        12, // janela de 12 meses
+        12, // window of 12 meses
         CovarianceType::HC3,
         Some(asset_names.clone()),
         Some(factor_names.clone()),
     )?;
 
-    println!("\n✓ Rolling Betas calculado com sucesso!");
+    println!("\n✓ Rolling Betas calculado with sucesso!");
     println!(
-        "  • Número de janelas: {}",
+        "  • Número of janelas: {}",
         rolling.results.values().next().unwrap().n_windows
     );
 
@@ -120,10 +120,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("ATIVO: {}", asset_name);
         println!("{}", "-".repeat(80));
 
-        println!("\nEstatísticas dos Betas:");
+        println!("\nStatistics of the Betas:");
         println!(
             "{:<20} {:>12} {:>12} {:>12}",
-            "Fator", "Média", "Std Dev", "CV"
+            "Factor", "Mean", "Std Dev", "CV"
         );
         println!("{}", "-".repeat(60));
 
@@ -137,11 +137,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
 
-        // Análise de estabilidade avançada
-        println!("\nAnálise de Estabilidade Avançada:");
+        // Analysis of stability avançada
+        println!("\nAnalysis of Stability Avançada:");
         println!(
             "{:<15} {:>12} {:>12} {:>12} {:>25}",
-            "Fator", "CV", "Tendência", "Autocorr", "Classificação"
+            "Factor", "CV", "Trend", "Autocorr", "Classification"
         );
         println!("{}", "-".repeat(80));
 
@@ -150,14 +150,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!(
                 "{:<15} {:>12.4} {:>12.6} {:>12.4} {:>25}",
                 factor_name,
-                stability.coefficient_of_variation,
+                stability.coefficient_of_variestion,
                 stability.trend,
                 stability.autocorrelation,
                 stability.stability_classification()
             );
         }
 
-        println!("\nTendências:");
+        println!("\nTrends:");
         for (i, factor_name) in factor_names.iter().enumerate() {
             let stability = asset_result.beta_stability(i);
             println!(
@@ -167,7 +167,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
 
-        // Verificar se betas são estáveis (CV < 10%)
+        // Verificar if betas are isveis (CV < 10%)
         println!("\nBetas Estáveis (CV < 10%):");
         for (i, factor_name) in factor_names.iter().enumerate() {
             let is_stable = asset_result.is_beta_stable(i, 0.1);
@@ -205,7 +205,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if table.len() > 10 {
-        println!("... ({} linhas restantes)", table.len() - 10);
+        println!("... ({} linhas restbefore)", table.len() - 10);
     }
 
     // ========================================================================
@@ -218,25 +218,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let csv = rolling.to_csv_string();
     let csv_lines: Vec<&str> = csv.lines().collect();
 
-    println!("\nPrimeiras 10 linhas do CSV:");
+    println!("\nPrimeiras 10 linhas of the CSV:");
     println!("{}", "-".repeat(80));
     for line in csv_lines.iter().take(10) {
         println!("{}", line);
     }
 
     if csv_lines.len() > 10 {
-        println!("... ({} linhas restantes)", csv_lines.len() - 10);
+        println!("... ({} linhas restbefore)", csv_lines.len() - 10);
     }
 
     // Salvar em arquivo (opcional)
     // std::fs::write("rolling_betas.csv", csv)?;
-    // println!("\n✓ Arquivo 'rolling_betas.csv' salvo com sucesso!");
+    // println!("\n✓ Arquivo 'rolling_betas.csv' salvo with sucesso!");
 
     // ========================================================================
     // COMPARAÇÃO ENTRE ATIVOS
     // ========================================================================
     println!("\n{}", "=".repeat(80));
-    println!("COMPARAÇÃO DE ESTABILIDADE ENTRE ATIVOS");
+    println!("COMPARAÇÃO DE STABILITY ENTRE ATIVOS");
     println!("{}", "=".repeat(80));
 
     println!(
@@ -312,20 +312,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("CONCLUSÕES");
     println!("{}", "=".repeat(80));
 
-    println!("\n1. ESTABILIDADE DOS BETAS:");
+    println!("\n1. STABILITY DOS BETAS:");
     for asset_name in &asset_names {
         let asset_result = rolling.get_asset(asset_name).unwrap();
         let market_cv = asset_result.cv_beta(0);
 
         if market_cv < 0.1 {
             println!(
-                "   ✓ {}: Beta estável (CV = {:.2}%)",
+                "   ✓ {}: Beta stable (CV = {:.2}%)",
                 asset_name,
                 market_cv * 100.0
             );
         } else {
             println!(
-                "   ⚠ {}: Beta instável (CV = {:.2}%)",
+                "   ⚠ {}: Beta unstable (CV = {:.2}%)",
                 asset_name,
                 market_cv * 100.0
             );
@@ -333,9 +333,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("\n2. EXPOSIÇÃO AOS FATORES:");
-    println!("   • Market: Todos os fundos têm forte exposição ao mercado");
+    println!("   • Market: Todos os fundos têm forte exposição to the market");
 
-    // Identificar qual fundo tem maior exposição SMB
+    // Identificar which fundo tem greater exposição SMB
     let smb_betas: Vec<f64> = asset_names
         .iter()
         .map(|name| rolling.get_asset(name).unwrap().mean_beta(1))
@@ -349,14 +349,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .0;
 
     println!(
-        "   • SMB: {} tem maior exposição a small caps",
+        "   • SMB: {} tem greater exposição a small caps",
         asset_names[max_smb_idx]
     );
 
     println!("\n3. FORMATO DE DADOS:");
-    println!("   • Total de linhas na tabela: {}", table.len());
+    println!("   • Total of linhas na tabela: {}", table.len());
     println!("   • Formato: (asset, date, alpha, betas..., r_squared)");
-    println!("   • Compatível com análises em Python/Pandas");
+    println!("   • Compatível with análises em Python/Pandas");
 
     println!("\n{}", "=".repeat(80));
 

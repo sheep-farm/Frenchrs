@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("COMPARAÇÃO COMPLETA: CAPM vs FF3 vs Carhart vs FF5");
     println!("{}", "=".repeat(80));
 
-    // Dados simulados
+    // Data simulados
     let fund = array![
         0.058, 0.042, -0.018, 0.082, 0.045, -0.032, 0.068, 0.052, -0.015, 0.062, 0.041, 0.075
     ];
@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let rf = 0.03 / 12.0;
 
-    println!("\nEstimando modelos...\n");
+    println!("\nEstimatesndthe models...\n");
     let capm = CAPM::fit(&fund, &market, rf, CovarianceType::HC3)?;
     let ff3 = FamaFrench3Factor::fit(&fund, &market, &smb, &hml, rf, CovarianceType::HC3)?;
     let carhart = Carhart4Factor::fit(&fund, &market, &smb, &hml, &mom, rf, CovarianceType::HC3)?;
@@ -59,7 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     println!(
         "{:<25} {:>12.6} {:>12.6} {:>12.6} {:>12.6}",
-        "Beta Mercado", capm.beta, ff3.beta_market, carhart.beta_market, ff5.beta_market
+        "Beta Market", capm.beta, ff3.beta_market, carhart.beta_market, ff5.beta_market
     );
     println!(
         "{:<25} {:>12} {:>12.6} {:>12.6} {:>12.6}",

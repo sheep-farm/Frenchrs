@@ -3,13 +3,13 @@ use greeners::{CovarianceType, DataFrame};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));
-    println!("EXEMPLO: CAPM com DataFrame");
+    println!("EXEMPLO: CAPM with DataFrame");
     println!("{}", "=".repeat(80));
 
     // ==========================================================================
-    // Criar DataFrame com retornos sintéticos
+    // Createsr DataFrame with returns sintéticos
     // ==========================================================================
-    println!("\nCriando DataFrame com retornos mensais de 2023...\n");
+    println!("\nCreatesndo DataFrame with returns mensais of 2023...\n");
 
     let df = DataFrame::builder()
         .add_column(
@@ -54,14 +54,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .build()?;
 
-    println!("DataFrame criado com {} observações\n", df.n_rows());
+    println!("DataFrame criado with {} obbevations\n", df.n_rows());
 
     // ==========================================================================
-    // Estimar CAPM
+    // Estimates CAPM
     // ==========================================================================
-    println!("Estimando CAPM para Tesla vs S&P 500...\n");
+    println!("Estimatesndo CAPM for Tesla vs S&P 500...\n");
 
-    // Taxa livre de risco: ~4% ao ano = 0.04/12 ao mês
+    // Risk-free rate: ~4% ao ano = 0.04/12 ao mês
     let risk_free_monthly = 0.04 / 12.0;
 
     let capm = CAPM::from_dataframe(
@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CovarianceType::HC3, // Erros padrão robustos
     )?;
 
-    // Exibir resultados
+    // Exibir results
     println!("{}", capm);
 
     // ==========================================================================
@@ -83,7 +83,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "=".repeat(80));
 
     println!(
-        "\nBeta: {:.4} → Tesla é {:.1}x mais volátil que o S&P 500",
+        "\nBeta: {:.4} → Tesla é {:.1}x more volátil que o S&P 500",
         capm.beta, capm.beta
     );
 
@@ -97,18 +97,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if capm.is_significantly_outperforming(0.05) {
         println!("✓ OUTPERFORMANCE SIGNIFICATIVA!");
         println!(
-            "  Tesla superou o S&P 500 em ~{:.2}% ao ano após ajuste por risco",
+            "  Tesla superou o S&P 500 em ~{:.2}% ao ano after fit por risk",
             annual_alpha
         );
     }
 
     println!(
-        "\nPoder Explicativo: {:.1}% da variação da Tesla é explicada pelo mercado",
+        "\nPoder Explicativo: {:.1}% of the variestion of the Tesla é explieach pelthe market",
         capm.r_squared * 100.0
     );
 
     println!(
-        "Risco Idiossincrático: {:.1}% (específico da Tesla, não do mercado)",
+        "Risk Idiossincrático: {:.1}% (específico of the Tesla, not of the market)",
         (1.0 - capm.r_squared) * 100.0
     );
 
@@ -120,20 +120,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "-".repeat(80));
 
     println!(
-        "\nSe o S&P 500 subir 10% em 2024, retorno esperado da Tesla: {:.2}%",
+        "\nSe o S&P 500 subir 10% em 2024, return esperado of the Tesla: {:.2}%",
         capm.expected_return(0.10) * 100.0
     );
 
     println!(
-        "Se o S&P 500 cair 10% em 2024, retorno esperado da Tesla: {:.2}%",
+        "Se o S&P 500 cair 10% em 2024, return esperado of the Tesla: {:.2}%",
         capm.expected_return(-0.10) * 100.0
     );
 
     // ==========================================================================
-    // Métricas de desempenho ajustado por risco
+    // Metrics of performance adjusted por risk
     // ==========================================================================
     println!("\n{}", "-".repeat(80));
-    println!("MÉTRICAS AJUSTADAS POR RISCO");
+    println!("METRICS AJUSTADAS POR RISCO");
     println!("{}", "-".repeat(80));
 
     println!("\nSharpe Ratio:");
@@ -141,13 +141,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  S&P 500:   {:.4}", capm.market_sharpe);
 
     if capm.sharpe_ratio > capm.market_sharpe {
-        println!("  → Tesla tem melhor retorno por unidade de risco total");
+        println!("  → Tesla tem better return per unit of risk total");
     } else {
-        println!("  → S&P 500 tem melhor retorno por unidade de risco");
+        println!("  → S&P 500 tem better return per unit of risk");
     }
 
     println!("\nTreynor Ratio: {:.4}", capm.treynor_ratio);
-    println!("  → Retorno por unidade de risco sistemático (beta)");
+    println!("  → Return per unit of systematic risk (beta)");
 
     println!("\nInformation Ratio: {:.4}", capm.information_ratio);
     if capm.information_ratio > 0.5 {
@@ -155,7 +155,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else if capm.information_ratio > 0.0 {
         println!("  → BOM: algum alpha positivo");
     } else {
-        println!("  → FRACO: sem alpha positivo consistente");
+        println!("  → FRACO: without alpha positivo consistente");
     }
 
     println!("\n{}", "=".repeat(80));

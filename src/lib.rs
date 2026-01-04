@@ -1,16 +1,16 @@
-//! # Frenchrs - Biblioteca Rust para Precificação de Ativos
+//! # Frenchrs - Rust Library for Asset Pricing
 //!
-//! Frenchrs é uma biblioteca de alto desempenho para precificação de ativos e análise financeira,
-//! construída em Rust e aproveitando a infraestrutura econométrica robusta do Greeners.
+//! Frenchrs is a high-performance library for asset pricing and financial analysis,
+//! built in Rust and leveraging the robust econametric infrastructure of Greeners.
 //!
-//! ## Modelos Implementados
+//! ## Implemented Models
 //!
-//! - **CAPM** (Capital Asset Pricing Model): Modelo de precificação de ativos baseado no risco sistemático
-//! - **Fama-French 3 Factor**: CAPM + fatores tamanho (SMB) e valor (HML)
-//! - **Carhart 4 Factor**: Fama-French 3 Factor + fator momentum (MOM)
-//! - **Fama-French 5 Factor**: FF3 + fatores rentabilidade (RMW) e investimento (CMA)
-//! - **Fama-French 6 Factor**: FF5 + fator momentum (UMD)
-//! - **APT** (Arbitrage Pricing Theory): Modelo multi-fatorial genérico com N fatores
+//! - **CAPM** (Capital Asset Pricing Model): Asset pricing model based on systematic risk
+//! - **Fama-French 3 Factor**: CAPM + size (SMB) and value (HML) factors
+//! - **Carhart 4 Factor**: Fama-French 3 Factor + momentum factor (MOM)
+//! - **Fama-French 5 Factor**: FF3 + profitability (RMW) and investment (CMA) factors
+//! - **Fama-French 6 Factor**: FF5 + momentum factor (UMD)
+//! - **APT** (Arbitrage Pricing Theory): Generic multi-factor model with N factors
 //!
 //! ## Roadmap
 //!
@@ -19,19 +19,19 @@
 //! - Portfolio Optimization
 //! - Black-Litterman Model
 //!
-//! ## Exemplo Básico
+//! ## Basic Example
 //!
 //! ```rust
 //! use frenchrs::CAPM;
 //! use greeners::CovarianceType;
 //! use ndarray::array;
 //!
-//! // Retornos diários
+//! // Daily returns
 //! let asset_returns = array![0.01, 0.02, -0.01, 0.03];
 //! let market_returns = array![0.008, 0.015, -0.005, 0.025];
-//! let risk_free_rate = 0.0001; // taxa diária (~2.5% ao ano)
+//! let risk_free_rate = 0.0001; // daily rate (~2.5% per year)
 //!
-//! // Estimar CAPM com erros padrão robustos (HC3)
+//! // Estimate CAPM with robust standard errors (HC3)
 //! let result = CAPM::fit(
 //!     &asset_returns,
 //!     &market_returns,
@@ -44,10 +44,10 @@
 //! println!("Alpha: {:.4}", result.alpha);
 //! ```
 
-// Re-exports do Greeners para conveniência
+// Re-exports from Greeners for convenience
 pub use greeners::{CovarianceType, DataFrame, Formula, GreenersError, InferenceType, OLS};
 
-// Módulos da biblioteca
+// Library modules
 pub mod apt;
 pub mod capm;
 pub mod carhart;
@@ -59,7 +59,7 @@ pub mod ivol_tracking_multi;
 pub mod risk_metrics;
 pub mod rolling_betas_multi;
 
-// Re-exports principais
+// Main re-exports
 pub use apt::{APT, APTResult};
 pub use capm::{CAPM, CAPMResult};
 pub use carhart::{Carhart4Factor, Carhart4FactorResult};
