@@ -1,8 +1,4 @@
 
-Below is the English translation of the **Frenchrs** documentation, formatted as a Markdown file.
-
----
-
 # Frenchrs
 
 A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners).
