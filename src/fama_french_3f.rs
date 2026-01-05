@@ -234,7 +234,7 @@ impl FamaFrench3FactorResult {
 
     /// Calculates the expected return given expected factor returns
     ///
-    /// E[R_i] = R_f + β_MKT·(E[R_m] - R_f) + β_SMB·E[SMB] + β_HML·E[HML]
+    /// E\[R_i\] = R_f + β_MKT·(E\[R_m\] - R_f) + β_SMB·E\[SMB\] + β_HML·E\[HML\]
     pub fn expected_return(
         &self,
         expected_market_return: f64,

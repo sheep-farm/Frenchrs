@@ -72,17 +72,17 @@ pub struct CAPMResult {
 
     /// Razão of Sharpe of the asset
     ///
-    /// Sharpe = (E[R_i] - R_f) / σ_i
+    /// Sharpe = (E\[R_i\] - R_f) / σ_i
     pub sharpe_ratio: f64,
 
     /// Razão of Sharpe of the market
     ///
-    /// Sharpe_market = (E[R_m] - R_f) / σ_m
+    /// Sharpe_market = (E\[R_m\] - R_f) / σ_m
     pub market_sharpe: f64,
 
     /// Razão of Treynor
     ///
-    /// Treynor = (E[R_i] - R_f) / β
+    /// Treynor = (E\[R_i\] - R_f) / β
     /// Mede return per unit of systematic risk
     pub treynor_ratio: f64,
 
@@ -236,7 +236,7 @@ impl CAPMResult {
 
     /// Calculates the expected return given an expected market return
     ///
-    /// E[R_i] = R_f + β·(E[R_m] - R_f)
+    /// E\[R_i\] = R_f + β·(E\[R_m\] - R_f)
     ///
     /// # Arguments
     /// * `expected_market_return` - expected market return (ex: 0.10 for 10%)
