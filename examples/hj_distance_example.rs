@@ -97,11 +97,11 @@ fn main() {
 
     for (i, (name, alpha)) in alpha_pairs.iter().take(5).enumerate() {
         println!(
-            "{}. {:<25} Alpha: {:>10.6} ({} per year)",
+            "{}. {:<25} Alpha: {:>10.6} ({:.2}% per year)",
             i + 1,
             name,
             alpha,
-            format!("{:.2}%", alpha * 12.0 * 100.0)
+            alpha * 12.0 * 100.0
         );
     }
 

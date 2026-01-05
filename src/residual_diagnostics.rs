@@ -886,10 +886,10 @@ mod tests {
 
         assert_eq!(result.diagnostics.len(), n);
 
-        for (_, diag) in &result.diagnostics {
-            assert!(diag.durbin_watson >= 0.0 && diag.durbin_watson <= 4.0);
-            assert!(diag.lb_p_value >= 0.0 && diag.lb_p_value <= 1.0);
-            assert!(diag.jb_p_value >= 0.0 && diag.jb_p_value <= 1.0);
+        for diag in result.diagnostics.values() {
+            assert!((0.0..=4.0).contains(&diag.durbin_watson));
+            assert!((0.0..=1.0).contains(&diag.lb_p_value));
+            assert!((0.0..=1.0).contains(&diag.jb_p_value));
         }
     }
 
@@ -922,7 +922,7 @@ mod tests {
         let resid = Array1::from_vec(vec![0.1, -0.1, 0.05, -0.05, 0.08, -0.08]);
         let dw = durbin_watson(&resid);
         // DW statistic is bounded between 0 and 4
-        assert!(dw >= 0.0 && dw <= 4.0);
+        assert!((0.0..=4.0).contains(&dw));
 
         // Test with positive autocorrelation (low DW)
         let resid_pos = Array1::from_vec(vec![0.1, 0.11, 0.12, 0.11, 0.10, 0.09]);
@@ -943,6 +943,6 @@ mod tests {
         ]);
         let (jb, p) = jarque_bera(&resid);
         assert!(jb >= 0.0);
-        assert!(p >= 0.0 && p <= 1.0);
+        assert!((0.0..=1.0).contains(&p));
     }
 }

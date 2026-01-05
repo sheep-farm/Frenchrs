@@ -573,7 +573,7 @@ mod tests {
         .unwrap();
 
         let corr_ab = result.get_correlation("A", "B").unwrap();
-        assert!(corr_ab >= -1.0 && corr_ab <= 1.0);
+        assert!((-1.0..=1.0).contains(&corr_ab));
 
         let corr_aa = result.get_correlation("A", "A").unwrap();
         assert!((corr_aa - 1.0).abs() < 1e-10);
