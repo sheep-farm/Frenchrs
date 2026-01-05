@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Frenchrs Contributors"]
 license = "GPL-3.0-or-later"
 description = "A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners)."
-keywords = ["finance", "capm", "asset-pricing", "econometrics", "fama-french", "apt"]
+keywords = ["finance", "capm", "asset-pricing", "fama-french", "apt"]
 categories = ["science", "finance"]
 repository = "https://github.com/sheep-farm/Frenchrs"
 
