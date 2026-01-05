@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Frenchrs Contributors"]
 license = "GPL-3.0-or-later"
-description = "Biblioteca Rust de alto desempenho para precificação de ativos (CAPM, Fama-French, etc)"
-keywords = ["finance", "capm", "asset-pricing", "econometrics", "fama-french"]
+description = "A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners)."
+keywords = ["finance", "capm", "asset-pricing", "econometrics", "fama-french", "apt"]
 categories = ["science", "finance"]
-repository = "https://github.com/yourusername/frenchrs"
+repository = "https://github.com/sheep-farm/Frenchrs"
 
 # [build]
 # rustflags = ["-C", "target-cpu=native"]

@@ -48,8 +48,7 @@
 //! ```
 
 use greeners::{CovarianceType, GreenersError, OLS};
-use ndarray::{s, Array1, Array2};
-use ndarray_linalg::Inverse;
+use ndarray::{Array1, Array2, s};
 use std::collections::HashMap;
 
 /// Diagnostic test results for a single asset
@@ -211,7 +210,9 @@ impl ResidualDiagnostics {
         let mut x_with_intercept = Array2::zeros((t, k + 1));
         x_with_intercept.column_mut(0).fill(1.0);
         for i in 0..k {
-            x_with_intercept.column_mut(i + 1).assign(&factors.column(i));
+            x_with_intercept
+                .column_mut(i + 1)
+                .assign(&factors.column(i));
         }
 
         let mut diagnostics = HashMap::new();
@@ -368,7 +369,7 @@ fn ljung_box(residuals: &Array1<f64>, max_lag: usize) -> (f64, f64) {
         for i in lag..n {
             acf += (residuals[i] - mean) * (residuals[i - lag] - mean);
         }
-        acf /= (n as f64 * var);
+        acf /= n as f64 * var;
 
         q_stat += acf * acf / (n - lag) as f64;
     }
@@ -402,7 +403,7 @@ fn breusch_pagan(residuals: &Array1<f64>, x: &Array2<f64>) -> (f64, f64) {
     let y_bp = resid_sq.mapv(|r| r / sigma_sq);
 
     // Regress normalized squared residuals on X
-    match OLS::fit(&y_bp, x, CovarianceType::Homoscedastic) {
+    match OLS::fit(&y_bp, x, CovarianceType::NonRobust) {
         Ok(model) => {
             // BP statistic = n * R²
             let bp_stat = n as f64 * model.r_squared;
@@ -445,11 +446,7 @@ fn white_test(residuals: &Array1<f64>, x: &Array2<f64>) -> (f64, f64) {
         for l in (j + 1)..k {
             let col_j = x.column(j);
             let col_l = x.column(l);
-            let cross: Array1<f64> = col_j
-                .iter()
-                .zip(col_l.iter())
-                .map(|(a, b)| a * b)
-                .collect();
+            let cross: Array1<f64> = col_j.iter().zip(col_l.iter()).map(|(a, b)| a * b).collect();
             x_white_cols.push(cross);
         }
     }
@@ -461,7 +458,7 @@ fn white_test(residuals: &Array1<f64>, x: &Array2<f64>) -> (f64, f64) {
     }
 
     // Regress squared residuals on augmented X
-    match OLS::fit(&resid_sq, &x_white, CovarianceType::Homoscedastic) {
+    match OLS::fit(&resid_sq, &x_white, CovarianceType::NonRobust) {
         Ok(model) => {
             // White statistic = n * R²
             let white_stat = n as f64 * model.r_squared;
@@ -483,7 +480,7 @@ fn reset_test(y: &Array1<f64>, x: &Array2<f64>, residuals: &Array1<f64>) -> (f64
     }
 
     // Fit original model to get fitted values
-    match OLS::fit(y, x, CovarianceType::Homoscedastic) {
+    match OLS::fit(y, x, CovarianceType::NonRobust) {
         Ok(model) => {
             let y_hat = x.dot(&model.params);
             let y_hat_sq = y_hat.mapv(|v| v * v);
@@ -496,7 +493,7 @@ fn reset_test(y: &Array1<f64>, x: &Array2<f64>, residuals: &Array1<f64>) -> (f64
             x_reset.column_mut(k).assign(&y_hat_sq);
 
             // Fit augmented model
-            match OLS::fit(y, &x_reset, CovarianceType::Homoscedastic) {
+            match OLS::fit(y, &x_reset, CovarianceType::NonRobust) {
                 Ok(model_aug) => {
                     // F-test for added variable
                     let rss_restricted = residuals.mapv(|r| r * r).sum();
@@ -535,7 +532,7 @@ fn chow_test(y: &Array1<f64>, x: &Array2<f64>, split_idx: usize) -> (f64, f64) {
     }
 
     // Full sample
-    let rss_full = match OLS::fit(y, x, CovarianceType::Homoscedastic) {
+    let rss_full = match OLS::fit(y, x, CovarianceType::NonRobust) {
         Ok(model) => {
             let resid = model.residuals(y, x);
             resid.mapv(|r| r * r).sum()
@@ -547,7 +544,7 @@ fn chow_test(y: &Array1<f64>, x: &Array2<f64>, split_idx: usize) -> (f64, f64) {
     let y1 = y.slice(s![..split_idx]).to_owned();
     let x1 = x.slice(s![..split_idx, ..]).to_owned();
 
-    let rss1 = match OLS::fit(&y1, &x1, CovarianceType::Homoscedastic) {
+    let rss1 = match OLS::fit(&y1, &x1, CovarianceType::NonRobust) {
         Ok(model) => {
             let resid = model.residuals(&y1, &x1);
             resid.mapv(|r| r * r).sum()
@@ -559,7 +556,7 @@ fn chow_test(y: &Array1<f64>, x: &Array2<f64>, split_idx: usize) -> (f64, f64) {
     let y2 = y.slice(s![split_idx..]).to_owned();
     let x2 = x.slice(s![split_idx.., ..]).to_owned();
 
-    let rss2 = match OLS::fit(&y2, &x2, CovarianceType::Homoscedastic) {
+    let rss2 = match OLS::fit(&y2, &x2, CovarianceType::NonRobust) {
         Ok(model) => {
             let resid = model.residuals(&y2, &x2);
             resid.mapv(|r| r * r).sum()
@@ -607,7 +604,7 @@ fn arch_test(residuals: &Array1<f64>, lags: usize) -> (f64, f64) {
     let y_arch = resid_sq.slice(s![lags..]).to_owned();
 
     // Regress squared residuals on lagged squared residuals
-    match OLS::fit(&y_arch, &x_arch, CovarianceType::Homoscedastic) {
+    match OLS::fit(&y_arch, &x_arch, CovarianceType::NonRobust) {
         Ok(model) => {
             // ARCH statistic = n * R²
             let arch_stat = n_eff as f64 * model.r_squared;
@@ -691,16 +688,14 @@ fn normal_cdf_complement(z: f64) -> f64 {
 fn erfc(x: f64) -> f64 {
     if x >= 0.0 {
         let t = 1.0 / (1.0 + 0.5 * x);
-        t * (-x * x
-            - 1.26551223
+        t * (-x * x - 1.26551223
             + t * (1.00002368
                 + t * (0.37409196
                     + t * (0.09678418
                         + t * (-0.18628806
                             + t * (0.27886807
                                 + t * (-1.13520398
-                                    + t * (1.48851587
-                                        + t * (-0.82215223 + t * 0.17087277)))))))))
+                                    + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))))
             .exp()
     } else {
         2.0 - erfc(-x)
@@ -760,8 +755,7 @@ fn gamma_q_continued_fraction(a: f64, x: f64) -> f64 {
 
 fn ln_gamma(x: f64) -> f64 {
     if x > 10.0 {
-        return (x - 0.5) * x.ln() - x + 0.5 * (2.0 * std::f64::consts::PI).ln()
-            + 1.0 / (12.0 * x)
+        return (x - 0.5) * x.ln() - x + 0.5 * (2.0 * std::f64::consts::PI).ln() + 1.0 / (12.0 * x)
             - 1.0 / (360.0 * x.powi(3));
     }
 
@@ -924,10 +918,21 @@ mod tests {
 
     #[test]
     fn test_durbin_watson() {
-        // No autocorrelation
+        // Test with residuals (DW should be between 0 and 4)
         let resid = Array1::from_vec(vec![0.1, -0.1, 0.05, -0.05, 0.08, -0.08]);
         let dw = durbin_watson(&resid);
-        assert!(dw > 1.0 && dw < 3.0);
+        // DW statistic is bounded between 0 and 4
+        assert!(dw >= 0.0 && dw <= 4.0);
+
+        // Test with positive autocorrelation (low DW)
+        let resid_pos = Array1::from_vec(vec![0.1, 0.11, 0.12, 0.11, 0.10, 0.09]);
+        let dw_pos = durbin_watson(&resid_pos);
+        assert!(dw_pos < 2.0); // Should indicate positive autocorrelation
+
+        // Test with negative autocorrelation (high DW)
+        let resid_neg = Array1::from_vec(vec![0.1, -0.1, 0.1, -0.1, 0.1, -0.1]);
+        let dw_neg = durbin_watson(&resid_neg);
+        assert!(dw_neg > 2.0); // Should indicate negative autocorrelation
     }
 
     #[test]

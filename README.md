@@ -1,5 +1,5 @@
 
-# Frenchrs
+# Frenchrs v0.1.0
 
 A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners).
 
@@ -41,6 +41,20 @@ A high-performance Rust library for asset pricing and financial analysis, built 
   * More powerful than testing alphas individually
   * Controls for factor sampling variability
   * Standard test for model evaluation
+
+### Model Diagnostics
+
+* **Residual Diagnostics**: Comprehensive suite of 8 diagnostic tests to validate regression assumptions
+  * **Durbin-Watson**: Tests for first-order autocorrelation in residuals
+  * **Ljung-Box**: Tests for autocorrelation at multiple lags (default: 12)
+  * **Breusch-Pagan**: Tests for heteroscedasticity (non-constant variance)
+  * **White**: General heteroscedasticity test with squares and cross-products
+  * **RESET**: Ramsey's test for functional form misspecification
+  * **Chow**: Tests for structural breaks at midpoint
+  * **ARCH**: Engle's test for conditional heteroscedasticity (volatility clustering)
+  * **Jarque-Bera**: Tests for normality of residuals (skewness and kurtosis)
+  * **Multi-asset batch processing** with CSV export and issue detection
+  * Automatic classification of violations at 5% significance level
 
 ---
 
@@ -103,7 +117,7 @@ A high-performance Rust library for asset pricing and financial analysis, built 
 * ✅ **Comprehensive**: Provides t-statistics, p-values, confidence intervals, and performance metrics
 * ✅ **Flexible**: Compatible with DataFrames and `ndarray` arrays
 * ✅ **Batch Processing**: Multi-asset analysis with single function calls
-* ✅ **Thoroughly Tested**: Over **171 unit and integration tests**
+* ✅ **Thoroughly Tested**: Over **176 unit and integration tests**
 * ✅ **Well-Documented**: Full examples and inline documentation in English
 
 ---
@@ -349,6 +363,64 @@ for name in &result.asset_names {
 }
 ```
 
+### Residual Diagnostics
+
+```rust
+use frenchrs::ResidualDiagnostics;
+use greeners::CovarianceType;
+
+// Run comprehensive diagnostic tests on residuals
+let result = ResidualDiagnostics::fit(
+    &returns_excess,  // T x N
+    &factors,         // T x K
+    CovarianceType::HC3,
+    Some(asset_names),
+).unwrap();
+
+// Check diagnostics for each asset
+for (asset_name, diag) in &result.diagnostics {
+    println!("\nAsset: {}", asset_name);
+
+    // Autocorrelation tests
+    println!("Durbin-Watson: {:.4}", diag.durbin_watson);
+    if diag.has_positive_autocorr() {
+        println!("  ⚠ Positive autocorrelation detected");
+    }
+
+    println!("Ljung-Box: {:.4} (p = {:.4})", diag.lb_stat, diag.lb_p_value);
+
+    // Heteroscedasticity tests
+    println!("Breusch-Pagan: {:.4} (p = {:.4})", diag.bp_stat, diag.bp_p_value);
+    if diag.has_heteroscedasticity() {
+        println!("  ⚠ Heteroscedasticity detected");
+    }
+
+    println!("White: {:.4} (p = {:.4})", diag.white_stat, diag.white_p_value);
+    println!("ARCH: {:.4} (p = {:.4})", diag.arch_stat, diag.arch_p_value);
+
+    // Specification tests
+    println!("RESET: {:.4} (p = {:.4})", diag.reset_f, diag.reset_p_value);
+    println!("Chow: {:.4} (p = {:.4})", diag.chow_f, diag.chow_p_value);
+
+    // Normality test
+    println!("Jarque-Bera: {:.4} (p = {:.4})", diag.jb_stat, diag.jb_p_value);
+    if diag.non_normal_residuals() {
+        println!("  ⚠ Non-normal residuals");
+    }
+
+    // Overall assessment
+    let issues = diag.count_issues();
+    if issues == 0 {
+        println!("  ✓ All diagnostic tests passed");
+    } else {
+        println!("  ✗ {} diagnostic test(s) failed", issues);
+    }
+}
+
+// Export to CSV
+let csv = result.to_csv_string();
+```
+
 ---
 
 ## 🔬 Provided Statistics
@@ -382,6 +454,7 @@ Implemented:
 * ✅ Fama-MacBeth two-pass regression
 * ✅ GRS test (Gibbons, Ross & Shanken)
 * ✅ Hansen-Jagannathan distance test
+* ✅ Residual diagnostics (8 comprehensive tests)
 * ✅ IVOL and Tracking Error analysis (single and multi-asset)
 * ✅ Residual correlation analysis (multi-asset)
 * ✅ Rolling betas with stability analysis (multi-asset)
@@ -411,16 +484,5 @@ Planned:
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues or pull requests.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
 **Developed with ❤️ in Rust for the quantitative finance community.**
+

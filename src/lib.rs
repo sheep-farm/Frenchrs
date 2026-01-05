@@ -60,6 +60,7 @@ pub mod hj_distance;
 pub mod ivol_tracking_multi;
 pub mod oos_performance;
 pub mod residual_correlation;
+pub mod residual_diagnostics;
 pub mod risk_metrics;
 pub mod rolling_betas_multi;
 
@@ -78,6 +79,7 @@ pub use oos_performance::{
     OOSPerformance, OOSPerformanceAsset, OOSPerformanceRow, OOSSummaryStats,
 };
 pub use residual_correlation::{ResidualCorrSummary, ResidualCorrelation};
+pub use residual_diagnostics::{AssetDiagnostics, ResidualDiagnostics};
 pub use risk_metrics::{IVOLAnalysis, TrackingErrorAnalysis};
 pub use rolling_betas_multi::{
     BetaStability, RollingBetasAsset, RollingBetasMulti, RollingBetasRow,
