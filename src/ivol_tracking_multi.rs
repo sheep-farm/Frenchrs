@@ -112,14 +112,14 @@ impl IVOLTrackingMulti {
             )));
         }
 
-        if let Some(bench) = benchmark
-            && bench.len() != n_obs
-        {
-            return Err(GreenersError::ShapeMismatch(format!(
-                "Benchmark ({} obs) must have same length as returns ({} obs)",
-                bench.len(),
-                n_obs
-            )));
+        if let Some(bench) = benchmark {
+            if bench.len() != n_obs {
+                return Err(GreenersError::ShapeMismatch(format!(
+                    "Benchmark ({} obs) must have same length as returns ({} obs)",
+                    bench.len(),
+                    n_obs
+                )));
+            }
         }
 
         if n_obs <= n_factors + 5 {
