@@ -351,7 +351,7 @@ impl IVOLTrackingAsset {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::{Array2, array};
+    use ndarray::{array, Array2};
 
     #[test]
     fn test_ivol_tracking_multi_basic() {

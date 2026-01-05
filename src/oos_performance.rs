@@ -1,5 +1,5 @@
 use greeners::{CovarianceType, GreenersError, OLS};
-use ndarray::{Array1, Array2, s};
+use ndarray::{s, Array1, Array2};
 use std::collections::HashMap;
 
 /// Result of out-of-sample performance analysis for a single asset

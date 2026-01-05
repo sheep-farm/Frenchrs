@@ -420,7 +420,11 @@ impl FamaFrench5Factor {
             tracking_error: ols.residuals(&asset_excess, &x).std(0.0),
             information_ratio: {
                 let te = ols.residuals(&asset_excess, &x).std(0.0);
-                if te > 0.0 { ols.params[0] / te } else { 0.0 }
+                if te > 0.0 {
+                    ols.params[0] / te
+                } else {
+                    0.0
+                }
             },
             n_obs: n,
             residuals: ols.residuals(&asset_excess, &x),

@@ -65,8 +65,8 @@ pub mod risk_metrics;
 pub mod rolling_betas_multi;
 
 // Main re-exports
-pub use apt::{APT, APTResult};
-pub use capm::{CAPM, CAPMResult};
+pub use apt::{APTResult, APT};
+pub use capm::{CAPMResult, CAPM};
 pub use carhart::{Carhart4Factor, Carhart4FactorResult};
 pub use fama_french_3f::{FamaFrench3Factor, FamaFrench3FactorResult};
 pub use fama_french_5f::{FamaFrench5Factor, FamaFrench5FactorResult};

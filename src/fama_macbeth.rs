@@ -93,7 +93,11 @@ impl FamaMacBethResult {
 
         let rss: f64 = self.pricing_errors.iter().map(|&e| e.powi(2)).sum();
 
-        if tss > 1e-10 { 1.0 - (rss / tss) } else { 0.0 }
+        if tss > 1e-10 {
+            1.0 - (rss / tss)
+        } else {
+            0.0
+        }
     }
 
     /// RMSE of the pricing errors
