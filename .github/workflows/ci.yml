@@ -48,11 +48,30 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install openblas
 
-      # Windows-specific: Use Intel MKL or OpenBLAS
-      - name: Setup BLAS (Windows)
+      # Windows-specific: Use vcpkg to install OpenBLAS
+      - name: Cache vcpkg packages (Windows)
         if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg\installed
+            C:\vcpkg\packages
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
+      - name: Install OpenBLAS via vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          echo "Using default Windows BLAS configuration"
+          # vcpkg is pre-installed on GitHub Actions Windows runners
+          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          # Install OpenBLAS (static linking with dynamic runtime)
+          C:\vcpkg\vcpkg.exe install openblas:x64-windows-static-md
+
+          # Integrate vcpkg with build system
+          C:\vcpkg\vcpkg.exe integrate install
 
       - name: Cache cargo registry
         uses: actions/cache@v4
