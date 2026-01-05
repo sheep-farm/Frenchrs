@@ -1,7 +1,7 @@
 [package]
 name = "frenchrs"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 authors = ["Frenchrs Contributors"]
 license = "GPL-3.0-or-later"
 description = "A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners)."
