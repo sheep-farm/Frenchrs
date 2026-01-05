@@ -1,4 +1,4 @@
-use frenchrs::{CAPM, Carhart4Factor, FamaFrench3Factor};
+use frenchrs::{Carhart4Factor, FamaFrench3Factor, CAPM};
 use greeners::CovarianceType;
 use ndarray::array;
 

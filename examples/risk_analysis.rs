@@ -1,5 +1,5 @@
 use frenchrs::{
-    CAPM, Carhart4Factor, FamaFrench3Factor, FamaFrench5Factor, IVOLAnalysis, TrackingErrorAnalysis,
+    Carhart4Factor, FamaFrench3Factor, FamaFrench5Factor, IVOLAnalysis, TrackingErrorAnalysis, CAPM,
 };
 use greeners::CovarianceType;
 use ndarray::array;

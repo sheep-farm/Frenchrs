@@ -1,8 +1,8 @@
 use frenchrs::{
-    APT, CAPM, Carhart4Factor, FamaFrench3Factor, FamaFrench5Factor, FamaFrench6Factor,
+    Carhart4Factor, FamaFrench3Factor, FamaFrench5Factor, FamaFrench6Factor, APT, CAPM,
 };
 use greeners::CovarianceType;
-use ndarray::{Array2, array};
+use ndarray::{array, Array2};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));

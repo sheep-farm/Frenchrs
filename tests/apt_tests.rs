@@ -1,6 +1,6 @@
 use frenchrs::APT;
 use greeners::CovarianceType;
-use ndarray::{Array2, array};
+use ndarray::{array, Array2};
 
 #[test]
 fn test_apt_basic_fit() {

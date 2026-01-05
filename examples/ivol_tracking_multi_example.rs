@@ -1,6 +1,6 @@
 use frenchrs::IVOLTrackingMulti;
 use greeners::CovarianceType;
-use ndarray::{Array2, array};
+use ndarray::{array, Array2};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", "=".repeat(80));

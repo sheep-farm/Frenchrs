@@ -1,12 +1,11 @@
-use frenchrs::{CAPM, FamaFrench3Factor, IVOLAnalysis, TrackingErrorAnalysis};
+use frenchrs::{FamaFrench3Factor, IVOLAnalysis, TrackingErrorAnalysis, CAPM};
 use greeners::CovarianceType;
 use ndarray::array;
 
 #[test]
 fn test_ivol_basic() {
-    let residuals = array![
-        0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001
-    ];
+    let residuals =
+        array![0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001];
     let ivol = IVOLAnalysis::from_residuals(&residuals).unwrap();
 
     assert!(ivol.ivol > 0.0);
@@ -17,12 +16,8 @@ fn test_ivol_basic() {
 
 #[test]
 fn test_ivol_from_capm() {
-    let asset = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let market = array![
-        0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005
-    ];
+    let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005];
 
     let capm = CAPM::fit(&asset, &market, 0.0001, CovarianceType::HC3).unwrap();
     let ivol = IVOLAnalysis::from_residuals(&capm.residuals).unwrap();
@@ -35,18 +30,10 @@ fn test_ivol_from_capm() {
 
 #[test]
 fn test_ivol_from_ff3() {
-    let asset = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let market = array![
-        0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005
-    ];
-    let smb = array![
-        0.002, -0.001, 0.003, 0.001, -0.002, 0.001, 0.002, -0.001, 0.001, 0.002
-    ];
-    let hml = array![
-        0.001, 0.002, -0.002, 0.003, 0.001, -0.001, 0.002, 0.001, 0.002, -0.001
-    ];
+    let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005];
+    let smb = array![0.002, -0.001, 0.003, 0.001, -0.002, 0.001, 0.002, -0.001, 0.001, 0.002];
+    let hml = array![0.001, 0.002, -0.002, 0.003, 0.001, -0.001, 0.002, 0.001, 0.002, -0.001];
 
     let ff3 =
         FamaFrench3Factor::fit(&asset, &market, &smb, &hml, 0.0001, CovarianceType::HC3).unwrap();
@@ -66,9 +53,8 @@ fn test_ivol_insufficient_data() {
 
 #[test]
 fn test_ivol_statistics() {
-    let residuals = array![
-        0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001
-    ];
+    let residuals =
+        array![0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001];
     let ivol = IVOLAnalysis::from_residuals(&residuals).unwrap();
 
     assert!(ivol.residual_mean.abs() < 0.01); // Mean should be próxima of 0
@@ -95,9 +81,8 @@ fn test_ivol_classification() {
 
 #[test]
 fn test_ivol_normality_test() {
-    let residuals = array![
-        0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001
-    ];
+    let residuals =
+        array![0.001, -0.002, 0.003, -0.001, 0.002, -0.003, 0.001, -0.002, 0.002, -0.001];
     let ivol = IVOLAnalysis::from_residuals(&residuals).unwrap();
 
     // Just ensure it doesn't panic
@@ -106,12 +91,8 @@ fn test_ivol_normality_test() {
 
 #[test]
 fn test_tracking_error_basic() {
-    let actual = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let fitted = array![
-        0.009, 0.019, -0.011, 0.029, 0.014, -0.006, 0.024, 0.009, 0.019, -0.011
-    ];
+    let actual = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let fitted = array![0.009, 0.019, -0.011, 0.029, 0.014, -0.006, 0.024, 0.009, 0.019, -0.011];
 
     let te = TrackingErrorAnalysis::new(&actual, &fitted, 0.001, 0.95).unwrap();
 
@@ -123,12 +104,8 @@ fn test_tracking_error_basic() {
 
 #[test]
 fn test_tracking_error_from_capm() {
-    let asset = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let market = array![
-        0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005
-    ];
+    let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005];
 
     let capm = CAPM::fit(&asset, &market, 0.0001, CovarianceType::HC3).unwrap();
     let te = TrackingErrorAnalysis::new(&asset, &capm.fitted_values, capm.alpha, capm.r_squared)
@@ -160,12 +137,8 @@ fn test_tracking_error_insufficient_data() {
 
 #[test]
 fn test_tracking_error_metrics() {
-    let actual = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let fitted = array![
-        0.009, 0.019, -0.011, 0.029, 0.014, -0.006, 0.024, 0.009, 0.019, -0.011
-    ];
+    let actual = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let fitted = array![0.009, 0.019, -0.011, 0.029, 0.014, -0.006, 0.024, 0.009, 0.019, -0.011];
 
     let te = TrackingErrorAnalysis::new(&actual, &fitted, 0.001, 0.95).unwrap();
 
@@ -243,12 +216,8 @@ fn test_tracking_error_classification() {
 #[test]
 fn test_ivol_vs_tracking_error_equivalence() {
     // IVOL e TE should ter o mesmo value (ambos are std of the residuals)
-    let asset = array![
-        0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01
-    ];
-    let market = array![
-        0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005
-    ];
+    let asset = array![0.01, 0.02, -0.01, 0.03, 0.015, -0.005, 0.025, 0.01, 0.02, -0.01];
+    let market = array![0.008, 0.015, -0.005, 0.025, 0.012, -0.003, 0.020, 0.009, 0.015, -0.005];
 
     let capm = CAPM::fit(&asset, &market, 0.0001, CovarianceType::HC3).unwrap();
 
