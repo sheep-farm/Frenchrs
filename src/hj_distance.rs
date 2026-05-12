@@ -46,7 +46,7 @@
 
 use greeners::{CovarianceType, GreenersError, OLS};
 use ndarray::{Array1, Array2};
-use ndarray_linalg::Inverse;
+use greeners::linalg::LinalgInverse as _;
 use std::collections::HashMap;
 
 /// Result of Hansen-Jagannathan distance test
