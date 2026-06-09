@@ -483,7 +483,7 @@ dependencies = [
 
 [[package]]
 name = "frenchrs"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "faer",
  "greeners",
@@ -716,9 +716,9 @@ dependencies = [
 
 [[package]]
 name = "greeners"
-version = "1.4.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3101008900cac56648321b7e84407912ed289be678083d45123a900bbfbe7d6"
+checksum = "3dcc5f5e748a93856b87bfb6b6d10419e902e46aaeb742b6b3d7b21d3e236da7"
 dependencies = [
  "chrono",
  "csv",

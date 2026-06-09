@@ -1,9 +1,9 @@
 [package]
 name = "frenchrs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Frenchrs Contributors"]
-license = "GPL-3.0-or-later"
+license = "MIT"
 description = "A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners)."
 keywords = ["finance", "capm", "asset-pricing", "fama-french", "apt"]
 categories = ["science", "finance"]
@@ -17,7 +17,7 @@ name = "frenchrs"
 path = "src/lib.rs"
 
 [dependencies]
-greeners = "1.4.1"
+greeners = "1.4.2"
 ndarray = "0.17.1"
 faer = "0.22"
 statrs = "0.18.0"
