@@ -1,5 +1,9 @@
 
-# Frenchrs v0.1.0
+# Frenchrs
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org)
+[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](Cargo.toml)
 
 A high-performance Rust library for asset pricing and financial analysis, built on the robust econometric infrastructure of [Greeners](https://crates.io/crates/greeners).
 
@@ -112,7 +116,7 @@ A high-performance Rust library for asset pricing and financial analysis, built 
 
 ## 🚀 Key Features
 
-* ✅ **High Performance**: Built in Rust using BLAS/LAPACK for speed
+* ✅ **High Performance**: Built in Rust using [faer](https://github.com/sarah-ek/faer-rs) — pure-Rust linear algebra, no system dependencies
 * ✅ **Statistically Robust**: Supports multiple standard error types (HC0-HC4, Newey-West, Clustering)
 * ✅ **Comprehensive**: Provides t-statistics, p-values, confidence intervals, and performance metrics
 * ✅ **Flexible**: Compatible with DataFrames and `ndarray` arrays
@@ -128,8 +132,8 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-frenchrs = "0.1.0"
-greeners = "1.3.2"
+frenchrs = "0.1.2"
+greeners = "1.4.2"
 ndarray = "0.17.1"
 ```
 
@@ -439,7 +443,7 @@ All models return:
 
 Frenchrs is optimized for maximum efficiency:
 
-* Uses **BLAS/LAPACK** via `ndarray-linalg`
+* Uses **[faer](https://github.com/sarah-ek/faer-rs)** — pure-Rust linear algebra, no system BLAS/LAPACK required
 * Supports **multi-core processing** when available
 * Utilizes **zero-copy** operations wherever possible
 * Batch processing for analyzing multiple assets efficiently
@@ -485,4 +489,10 @@ Planned:
 ---
 
 **Developed with ❤️ in Rust for the quantitative finance community.**
+
+---
+
+## License
+
+[MIT](LICENSE)
 
