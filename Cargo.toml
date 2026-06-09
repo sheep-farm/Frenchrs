@@ -1,6 +1,6 @@
 [package]
 name = "frenchrs"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Frenchrs Contributors"]
 license = "MIT"
@@ -17,7 +17,7 @@ name = "frenchrs"
 path = "src/lib.rs"
 
 [dependencies]
-greeners = "1.4.2"
+greeners = "1.4.3"
 ndarray = "0.17.1"
 faer = "0.22"
 statrs = "0.18.0"
